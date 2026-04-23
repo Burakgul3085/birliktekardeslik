@@ -1,5 +1,5 @@
 <style>
-    body.fi-simple-layout {
+    .fi-simple-layout {
         background:
             radial-gradient(circle at 20% 20%, rgba(47, 142, 163, 0.24), transparent 40%),
             radial-gradient(circle at 80% 10%, rgba(91, 175, 193, 0.22), transparent 45%),
@@ -7,14 +7,14 @@
         min-height: 100vh;
     }
 
-    body.fi-simple-layout .fi-simple-main {
+    .fi-simple-layout .fi-simple-main {
         border-radius: 1rem;
         box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
         border: 1px solid rgba(15, 23, 42, 0.06);
         overflow: hidden;
     }
 
-    body.fi-simple-layout .bkd-login-hero {
+    .fi-simple-layout .bkd-login-hero {
         margin-bottom: 1rem;
         border-radius: 0.9rem;
         padding: 0.9rem 1rem;
@@ -22,7 +22,44 @@
         color: #fff;
     }
 
-    body.fi-simple-layout .bkd-values {
+    .fi-simple-layout .bkd-login-back {
+        margin-top: 0.75rem;
+        margin-bottom: 0.25rem;
+        text-align: center;
+    }
+
+    .fi-simple-layout .fi-simple-main .bkd-login-back__btn {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0.65rem 1rem;
+        text-align: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.25;
+        color: #fff !important;
+        text-decoration: none;
+        border: none;
+        border-radius: 0.75rem;
+        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        cursor: pointer;
+        transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    }
+
+    .fi-simple-layout .fi-simple-main .bkd-login-back__btn:hover {
+        background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+        box-shadow: 0 6px 18px rgba(29, 78, 216, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .fi-simple-layout .fi-simple-main .bkd-login-back__btn:focus-visible {
+        outline: 2px solid #93c5fd;
+        outline-offset: 2px;
+    }
+
+    .fi-simple-layout .bkd-values {
         margin-top: 1rem;
         border-radius: 0.9rem;
         border: 1px solid rgba(15, 23, 42, 0.06);
@@ -30,14 +67,14 @@
         padding: 0.9rem 1rem;
     }
 
-    body.fi-simple-layout .bkd-values h4 {
+    .fi-simple-layout .bkd-values h4 {
         margin: 0 0 0.4rem;
         color: #0f172a;
         font-size: 0.92rem;
         font-weight: 700;
     }
 
-    body.fi-simple-layout .bkd-values ul {
+    .fi-simple-layout .bkd-values ul {
         margin: 0;
         padding-left: 1rem;
         color: #334155;

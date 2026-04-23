@@ -1,0 +1,155 @@
+@php
+    $volunteerText = $siteSettings->header_panel_volunteer_text
+        ?? 'Faaliyetlerimizde sizinle birlikte hareket etmek ister misiniz? Gönüllü olarak zamanınızı ve emeğinizi paylaşarak toplumsal faydaya katkı sağlayabilirsiniz.';
+    $socialTitle = $siteSettings->social_section_title ?: 'Sosyal medyada bizi takip edin';
+    $socials = array_filter(
+        [
+            'instagram' => $siteSettings->instagram_url ?? null,
+            'youtube' => $siteSettings->youtube_url ?? null,
+            'x' => $siteSettings->x_url ?? null,
+            'facebook' => $siteSettings->facebook_url ?? null,
+            'linkedin' => $siteSettings->linkedin_url ?? null,
+            'whatsapp' => $siteSettings->whatsapp_url ?? null,
+            'telegram' => $siteSettings->telegram_url ?? null,
+            'tiktok' => $siteSettings->tiktok_url ?? null,
+            'website' => $siteSettings->website_url ?? null,
+        ],
+        fn ($u) => filled($u)
+    );
+@endphp
+
+<template x-teleport="body">
+    <div
+        x-show="contactOpen"
+        x-cloak
+        @keydown.escape.window="contactOpen = false"
+        class="fixed inset-0 z-[100]"
+    >
+        <div
+            x-show="contactOpen"
+            x-transition:enter="ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+            @click="contactOpen = false"
+        ></div>
+        <div
+            x-show="contactOpen"
+            x-transition:enter="transform transition ease-out duration-300"
+            x-transition:enter-start="-translate-y-full opacity-0"
+            x-transition:enter-end="translate-y-0 opacity-100"
+            x-transition:leave="transform transition ease-in duration-200"
+            x-transition:leave-start="translate-y-0 opacity-100"
+            x-transition:leave-end="-translate-y-full opacity-0"
+            class="absolute left-0 right-0 top-0 z-10 max-h-[min(100vh,880px)] overflow-y-auto border-b border-cyan-800/30 bg-gradient-to-b from-cyan-950 via-cyan-900 to-slate-900 text-white shadow-2xl"
+        >
+            <div class="mx-auto max-w-7xl px-4 pb-10 pt-4 md:px-6 md:pb-12 md:pt-6">
+                <div class="mb-6 flex items-start justify-end">
+                    <button
+                        type="button"
+                        @click="contactOpen = false"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        aria-label="Paneli kapat"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="grid gap-10 md:grid-cols-2 md:gap-12">
+                    <div>
+                        <h2 class="text-xl font-semibold text-white md:text-2xl">İletişime geçin</h2>
+                        <p class="mt-1 text-sm text-cyan-100/90">Aşağıdaki bilgiler yönetim panelinden yönetilir.</p>
+                        <ul class="mt-6 space-y-5">
+                            @if(filled($siteSettings->email))
+                                <li class="flex gap-4">
+                                    <span class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h15A2.5 2.5 0 0 1 22 6.5v11A2.5 2.5 0 0 1 19.5 20h-15A2.5 2.5 0 0 1 2 17.5v-11Zm1.8-.24 7.28 5.1a1.2 1.2 0 0 0 1.38 0l7.3-5.1H3.8ZM4 18.5h16V8.2l-6.2 4.3a2.5 2.5 0 0 1-2.86 0L4 8.2v10.3Z"/></svg>
+                                    </span>
+                                    <div>
+                                        <p class="text-xs font-medium uppercase tracking-wide text-cyan-200/80">E-posta</p>
+                                        <a href="mailto:{{ $siteSettings->email }}" class="text-base font-medium text-white transition hover:text-cyan-200">{{ $siteSettings->email }}</a>
+                                    </div>
+                                </li>
+                            @endif
+                            @if(filled($siteSettings->address))
+                                <li class="flex gap-4">
+                                    <span class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2.25a6.75 6.75 0 0 0-6.75 6.75c0 5.4 5.8 10.2 6.1 10.4a.9.9 0 0 0 1.3 0c.3-.2 6.1-5 6.1-10.4A6.75 6.75 0 0 0 12 2.25Zm0 8.75A2.25 2.25 0 1 1 12 6.5a2.25 2.25 0 0 1 0 4.5Z" clip-rule="evenodd"/></svg>
+                                    </span>
+                                    <div>
+                                        <p class="text-xs font-medium uppercase tracking-wide text-cyan-200/80">Adres</p>
+                                        <p class="text-base font-medium leading-relaxed text-white">{{ $siteSettings->address }}</p>
+                                    </div>
+                                </li>
+                            @endif
+                            @if(filled($siteSettings->phone))
+                                <li class="flex gap-4">
+                                    <span class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2.5 4.5c0-1.1.9-2 2-2h1.5c.9 0 1.6.6 1.8 1.4l.5 2.4a1.5 1.5 0 0 1-.4 1.3L6 8.1a10.1 10.1 0 0 0 4.1 4.1l.7-.4a1.5 1.5 0 0 1 1.3-.3l2.3.4c.7.1 1.2.7 1.2 1.4V18c0 1.1-.9 2-2 2h-1A14.5 14.5 0 0 1 2.5 6.5v-2Z"/></svg>
+                                    </span>
+                                    <div>
+                                        <p class="text-xs font-medium uppercase tracking-wide text-cyan-200/80">Telefon</p>
+                                        <a href="tel:{{ preg_replace('/\s+/', '', $siteSettings->phone) }}" class="text-base font-medium text-white transition hover:text-cyan-200">{{ $siteSettings->phone }}</a>
+                                    </div>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                    <div class="flex flex-col">
+                        <h2 class="text-xl font-semibold text-white md:text-2xl">Gönüllü ol</h2>
+                        <p class="mt-3 text-sm leading-relaxed text-cyan-50/90">{!! nl2br(e($volunteerText)) !!}</p>
+                        <a
+                            href="{{ route('volunteer') }}"
+                            @click="contactOpen = false"
+                            class="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
+                        >
+                            <svg class="h-5 w-5 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.75H19.5a.75.75 0 0 1 .75.75v16.5a.75.75 0 0 1-.75.75H6a2.25 2.25 0 0 1-2.25-2.25V7.5c0-.41.2-.8.5-1.05L9 1.2a.75.75 0 0 1 .5-.2h.25Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.75V7.5a.75.75 0 0 0 .75.75h1.5" />
+                                <path stroke-linecap="round" d="M8.25 12.75h7.5M8.25 15.75h5.5" />
+                            </svg>
+                            Online gönüllülük formu
+                        </a>
+                        <div class="mt-auto border-t border-white/10 pt-8">
+                            <h3 class="text-sm font-semibold uppercase tracking-wider text-cyan-100/90">{{ $socialTitle }}</h3>
+                            <div class="mt-4 flex flex-wrap gap-2.5">
+                                @forelse($socials as $key => $url)
+                                    @php
+                                        $label = match ($key) {
+                                            'instagram' => 'Instagram',
+                                            'youtube' => 'YouTube',
+                                            'x' => 'X (Twitter)',
+                                            'facebook' => 'Facebook',
+                                            'linkedin' => 'LinkedIn',
+                                            'whatsapp' => 'WhatsApp',
+                                            'telegram' => 'Telegram',
+                                            'tiktok' => 'TikTok',
+                                            'website' => 'Web sitesi',
+                                            default => ucfirst($key),
+                                        };
+                                    @endphp
+                                    <a
+                                        href="{{ $url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition hover:border-cyan-300/50 hover:bg-white/15"
+                                        title="{{ $label }}"
+                                        aria-label="{{ $label }}"
+                                    >
+                                        <x-social-brand-icon :platform="$key" />
+                                    </a>
+                                @empty
+                                    <p class="text-sm text-cyan-100/80">Sosyal medya bağlantıları yönetim panelinde eklenince burada görünecektir.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

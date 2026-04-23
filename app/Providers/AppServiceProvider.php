@@ -6,6 +6,7 @@ use App\Models\BankAccount;
 use App\Models\ContactMessage;
 use App\Models\HeroSlide;
 use App\Models\MenuItem;
+use App\Models\NewsletterSubscriber;
 use App\Models\News;
 use App\Models\Page;
 use App\Models\Project;
@@ -39,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         MenuItem::observe(AuditableObserver::class);
         Setting::observe(AuditableObserver::class);
         User::observe(AuditableObserver::class);
+        NewsletterSubscriber::observe(AuditableObserver::class);
 
         Event::listen(Login::class, function (Login $event): void {
             $userId = $event->user instanceof User ? $event->user->id : null;
@@ -63,6 +65,14 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $view->with('siteSettings', Setting::current());
             $view->with('menuItems', MenuItem::query()->active()->orderBy('sort_order')->get());
+            $view->with(
+                'footerMenuQuick',
+                MenuItem::query()->active()->where('footer_group', 'quick')->orderBy('sort_order')->get()
+            );
+            $view->with(
+                'footerMenuActivities',
+                MenuItem::query()->active()->where('footer_group', 'activities')->orderBy('sort_order')->get()
+            );
         });
     }
 }

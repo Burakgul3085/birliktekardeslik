@@ -10,6 +10,7 @@ use App\Models\Page;
 use App\Models\Project;
 use App\Models\Setting;
 use App\Models\VolunteerApplication;
+use App\Support\DonationQrService;
 use App\Support\Mailer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -52,8 +53,11 @@ class HomeController extends Controller
 
     public function donations(): View
     {
+        $qrRelativePath = app(DonationQrService::class)->generate();
+
         return view('donations', [
             'bankAccounts' => BankAccount::query()->active()->orderBy('sort_order')->get(),
+            'donationQrPath' => $qrRelativePath,
         ]);
     }
 

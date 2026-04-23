@@ -1,3 +1,6 @@
+<div class="bkd-login-back">
+    <a href="{{ route('home') }}" class="bkd-login-back__btn">Ana sayfaya dön</a>
+</div>
 <div class="bkd-values">
     <h4>Değerlerimiz</h4>
     <ul>

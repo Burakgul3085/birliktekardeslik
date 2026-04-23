@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MenuItem extends Model
 {
-    protected $fillable = ['label', 'url', 'open_in_new_tab', 'is_active', 'sort_order'];
+    protected $fillable = ['label', 'url', 'open_in_new_tab', 'is_active', 'sort_order', 'footer_group'];
 
     protected $casts = [
         'open_in_new_tab' => 'boolean',

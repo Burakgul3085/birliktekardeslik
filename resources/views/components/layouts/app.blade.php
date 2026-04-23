@@ -15,7 +15,22 @@
 </head>
 <body>
     <x-navbar :menu-items="$menuItems" :site-settings="$siteSettings" />
+    @if (session('newsletter_success'))
+        <div class="border-b border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm font-medium text-emerald-900" role="status">
+            {{ session('newsletter_success') }}
+        </div>
+    @endif
+    @if (session('newsletter_info'))
+        <div class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-900" role="status">
+            {{ session('newsletter_info') }}
+        </div>
+    @endif
+    @if ($errors->has('email'))
+        <div class="border-b border-rose-200 bg-rose-50 px-4 py-3 text-center text-sm text-rose-800" role="alert">
+            {{ $errors->first('email') }}
+        </div>
+    @endif
     <main class="min-h-[70vh]">{{ $slot }}</main>
-    <x-footer :site-settings="$siteSettings" />
+    <x-footer />
 </body>
 </html>

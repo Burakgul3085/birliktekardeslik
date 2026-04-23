@@ -77,6 +77,7 @@ class AdminActivityLogsTable
                         'App\Models\MenuItem' => 'Menü',
                         'App\Models\ContactMessage' => 'İletişim Mesajları',
                         'App\Models\VolunteerApplication' => 'Gönüllü Başvuruları',
+                        'App\Models\NewsletterSubscriber' => 'E-Bülten Aboneleri',
                         'App\Models\User' => 'Kullanıcılar',
                     ]),
                 SelectFilter::make('method')
