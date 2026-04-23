@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Filament\Resources\ContactMessages\Tables;
+
+use App\Models\Setting;
+use App\Support\Mailer;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use PHPMailer\PHPMailer\Exception;
+
+class ContactMessagesTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->defaultSort('created_at', 'desc')
+            ->columns([
+                TextColumn::make('created_at')->label('Tarih')->dateTime('d.m.Y H:i')->sortable(),
+                TextColumn::make('first_name')->label('Ad')->searchable(),
+                TextColumn::make('last_name')->label('Soyad')->searchable(),
+                TextColumn::make('email')->label('E-posta')->searchable()->copyable(),
+                TextColumn::make('message')->label('Mesaj')->limit(70)->wrap()->searchable(),
+                IconColumn::make('is_replied')->label('Yanıtlandı')->boolean(),
+                TextColumn::make('replied_at')->label('Yanıt Tarihi')->dateTime('d.m.Y H:i')->placeholder('-'),
+            ])
+            ->filters([
+                TernaryFilter::make('is_replied')
+                    ->label('Yanıt Durumu')
+                    ->trueLabel('Yanıtlananlar')
+                    ->falseLabel('Yanıtlanmayanlar')
+                    ->placeholder('Tümü'),
+            ])
+            ->recordActions([
+                Action::make('yanitla')
+                    ->label('Cevap Ver')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('primary')
+                    ->modalHeading('Mesaja Cevap Ver')
+                    ->form([
+                        TextInput::make('subject')
+                            ->label('Konu')
+                            ->required()
+                            ->maxLength(180)
+                            ->default('İletişim Formu Mesajınıza Yanıt'),
+                        Textarea::make('body')
+                            ->label('Mesaj')
+                            ->rows(8)
+                            ->required()
+                            ->maxLength(10000),
+                    ])
+                    ->action(function ($record, array $data): void {
+                        $settings = Setting::current();
+
+                        try {
+                            $html = view('emails.contact-reply', [
+                                'contactMessage' => $record,
+                                'subject' => $data['subject'],
+                                'body' => $data['body'],
+                                'siteTitle' => $settings->site_title ?? config('app.name'),
+                            ])->render();
+
+                            Mailer::send(
+                                $record->email,
+                                trim($record->first_name . ' ' . $record->last_name),
+                                $data['subject'],
+                                $html,
+                                $settings->email,
+                            );
+
+                            $record->update([
+                                'is_replied' => true,
+                                'reply_subject' => $data['subject'],
+                                'reply_message' => $data['body'],
+                                'replied_at' => now(),
+                            ]);
+
+                            Notification::make()
+                                ->title('Yanıt e-postası gönderildi')
+                                ->success()
+                                ->send();
+                        } catch (Exception $e) {
+                            Notification::make()
+                                ->title('E-posta gönderilemedi')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+                DeleteAction::make()
+                    ->label('Sil'),
+            ]);
+    }
+}
+

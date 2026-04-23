@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Filament\Resources\MenuItems;
+
+use App\Filament\Resources\MenuItems\Pages\CreateMenuItem;
+use App\Filament\Resources\MenuItems\Pages\EditMenuItem;
+use App\Filament\Resources\MenuItems\Pages\ListMenuItems;
+use App\Filament\Resources\MenuItems\Schemas\MenuItemForm;
+use App\Filament\Resources\MenuItems\Tables\MenuItemsTable;
+use App\Models\MenuItem;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+
+class MenuItemResource extends Resource
+{
+    protected static ?string $model = MenuItem::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBars3;
+
+    protected static ?string $navigationLabel = 'Menü Yönetimi';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Görünüm';
+
+    protected static ?string $modelLabel = 'Menü Öğesi';
+
+    protected static ?string $pluralModelLabel = 'Menü Öğeleri';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->check();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->check();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()?->canManageAppearance();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->check() && auth()->user()?->canManageAppearance();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->check() && auth()->user()?->canManageAppearance();
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return MenuItemForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return MenuItemsTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListMenuItems::route('/'),
+            'create' => CreateMenuItem::route('/create'),
+            'edit' => EditMenuItem::route('/{record}/edit'),
+        ];
+    }
+}

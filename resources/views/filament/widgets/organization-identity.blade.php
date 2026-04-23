@@ -1,0 +1,18 @@
+@php
+    $settings = \App\Models\Setting::current();
+    $logoUrl = $settings->logo ? asset('storage/' . $settings->logo) : asset('images/default-logo.svg');
+    $title = $settings->site_title ?: 'Birlikte Kardeşlik Derneği';
+@endphp
+
+<x-filament-widgets::widget>
+    <x-filament::section>
+        <div style="display:flex; align-items:center; gap:16px; border-radius:16px; border:1px solid #dbeafe; background:linear-gradient(135deg, #f8fdff 0%, #eef9ff 100%); padding:16px; box-shadow:0 12px 28px rgba(15, 23, 42, .08);">
+            <img src="{{ $logoUrl }}" alt="Logo" style="width:68px; height:68px; border-radius:9999px; object-fit:cover; box-shadow:0 8px 18px rgba(8,145,178,.28); background:#fff; border:2px solid #e0f2fe;">
+            <div>
+                <div style="font-weight:800; font-size:20px; color:#0f172a; line-height:1.2;">{{ $title }}</div>
+                <div style="margin-top:4px; font-size:13px; color:#0e7490; font-weight:600;">Yönetim Paneli</div>
+            </div>
+        </div>
+    </x-filament::section>
+</x-filament-widgets::widget>
+
