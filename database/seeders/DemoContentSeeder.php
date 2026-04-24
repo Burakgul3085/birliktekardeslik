@@ -52,18 +52,24 @@ class DemoContentSeeder extends Seeder
 
         $heroSlides = [
             [
+                'kicker' => 'Birlikte · Dayanışma · İyilik',
                 'headline' => 'Birlikte Daha Gucluyuz',
+                'accent_text' => 'sahadayız',
                 'subtext' => 'Dayanisma ve kardeslikle daha fazla aileye ulasiyoruz.',
                 'button_text' => 'Projeleri Incele',
                 'button_url' => '/#projeler',
                 'sort_order' => 1,
+                'show_site_logo' => true,
             ],
             [
+                'kicker' => 'Faaliyetlerimiz',
                 'headline' => 'Umut Olan Faaliyetler',
+                'accent_text' => 'devam ediyor',
                 'subtext' => 'Egitim, gida ve sosyal destek calismalariyla sahadayiz.',
                 'button_text' => 'Destek Ol',
                 'button_url' => '/#bagis-hesaplari',
                 'sort_order' => 2,
+                'show_site_logo' => true,
             ],
         ];
 

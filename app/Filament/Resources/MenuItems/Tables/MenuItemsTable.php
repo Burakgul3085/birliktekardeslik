@@ -17,6 +17,7 @@ class MenuItemsTable
             ->columns([
                 TextColumn::make('label')->label('Başlık')->searchable(),
                 TextColumn::make('url')->label('URL'),
+                TextColumn::make('parent.label')->label('Üst Menü')->default('—'),
                 TextColumn::make('sort_order')->label('Sıra'),
                 TextColumn::make('footer_group')
                     ->label('Footer')

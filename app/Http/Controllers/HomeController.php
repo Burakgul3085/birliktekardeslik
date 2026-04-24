@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BankAccount;
 use App\Models\ContactMessage;
+use App\Models\ActivitySectionSetting;
 use App\Models\HeroSlide;
 use App\Models\News;
 use App\Models\Page;
@@ -14,19 +15,75 @@ use App\Support\DonationQrService;
 use App\Support\Mailer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use PHPMailer\PHPMailer\Exception;
 
 class HomeController extends Controller
 {
+    /**
+     * @param  Collection<int, HeroSlide>  $heroSlides
+     * @return array<int, array<string, mixed>>
+     */
+    private function heroSlidesPayload(Collection $heroSlides): array
+    {
+        $defaultImage = asset('images/default-logo.svg');
+
+        return $heroSlides->map(function (HeroSlide $slide) use ($defaultImage) {
+            $image = $slide->image_path ? Storage::url($slide->image_path) : $defaultImage;
+
+            return [
+                'image' => $image,
+            ];
+        })->values()->all();
+    }
+
     public function index(): View
     {
+        $heroSlides = HeroSlide::query()->active()->orderBy('sort_order')->get();
+        $activities = Project::query()->active()->orderBy('sort_order')->take(6)->get();
+
         return view('home', [
-            'heroSlides' => HeroSlide::query()->active()->orderBy('sort_order')->get(),
-            'projects' => Project::query()->active()->orderBy('sort_order')->take(6)->get(),
+            'heroSlides' => $heroSlides,
+            'heroSlidesPayload' => $this->heroSlidesPayload($heroSlides),
+            'projects' => $activities,
+            'activitySection' => ActivitySectionSetting::current(),
             'newsItems' => News::query()->active()->latest('published_at')->take(6)->get(),
             'bankAccounts' => BankAccount::query()->active()->orderBy('sort_order')->get(),
+        ]);
+    }
+
+    public function activities(): View
+    {
+        return view('activities', [
+            'activities' => Project::query()->active()->orderBy('sort_order')->get(),
+        ]);
+    }
+
+    public function news(): View
+    {
+        return view('news', [
+            'newsItems' => News::query()->active()->latest('published_at')->paginate(12),
+        ]);
+    }
+
+    public function activityShow(string $slug): View
+    {
+        $activity = Project::query()->active()->where('slug', $slug)->firstOrFail();
+        $qrRelativePath = app(DonationQrService::class)->generate();
+
+        return view('activity-show', [
+            'activity' => $activity,
+            'bankAccounts' => BankAccount::query()->active()->orderBy('sort_order')->get(),
+            'donationQrPath' => $qrRelativePath,
+            'relatedActivities' => Project::query()
+                ->active()
+                ->where('id', '!=', $activity->id)
+                ->orderBy('sort_order')
+                ->take(4)
+                ->get(),
         ]);
     }
 
@@ -113,7 +170,7 @@ class HomeController extends Controller
 
             Mailer::send(
                 $message->email,
-                trim($message->first_name . ' ' . $message->last_name),
+                trim($message->first_name.' '.$message->last_name),
                 $ackSubject,
                 $ackHtml,
                 $notifyEmail ?: null,
@@ -187,7 +244,7 @@ class HomeController extends Controller
 
             Mailer::send(
                 $application->email,
-                trim($application->first_name . ' ' . $application->last_name),
+                trim($application->first_name.' '.$application->last_name),
                 'Gönüllülük Başvurunuz Alındı',
                 $ackHtml,
                 $notifyEmail ?: null,

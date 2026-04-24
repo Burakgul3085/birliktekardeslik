@@ -8,6 +8,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/bagis-yap', [HomeController::class, 'donations'])->name('donations');
 Route::get('/iletisim', [HomeController::class, 'contact'])->name('contact');
 Route::post('/iletisim', [HomeController::class, 'submitContact'])->name('contact.submit');
+Route::get('/faaliyetler', [HomeController::class, 'activities'])->name('activities.index');
+Route::get('/faaliyetler/{slug}', [HomeController::class, 'activityShow'])->name('activities.show');
+Route::get('/haberler', [HomeController::class, 'news'])->name('news.index');
 Route::get('/gonullu-ol', [HomeController::class, 'volunteer'])->name('volunteer');
 Route::post('/gonullu-ol', [HomeController::class, 'submitVolunteer'])->name('volunteer.submit');
 Route::post('/ebulten/kayit', [NewsletterController::class, 'subscribe'])

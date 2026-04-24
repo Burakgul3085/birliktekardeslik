@@ -20,13 +20,13 @@ class NewsResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
 
-    protected static ?string $navigationLabel = 'Haberler';
+    protected static ?string $navigationLabel = 'Haberler ve Duyurular';
 
     protected static string|\UnitEnum|null $navigationGroup = 'İçerik Yönetimi';
 
-    protected static ?string $modelLabel = 'Haber';
+    protected static ?string $modelLabel = 'Haber ve Duyuru';
 
-    protected static ?string $pluralModelLabel = 'Haberler';
+    protected static ?string $pluralModelLabel = 'Haberler ve Duyurular';
 
     protected static ?int $navigationSort = 2;
 

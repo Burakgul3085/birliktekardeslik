@@ -40,6 +40,58 @@ class SettingForm
                     ->label('Gönüllü Başvuru Aydınlatma Metni')
                     ->rows(8)
                     ->columnSpanFull(),
+                Textarea::make('privacy_policy_text')
+                    ->label('Gizlilik Politikası Metni')
+                    ->rows(8)
+                    ->columnSpanFull(),
+                TextInput::make('home_focus_1_title')
+                    ->label('Ana sayfa odak kartı 1 başlık')
+                    ->default('Acil Gıda Desteği'),
+                Textarea::make('home_focus_1_text')
+                    ->label('Ana sayfa odak kartı 1 metin')
+                    ->rows(3)
+                    ->default('Afrika’da açlık riski altındaki ailelere temel gıda kolileri ulaştırıyoruz.'),
+                TextInput::make('home_focus_2_title')
+                    ->label('Ana sayfa odak kartı 2 başlık')
+                    ->default('Temiz Su Erişimi'),
+                Textarea::make('home_focus_2_text')
+                    ->label('Ana sayfa odak kartı 2 metin')
+                    ->rows(3)
+                    ->default('Susuzlukla mücadele eden bölgelerde temiz suya erişimi destekliyoruz.'),
+                TextInput::make('home_focus_3_title')
+                    ->label('Ana sayfa odak kartı 3 başlık')
+                    ->default('Beslenme Dayanışması'),
+                Textarea::make('home_focus_3_text')
+                    ->label('Ana sayfa odak kartı 3 metin')
+                    ->rows(3)
+                    ->default('Yemek ve içme suyu odağında düzenli insani yardım çalışmaları yürütüyoruz.'),
+                TextInput::make('home_about_badge')
+                    ->label('Biz Kimiz alanı rozet metni')
+                    ->default('Birlikte Kardeşlik Derneği'),
+                TextInput::make('home_about_title')
+                    ->label('Biz Kimiz alanı başlık')
+                    ->default('Biz Kimiz!'),
+                Textarea::make('home_about_intro')
+                    ->label('Biz Kimiz kısa giriş metni')
+                    ->rows(3)
+                    ->columnSpanFull(),
+                Textarea::make('home_about_body')
+                    ->label('Biz Kimiz açıklama metni')
+                    ->rows(5)
+                    ->columnSpanFull(),
+                Textarea::make('home_about_items')
+                    ->label('Biz Kimiz madde listesi')
+                    ->rows(4)
+                    ->helperText('Her satıra bir madde yazın.')
+                    ->columnSpanFull(),
+                TextInput::make('home_about_button_text')
+                    ->label('Biz Kimiz buton metni')
+                    ->default('Hakkımızda'),
+                FileUpload::make('home_about_image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('settings')
+                    ->label('Biz Kimiz görseli (kare önerilir)'),
                 Textarea::make('header_panel_volunteer_text')
                     ->label('Header hızlı panel: Gönüllü alanı metni')
                     ->rows(4)
@@ -59,18 +111,6 @@ class SettingForm
                 TextInput::make('whatsapp_url')->url()->label('WhatsApp (tam link, örn. https://wa.me/9053...)'),
                 TextInput::make('telegram_url')->url()->label('Telegram (tam link)'),
                 Toggle::make('is_active')->default(true)->label('Aktif'),
-            ])->columns(2),
-            Section::make('Yasal bağlantılar (footer)')->schema([
-                TextInput::make('legal_kvkk_url')
-                    ->url()
-                    ->label('KVKK sayfası URL')
-                    ->helperText('Boş bırakılırsa bu bağlantı footer’da gizlenir.'),
-                TextInput::make('legal_privacy_url')
-                    ->url()
-                    ->label('Gizlilik politikası URL'),
-                TextInput::make('legal_terms_url')
-                    ->url()
-                    ->label('Şartlar ve koşullar URL'),
             ])->columns(2),
         ]);
     }

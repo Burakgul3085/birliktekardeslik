@@ -20,13 +20,13 @@ class ProjectResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static ?string $navigationLabel = 'Projeler';
+    protected static ?string $navigationLabel = 'Projeler ve Faaliyetler';
 
     protected static string|\UnitEnum|null $navigationGroup = 'İçerik Yönetimi';
 
-    protected static ?string $modelLabel = 'Proje';
+    protected static ?string $modelLabel = 'Faaliyet';
 
-    protected static ?string $pluralModelLabel = 'Projeler';
+    protected static ?string $pluralModelLabel = 'Projeler ve Faaliyetler';
 
     public static function shouldRegisterNavigation(): bool
     {

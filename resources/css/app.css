@@ -8,7 +8,7 @@
     }
 
     body {
-        @apply bg-slate-50 text-slate-700 antialiased;
+        @apply overflow-x-hidden bg-slate-50 text-slate-700 antialiased;
     }
 }
 
@@ -21,7 +21,40 @@
         @apply inline-flex items-center justify-center rounded-xl bg-cyan-600 px-5 py-2.5 font-medium text-white transition hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-300;
     }
 
+    /* Hero slider CTA: açık zemin üzerinde okunaklı */
+    .btn-hero-cta {
+        @apply inline-flex items-center justify-center rounded-xl bg-white/95 px-6 py-3 text-sm font-semibold text-cyan-900 shadow-lg shadow-cyan-950/20 transition hover:bg-white hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white/80 md:text-base;
+    }
+
+    .btn-hero-ykd {
+        @apply inline-flex items-center justify-center rounded-xl border-2 border-orange-500 bg-white px-6 py-2.5 text-sm font-bold text-orange-600 shadow-sm transition hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-400/60 md:px-7 md:py-3 md:text-base;
+    }
+
     .section-title {
         @apply text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl;
     }
+
+    .about-float-orb {
+        animation: about-orb-float 5s ease-in-out infinite;
+    }
+
+    .about-float-orb-delayed {
+        animation: about-orb-float 5s ease-in-out 1.4s infinite;
+    }
+}
+
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
+@keyframes about-orb-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }

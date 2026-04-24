@@ -16,9 +16,46 @@
         'x' => 'X (Twitter)', 'linkedin' => 'LinkedIn', 'whatsapp' => 'WhatsApp', 'telegram' => 'Telegram', 'website' => 'Web sitesi',
     ];
     $logoSrc = $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg');
+    $legalTextItems = [
+        [
+            'key' => 'kvkk',
+            'label' => 'KVKK',
+            'title' => 'KVKK Aydinlatma Metni',
+            'content' => trim((string) ($siteSettings->kvkk_text ?? '')),
+        ],
+        [
+            'key' => 'clarification',
+            'label' => 'Aydinlatma Metni',
+            'title' => 'Aydinlatma Metni',
+            'content' => trim((string) ($siteSettings->volunteer_clarification_text ?? '')),
+        ],
+        [
+            'key' => 'privacy',
+            'label' => 'Gizlilik Politikasi',
+            'title' => 'Gizlilik Politikasi',
+            'content' => trim((string) ($siteSettings->privacy_policy_text ?? '')),
+        ],
+    ];
+    $legalTextItems = array_values(array_filter(
+        $legalTextItems,
+        fn (array $item): bool => $item['content'] !== ''
+    ));
 @endphp
 
-<footer class="mt-auto border-t border-slate-800/80 bg-slate-900 text-slate-200">
+<footer
+    class="mt-auto border-t border-slate-800/80 bg-slate-900 text-slate-200"
+    x-data='{
+        openLegal: false,
+        legalTitle: "",
+        legalContent: "",
+        showLegal(title, content) {
+            this.legalTitle = title;
+            this.legalContent = content;
+            this.openLegal = true;
+        }
+    }'
+    @keydown.escape.window="openLegal = false"
+>
     <div class="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <div class="grid gap-10 border-b border-slate-700/80 pb-12 lg:grid-cols-2 lg:gap-12 xl:grid-cols-4">
             {{-- Sütun 1: marka + e-bülten --}}
@@ -152,16 +189,45 @@
                 <span class="text-slate-300">{{ $siteSettings->site_title }}</span>
             </p>
             <nav class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-slate-400" aria-label="Yasal">
-                @if (filled($siteSettings->legal_kvkk_url))
-                    <a href="{{ $siteSettings->legal_kvkk_url }}" class="transition hover:text-cyan-300" target="_blank" rel="noopener">KVKK</a>
-                @endif
-                @if (filled($siteSettings->legal_terms_url))
-                    <a href="{{ $siteSettings->legal_terms_url }}" class="transition hover:text-cyan-300" target="_blank" rel="noopener">Şartlar ve koşullar</a>
-                @endif
-                @if (filled($siteSettings->legal_privacy_url))
-                    <a href="{{ $siteSettings->legal_privacy_url }}" class="transition hover:text-cyan-300" target="_blank" rel="noopener">Gizlilik politikası</a>
-                @endif
+                @foreach ($legalTextItems as $item)
+                    <button
+                        type="button"
+                        class="cursor-pointer transition hover:text-cyan-300"
+                        data-legal-title="{{ e($item['title']) }}"
+                        data-legal-content="{{ e(str_replace(["\r\n", "\r"], "\n", $item['content'])) }}"
+                        @click="showLegal($el.dataset.legalTitle, $el.dataset.legalContent)"
+                    >
+                        {{ $item['label'] }}
+                    </button>
+                @endforeach
             </nav>
+        </div>
+    </div>
+
+    <div
+        x-show="openLegal"
+        x-cloak
+        class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="footer-legal-title"
+        @click.self="openLegal = false"
+    >
+        <div class="max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                <h3 id="footer-legal-title" class="text-lg font-semibold text-slate-900" x-text="legalTitle"></h3>
+                <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:bg-slate-100"
+                    @click="openLegal = false"
+                    aria-label="Kapat"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="max-h-[70vh] overflow-y-auto px-5 py-4">
+                <p class="whitespace-pre-line text-sm leading-7 text-slate-700" x-text="legalContent"></p>
+            </div>
         </div>
     </div>
 </footer>

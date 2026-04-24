@@ -7,7 +7,7 @@
             });
         }
     }"
-    class="sticky top-0 z-40 border-b border-slate-100 bg-white/95 backdrop-blur"
+    class="sticky top-0 z-40 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur"
 >
     <div class="hidden border-b border-cyan-800/60 bg-cyan-900 text-cyan-50 md:block">
         <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 md:px-6">
@@ -77,10 +77,10 @@
         </div>
     </div>
 
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-6">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 md:px-6 md:py-3">
         <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-3">
-            <img src="{{ $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg') }}" alt="Logo" class="h-12 w-12 shrink-0 rounded-full object-cover shadow">
-            <span class="truncate text-base font-semibold text-slate-800 md:text-lg">{{ $siteSettings->site_title }}</span>
+            <img src="{{ $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg') }}" alt="Logo" class="h-11 w-11 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-slate-200">
+            <span class="truncate text-base font-semibold tracking-tight text-slate-900 md:text-[1.05rem]">{{ $siteSettings->site_title }}</span>
         </a>
 
         <div class="flex shrink-0 items-center gap-1.5 md:hidden">
@@ -101,28 +101,68 @@
             <a href="{{ route('donations') }}" class="inline-flex min-h-[2.5rem] items-center rounded-full bg-cyan-600 px-3.5 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700">Bağış</a>
         </div>
 
-        <nav class="hidden items-center gap-1 md:flex">
-            @forelse($menuItems as $item)
-                <a
-                    href="{{ $item->url }}"
-                    target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
-                    class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 lg:px-4"
-                >{{ $item->label }}</a>
+        @php
+            $excludedMainLabels = ['ana sayfa', 'anasayfa', 'iletişim', 'iletisim', 'bağış', 'bagis', 'bağış yap', 'bagis yap', 'bağış hesapları', 'bagis hesaplari', 'medyada biz'];
+            $headerTopItems = $menuItems
+                ->whereNull('parent_id')
+                ->filter(function ($item) use ($excludedMainLabels) {
+                    $label = mb_strtolower(trim((string) $item->label));
+                    return ! in_array($label, $excludedMainLabels, true);
+                })
+                ->values();
+            $headerChildren = $menuItems
+                ->whereNotNull('parent_id')
+                ->groupBy('parent_id');
+        @endphp
+        <nav class="hidden items-center gap-0.5 md:flex">
+            <a href="{{ route('home') }}" class="rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4">Ana Sayfa</a>
+
+            @forelse($headerTopItems as $item)
                 @php
-                    $normalizedLabel = mb_strtolower((string) $item->label);
-                    $isAboutItem = \Illuminate\Support\Str::contains($normalizedLabel, [
-                        'hakkımızda',
-                        'hakkimizda',
-                        'about',
-                    ]);
+                    $children = $headerChildren->get($item->id, collect());
+                    $hasChildren = $children->isNotEmpty();
                 @endphp
-                @if ($isAboutItem)
-                    <a href="{{ route('contact') }}" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 lg:px-4">İletişim</a>
+                @if ($hasChildren)
+                    <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4"
+                            :aria-expanded="open"
+                        >
+                            <span>{{ $item->label }}</span>
+                            <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4" />
+                            </svg>
+                        </button>
+
+                        <div
+                            x-show="open"
+                            x-cloak
+                            class="absolute left-0 top-full z-50 mt-1 min-w-[240px] rounded-xl border border-slate-200 bg-white py-2 shadow-xl"
+                        >
+                            @foreach($children as $child)
+                                <a
+                                    href="{{ $child->url }}"
+                                    target="{{ $child->open_in_new_tab ? '_blank' : '_self' }}"
+                                    class="block border-b border-slate-100 px-4 py-2.5 text-[15px] font-medium text-slate-700 transition last:border-b-0 hover:bg-slate-50 hover:text-cyan-700"
+                                >{{ $child->label }}</a>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <a
+                        href="{{ $item->url }}"
+                        target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
+                        class="rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4"
+                    >{{ $item->label }}</a>
                 @endif
             @empty
                 <span class="rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-500">Menü henüz eklenmedi</span>
-                <a href="{{ route('contact') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">İletişim</a>
             @endforelse
+
+            <a href="{{ route('news.index') }}" class="rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4">Haberler ve Duyurular</a>
+
+            <a href="{{ route('contact') }}" class="rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4">İletişim</a>
 
             <div class="ml-1 flex items-center gap-1 pl-1">
                 <button
