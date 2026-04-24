@@ -14,6 +14,7 @@ class Setting extends Model
         'phone',
         'email',
         'address',
+        'google_maps_embed_url',
         'website_url',
         'donation_page_url',
         'legal_kvkk_url',

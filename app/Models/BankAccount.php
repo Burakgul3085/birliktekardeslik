@@ -13,6 +13,7 @@ class BankAccount extends Model
         'recipient_name',
         'iban',
         'account_number',
+        'qr_image',
         'currency',
         'is_active',
         'sort_order',

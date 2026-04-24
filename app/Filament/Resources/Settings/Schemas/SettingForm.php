@@ -23,10 +23,6 @@ class SettingForm
                 TextInput::make('email')->email()->label('E-posta'),
                 TextInput::make('address')->label('Adres'),
                 TextInput::make('website_url')->url()->label('Web Site Linki'),
-                TextInput::make('donation_page_url')
-                    ->url()
-                    ->label('Bağış Sayfası URL')
-                    ->helperText('Boş bırakırsanız sistem otomatik olarak mevcut domaindeki /bagis-yap adresini kullanır.'),
                 Textarea::make('volunteer_preferences')
                     ->label('Gönüllülük Tercihleri')
                     ->rows(4)

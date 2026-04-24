@@ -104,9 +104,27 @@ class HomeController extends Controller
 
     public function page(string $slug): View
     {
-        $page = Page::query()->active()->where('slug', $slug)->firstOrFail();
+        $normalizedSlug = trim(strtolower(str_replace(' ', '-', $slug)));
+        $slugAliases = [$normalizedSlug];
 
-        return view('page', compact('page'));
+        if ($normalizedSlug === 'resmi-belgiler') {
+            $slugAliases[] = 'resmi-bilgiler';
+        }
+
+        if ($normalizedSlug === 'resmi-bilgiler') {
+            $slugAliases[] = 'resmi-belgiler';
+        }
+
+        $page = Page::query()->active()->whereIn('slug', array_unique($slugAliases))->firstOrFail();
+
+        $viewData = ['page' => $page];
+
+        if ($page->slug === 'resmi-bilgiler' || $page->slug === 'resmi-belgiler') {
+            $viewData['bankAccounts'] = BankAccount::query()->active()->orderBy('sort_order')->get();
+            $viewData['siteSettings'] = Setting::current();
+        }
+
+        return view('page', $viewData);
     }
 
     public function contact(): View
