@@ -24,6 +24,16 @@ class NewsForm
                 ->imageEditor()
                 ->helperText('Öneri: 1200x700 px, JPG/PNG/WebP')
                 ->columnSpanFull(),
+            FileUpload::make('gallery_images')
+                ->label('Ekstra görseller (galeri)')
+                ->disk('public')
+                ->directory('news/gallery')
+                ->image()
+                ->multiple()
+                ->reorderable()
+                ->appendFiles()
+                ->helperText('Detay sayfasında galeri olarak görünür.')
+                ->columnSpanFull(),
             Textarea::make('summary')
                 ->label('Kısa özet')
                 ->rows(3)

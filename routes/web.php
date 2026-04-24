@@ -11,6 +11,7 @@ Route::post('/iletisim', [HomeController::class, 'submitContact'])->name('contac
 Route::get('/faaliyetler', [HomeController::class, 'activities'])->name('activities.index');
 Route::get('/faaliyetler/{slug}', [HomeController::class, 'activityShow'])->name('activities.show');
 Route::get('/haberler', [HomeController::class, 'news'])->name('news.index');
+Route::get('/haberler/{news}', [HomeController::class, 'newsShow'])->name('news.show');
 Route::get('/gonullu-ol', [HomeController::class, 'volunteer'])->name('volunteer');
 Route::post('/gonullu-ol', [HomeController::class, 'submitVolunteer'])->name('volunteer.submit');
 Route::post('/ebulten/kayit', [NewsletterController::class, 'subscribe'])

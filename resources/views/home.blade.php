@@ -205,7 +205,29 @@
                 <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">Haberler ve Duyurular</h2>
             </div>
         </div>
-        <div class="no-scrollbar mt-7 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2">
+        <div
+            x-data="{
+                scrollByAmount() {
+                    return this.$refs.track ? Math.round(this.$refs.track.clientWidth * 0.9) : 360;
+                },
+                prev() {
+                    this.$refs.track?.scrollBy({ left: -this.scrollByAmount(), behavior: 'smooth' });
+                },
+                next() {
+                    this.$refs.track?.scrollBy({ left: this.scrollByAmount(), behavior: 'smooth' });
+                }
+            }"
+            class="mt-7"
+        >
+            <div class="mb-3 flex justify-end gap-2">
+                <button type="button" @click="prev()" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700" aria-label="Önceki haberler">
+                    <span aria-hidden="true">‹</span>
+                </button>
+                <button type="button" @click="next()" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700" aria-label="Sonraki haberler">
+                    <span aria-hidden="true">›</span>
+                </button>
+            </div>
+            <div x-ref="track" class="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2">
             @forelse($newsItems as $news)
                 <article class="group w-[86%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-cyan-200 hover:shadow-xl hover:shadow-cyan-900/10 sm:w-[48%] xl:w-[32%]">
                     <div class="relative">
@@ -223,7 +245,7 @@
                         <p class="mt-3 text-base leading-relaxed text-slate-600">
                             {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 130) }}
                         </p>
-                        <a href="{{ route('news.index') }}#haber-{{ $news->id }}" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">
+                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">
                             Detaylar
                             <span>+</span>
                         </a>
@@ -232,6 +254,7 @@
             @empty
                 <x-empty-state title="Henüz haber yok" description="Haberler panelinden duyuru ekleyebilirsiniz." />
             @endforelse
+            </div>
         </div>
     </section>
 

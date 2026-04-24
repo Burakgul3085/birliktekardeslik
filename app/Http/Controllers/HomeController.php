@@ -69,6 +69,21 @@ class HomeController extends Controller
         ]);
     }
 
+    public function newsShow(News $news): View
+    {
+        abort_unless($news->is_active, 404);
+
+        return view('news-show', [
+            'news' => $news,
+            'relatedNews' => News::query()
+                ->active()
+                ->where('id', '!=', $news->id)
+                ->latest('published_at')
+                ->take(4)
+                ->get(),
+        ]);
+    }
+
     public function activityShow(string $slug): View
     {
         $activity = Project::query()->active()->where('slug', $slug)->firstOrFail();

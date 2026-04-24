@@ -30,9 +30,10 @@
                         <p class="mt-3 text-base leading-relaxed text-slate-600">
                             {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
                         </p>
-                        <div class="prose prose-sm mt-4 max-w-none text-slate-600">
-                            {!! \Illuminate\Support\Str::limit((string) $news->content, 260) !!}
-                        </div>
+                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">
+                            Detaylar
+                            <span>+</span>
+                        </a>
                     </div>
                 </article>
             @empty
