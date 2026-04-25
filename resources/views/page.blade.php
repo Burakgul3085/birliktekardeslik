@@ -21,8 +21,9 @@
                                 $isLeft = $index % 2 === 0; // çift: görsel sol, metin sağ; tek: metin sol, görsel sağ
                                 $textOnRight = $isLeft;
                                 $imagePath = ! empty($item['image']) ? \Illuminate\Support\Facades\Storage::url($item['image']) : null;
-                                $imgOrder = $isLeft ? 'order-1 lg:order-1' : 'order-2 lg:order-3';
-                                $textOrder = $isLeft ? 'order-2 lg:order-3' : 'order-1 lg:order-1';
+                                // Mobilde her zaman görsel üstte, metin altta olsun; masaüstünde zigzag devam etsin.
+                                $imgOrder = $isLeft ? 'order-1 lg:order-1' : 'order-1 lg:order-3';
+                                $textOrder = $isLeft ? 'order-2 lg:order-3' : 'order-2 lg:order-1';
                             @endphp
 
                             <article class="group/story relative z-10 flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_2.5rem_1fr] lg:items-start lg:gap-0 lg:px-0">
@@ -32,7 +33,7 @@
                                         class="h-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_10px_32px_rgba(15,23,42,0.07)] transition-all duration-500 ease-out group-hover/story:shadow-[0_18px_34px_rgba(14,116,144,0.14)]"
                                     >
                                         @if ($imagePath)
-                                            <div class="relative h-[240px] w-full overflow-hidden bg-white/5 p-2 sm:h-[260px] lg:h-[280px]">
+                                            <div class="relative h-[210px] w-full overflow-hidden bg-white/5 p-2 sm:h-[250px] lg:h-[280px]">
                                                 <img
                                                     src="{{ $imagePath }}"
                                                     alt="{{ $item['title'] }}"
@@ -129,44 +130,62 @@
                 'telegram' => 'Telegram',
             ];
         @endphp
-        <section class="mx-auto max-w-5xl px-4 py-12 md:px-6 lg:py-16">
-            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
-                <div class="mx-auto max-w-2xl">
-                    <div class="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white/10 p-2 shadow-sm backdrop-blur-sm">
-                        <div class="rounded-xl bg-white/5 p-2">
+        <section class="relative overflow-hidden py-12 md:py-14 lg:py-16">
+            <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-slate-50 via-white to-cyan-50/35"></div>
+            <div
+                class="pointer-events-none absolute inset-0 -z-10 opacity-[0.055]"
+                style="background-image: radial-gradient(circle at 1px 1px, rgba(14,116,144,.22) 1px, transparent 0); background-size: 22px 22px;"
+                aria-hidden="true"
+            ></div>
+            <div class="mx-auto max-w-5xl px-4 md:px-6">
+            <article class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_52px_rgba(15,23,42,0.12)]">
+                <div class="pointer-events-none absolute -left-14 -top-14 h-40 w-40 rounded-full bg-cyan-200/35 blur-2xl"></div>
+                <div class="pointer-events-none absolute -bottom-14 -right-10 h-44 w-44 rounded-full bg-sky-200/35 blur-2xl"></div>
+
+                <div class="mx-auto max-w-3xl p-5 md:p-8">
+                    <div class="group relative mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white/80 p-2 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
+                        <div class="absolute -inset-0.5 -z-10 rounded-2xl bg-gradient-to-r from-cyan-200/35 via-sky-200/30 to-cyan-200/35 opacity-0 blur transition duration-500 group-hover:opacity-100"></div>
+                        <div class="rounded-xl bg-white p-2">
                             <img
                                 src="{{ $aboutImage }}"
                                 alt="{{ $page->title }}"
-                                class="mx-auto block h-auto max-h-[520px] w-full rounded-lg object-contain"
+                                class="mx-auto block h-auto max-h-[520px] w-full rounded-lg object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                             >
                         </div>
                     </div>
 
-                    <div class="group mt-8 rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:bg-cyan-50/70 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
-                        <h2 class="mb-3 text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Hakkımızda</h2>
+                    <div class="group mt-8 rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50/75 via-white to-cyan-50/55 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_16px_34px_rgba(14,116,144,0.16)] md:p-6">
+                        <div class="mb-3 flex items-center justify-center gap-2">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-xs font-bold text-white shadow-sm transition-transform duration-300 group-hover:scale-110">BK</span>
+                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Hakkımızda</h2>
+                        </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
                             {!! $page->content ?: '<p>Birlikte Kardeşlik Derneği; yardımlaşma, dayanışma ve sosyal sorumluluk bilinciyle faaliyet gösteren bir sivil toplum oluşumudur.</p>' !!}
                         </div>
                     </div>
 
-                    <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
-                        @foreach ($socialMap as $field => $platform)
-                            @if (! empty($settings->$field))
-                                <a
-                                    href="{{ $settings->$field }}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-cyan-600 hover:text-white"
-                                    title="{{ $socialAria[$platform] ?? $platform }}"
-                                    aria-label="{{ $socialAria[$platform] ?? $platform }}"
-                                >
-                                    <x-social-brand-icon :platform="$platform" icon-class="h-4 w-4" />
-                                </a>
-                            @endif
-                        @endforeach
+                    <div class="mt-8 border-t border-slate-100 pt-6">
+                        <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Sosyal Medyada Biz</p>
+                        <div class="flex flex-wrap items-center justify-center gap-2">
+                            @foreach ($socialMap as $field => $platform)
+                                @if (! empty($settings->$field))
+                                    <a
+                                        href="{{ $settings->$field }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-200 bg-white text-cyan-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:scale-105 hover:border-cyan-300 hover:bg-cyan-600 hover:text-white hover:shadow-[0_10px_18px_rgba(6,182,212,0.35)]"
+                                        title="{{ $socialAria[$platform] ?? $platform }}"
+                                        aria-label="{{ $socialAria[$platform] ?? $platform }}"
+                                    >
+                                        <x-social-brand-icon :platform="$platform" icon-class="h-4 w-4" />
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </article>
+            </div>
         </section>
     @elseif ($page->slug === 'vizyon-misyon')
         @php
@@ -195,32 +214,45 @@
                 'telegram' => 'Telegram',
             ];
         @endphp
-        <section class="mx-auto max-w-4xl px-4 py-12 md:px-6 lg:py-16">
-            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
-                <div class="space-y-5">
-                    <div class="group rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:bg-cyan-50/70 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
-                        <h2 class="mb-3 text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Vizyonumuz</h2>
+        <section class="mx-auto max-w-5xl px-4 py-12 md:px-6 lg:py-16">
+            <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_44px_rgba(15,23,42,0.10)]">
+                <div class="border-b border-cyan-100/70 bg-gradient-to-r from-cyan-50 via-sky-50 to-cyan-50 px-5 py-5 md:px-8">
+                    <h2 class="text-center text-2xl font-extrabold tracking-tight text-cyan-900 md:text-3xl">Vizyon ve Misyonumuz</h2>
+                    <p class="mt-2 text-center text-sm text-slate-600 md:text-base">İnsani yardım odağında değerlerimiz, hedeflerimiz ve yaklaşımımız</p>
+                </div>
+
+                <div class="space-y-5 p-5 md:space-y-6 md:p-8">
+                    <div class="group relative rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50/70 via-white to-cyan-50/50 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
+                        <div class="mb-3 flex items-center justify-center gap-2">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-xs font-bold text-white shadow-sm">V</span>
+                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Vizyonumuz</h2>
+                        </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
                             {!! $visionText ?: '<p>Vizyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
                         </div>
                     </div>
 
-                    <div class="group rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:bg-cyan-50/70 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
-                        <h2 class="mb-3 text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Misyonumuz</h2>
+                    <div class="group relative rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50/70 via-white to-cyan-50/50 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
+                        <div class="mb-3 flex items-center justify-center gap-2">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-xs font-bold text-white shadow-sm">M</span>
+                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Misyonumuz</h2>
+                        </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
                             {!! $missionText ?: '<p>Misyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+                <div class="border-t border-slate-100 bg-slate-50/70 px-5 py-5 md:px-8">
+                    <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Sosyal Medyada Biz</p>
+                    <div class="flex flex-wrap items-center justify-center gap-2">
                     @foreach ($socialMap as $field => $platform)
                         @if (! empty($settings->$field))
                             <a
                                 href="{{ $settings->$field }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-cyan-600 hover:text-white"
+                                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-200 bg-white text-cyan-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-cyan-600 hover:text-white"
                                 title="{{ $socialAria[$platform] ?? $platform }}"
                                 aria-label="{{ $socialAria[$platform] ?? $platform }}"
                             >
@@ -228,6 +260,7 @@
                             </a>
                         @endif
                     @endforeach
+                    </div>
                 </div>
             </article>
         </section>

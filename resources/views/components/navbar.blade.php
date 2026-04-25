@@ -78,16 +78,16 @@
     </div>
 
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 md:px-6 md:py-3">
-        <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-3">
+        <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2.5">
             <img src="{{ $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg') }}" alt="Logo" class="h-11 w-11 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-slate-200">
-            <span class="truncate text-base font-semibold tracking-tight text-slate-900 md:text-[1.05rem]">{{ $siteSettings->site_title }}</span>
+            <span class="max-w-[150px] truncate text-[15px] font-semibold tracking-tight text-slate-900 md:max-w-none md:text-[1.05rem]">{{ $siteSettings->site_title }}</span>
         </a>
 
         <div class="flex shrink-0 items-center gap-1.5 md:hidden">
             <button
                 type="button"
                 @click="contactOpen = true"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50/80 text-slate-700 shadow-sm transition hover:border-cyan-300/60 hover:bg-cyan-50/80"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 shadow-sm transition hover:border-cyan-300/60 hover:bg-cyan-50/80"
                 :aria-expanded="contactOpen"
                 aria-label="İletişim, gönüllülük ve sosyal medya"
             >
@@ -98,7 +98,8 @@
                     <span class="h-2 w-2 rounded-sm bg-cyan-700/90"></span>
                 </span>
             </button>
-            <a href="{{ route('donations') }}" class="inline-flex min-h-[2.5rem] items-center rounded-full bg-cyan-600 px-3.5 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700">Bağış</a>
+            <a href="{{ route('donations') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full bg-cyan-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700">Bağış</a>
+            <a href="{{ route('volunteer') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-white px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50">Gönüllü</a>
         </div>
 
         @php
@@ -191,29 +192,66 @@
     </div>
 
     <div class="border-t border-slate-100 bg-white/95 md:hidden">
-        <div class="no-scrollbar mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-2">
+        <div class="no-scrollbar mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-2.5">
             <a
                 href="{{ route('home') }}"
-                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
             >Ana Sayfa</a>
 
             @foreach($headerTopItems as $item)
-                <a
-                    href="{{ $item->url }}"
-                    target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
-                    class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
-                >{{ $item->label }}</a>
+                @php
+                    $children = $headerChildren->get($item->id, collect());
+                @endphp
+                @if ($children->isEmpty())
+                    <a
+                        href="{{ $item->url }}"
+                        target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
+                        class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+                    >{{ $item->label }}</a>
+                @endif
             @endforeach
 
             <a
                 href="{{ route('news.index') }}"
-                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
             >Haberler</a>
             <a
                 href="{{ route('contact') }}"
-                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
             >İletişim</a>
         </div>
+
+        @php
+            $mobileParentsWithChildren = $headerTopItems->filter(fn ($item) => $headerChildren->get($item->id, collect())->isNotEmpty());
+        @endphp
+        @if ($mobileParentsWithChildren->isNotEmpty())
+            <div class="mx-auto max-w-7xl space-y-2 px-4 pb-3">
+                @foreach($mobileParentsWithChildren as $item)
+                    @php
+                        $children = $headerChildren->get($item->id, collect());
+                    @endphp
+                    <details class="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                        <summary class="cursor-pointer list-none px-3 py-2.5 text-sm font-semibold text-slate-800 transition group-open:bg-cyan-50/70 group-open:text-cyan-800">
+                            <span class="inline-flex items-center gap-1.5">
+                                {{ $item->label }}
+                                <svg class="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4" />
+                                </svg>
+                            </span>
+                        </summary>
+                        <div class="border-t border-slate-100 bg-slate-50/60 py-1.5">
+                            @foreach($children as $child)
+                                <a
+                                    href="{{ $child->url }}"
+                                    target="{{ $child->open_in_new_tab ? '_blank' : '_self' }}"
+                                    class="block px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-cyan-50 hover:text-cyan-700"
+                                >{{ $child->label }}</a>
+                            @endforeach
+                        </div>
+                    </details>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     @include('components.header-contact-panel')
