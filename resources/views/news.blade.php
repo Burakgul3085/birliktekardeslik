@@ -15,13 +15,15 @@
     <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 md:px-6">
         <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             @forelse($newsItems as $news)
-                <article id="haber-{{ $news->id }}" class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-cyan-200 hover:shadow-xl hover:shadow-cyan-900/10">
+                <article id="haber-{{ $news->id }}" class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                     <div class="relative">
-                        <img
-                            src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                            alt="{{ $news->title }}"
-                            class="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                        >
+                        <div class="w-full overflow-hidden bg-white">
+                            <img
+                                src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
+                                alt="{{ $news->title }}"
+                                class="mx-auto block h-auto max-h-28 w-auto max-w-full"
+                            >
+                        </div>
                         <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                             {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
                         </span>

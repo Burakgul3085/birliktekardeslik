@@ -6,6 +6,7 @@ use App\Filament\Auth\Login;
 use App\Filament\Widgets\OrganizationIdentity;
 use App\Filament\Widgets\OrganizationOverview;
 use App\Filament\Widgets\SuspiciousActivityAlert;
+use App\Http\Middleware\EnforceAdminOtpVerification;
 use App\Http\Middleware\LogAdminNavigation;
 use App\Models\Setting;
 use Filament\Actions\DeleteAction;
@@ -108,6 +109,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnforceAdminOtpVerification::class,
             ]);
     }
 }

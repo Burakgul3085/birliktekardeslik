@@ -9,11 +9,13 @@
             @forelse($activities as $activity)
                 <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                     <a href="{{ route('activities.show', ['slug' => $activity->slug]) }}" class="block">
-                        <img
-                            src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
-                            alt="{{ $activity->title }}"
-                            class="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                        >
+                        <div class="w-full overflow-hidden bg-white">
+                            <img
+                                src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
+                                alt="{{ $activity->title }}"
+                                class="mx-auto block h-auto max-h-28 w-auto max-w-full"
+                            >
+                        </div>
                     </a>
                     <div class="p-5">
                         <h2 class="text-2xl font-bold uppercase tracking-tight text-slate-900">{{ $activity->title }}</h2>

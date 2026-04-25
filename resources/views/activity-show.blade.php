@@ -20,11 +20,14 @@
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-                <img
-                    src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
-                    alt="{{ $activity->title }}"
-                    class="h-72 w-full rounded-xl object-cover md:h-96"
-                >
+                <div class="w-full overflow-hidden rounded-xl">
+                    <img
+                        src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
+                        alt="{{ $activity->title }}"
+                        class="mx-auto block h-auto max-w-full"
+                        style="width: 70% !important;"
+                    >
+                </div>
                 <h2 class="mt-6 text-3xl font-bold text-slate-900">{{ $activity->title }}</h2>
                 <p class="mt-3 text-lg leading-relaxed text-slate-700">{{ $activity->description }}</p>
                 <div class="prose prose-slate mt-6 max-w-none text-base leading-relaxed">

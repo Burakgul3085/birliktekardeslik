@@ -61,8 +61,8 @@
             <div class="relative mx-auto w-full max-w-md lg:max-w-lg">
                 <div class="about-float-orb absolute -left-4 -top-4 h-16 w-16 rounded-full bg-cyan-500/20 blur-[1px]"></div>
                 <div class="about-float-orb-delayed absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-cyan-300/30 blur-[1px]"></div>
-                <div class="relative aspect-square overflow-hidden rounded-3xl border border-slate-200/70 bg-transparent p-2 shadow-xl">
-                    <div class="h-full w-full rounded-2xl p-2">
+                <div class="relative aspect-square overflow-hidden rounded-3xl border border-white/40 bg-white/10 p-2 shadow-xl backdrop-blur-md">
+                    <div class="h-full w-full rounded-2xl bg-white/5 p-2 backdrop-blur-sm">
                         <img src="{{ $aboutImage }}" alt="Biz Kimiz" class="h-full w-full object-contain" />
                     </div>
                 </div>
@@ -100,38 +100,26 @@
 
     <section class="mx-auto max-w-7xl scroll-mt-24 px-4 pt-10 md:px-6 md:pt-12" id="projeler">
         <div class="rounded-[28px] bg-cyan-50/45 p-5 md:p-8">
-            <div class="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
-                <div class="space-y-3">
-                    <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-[11px] font-semibold tracking-wide text-cyan-700 ring-1 ring-cyan-100">
-                        • YKD | {{ $activitySection->badge_text ?: 'Birlikte Kardeşlik Derneği' }}
-                    </span>
+            <div class="grid items-center gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
+                <div class="space-y-2">
                     <h2 class="max-w-[280px] text-[44px] font-bold leading-[1.08] tracking-tight text-slate-900">
                         {{ $activitySection->title ?: 'Faaliyetlerimiz' }}
                     </h2>
                 </div>
-                <p class="max-w-4xl pt-1 text-base leading-relaxed text-slate-600 md:text-lg lg:pt-2">
+                <p class="max-w-3xl text-base leading-relaxed text-slate-600 md:text-lg">
                     {{ $activitySection->description ?: 'Afrika’da açlık ve susuzlukla mücadele için yürüttüğümüz gıda, temiz su ve acil yardım faaliyetleri.' }}
                 </p>
             </div>
             <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($projects as $project)
-                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-200 hover:shadow-xl hover:shadow-cyan-900/10">
+                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                         <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block">
-                            <div class="relative">
+                            <div class="w-full overflow-hidden bg-white">
                                 <img
                                     src="{{ $project->cover_image ? asset('storage/' . $project->cover_image) : asset('images/default-logo.svg') }}"
-                                    class="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                                    class="mx-auto block h-auto max-h-28 w-auto max-w-full"
                                     alt="{{ $project->title }}"
                                 >
-                                <span class="absolute bottom-3 right-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-cyan-600 text-white shadow-md">
-                                    @if($loop->index % 3 === 0)
-                                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 11a1 1 0 0 1 1-1h5V5a1 1 0 1 1 2 0v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 0 1-1-1Z"/></svg>
-                                    @elseif($loop->index % 3 === 1)
-                                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2s6 7 6 11a6 6 0 1 1-12 0c0-4 6-11 6-11Z"/></svg>
-                                    @else
-                                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.3 3.02a1 1 0 0 1 1.4 0l2.01 1.93a2 2 0 0 0 1.13.54l2.77.4a1 1 0 0 1 .55 1.71l-2 1.95a2 2 0 0 0-.58 1.76l.47 2.75a1 1 0 0 1-1.45 1.05L13 14.08a2 2 0 0 0-1.86 0l-2.48 1.3a1 1 0 0 1-1.45-1.05l.47-2.75a2 2 0 0 0-.58-1.76l-2-1.95a1 1 0 0 1 .55-1.71l2.77-.4a2 2 0 0 0 1.13-.54l2.01-1.93Z"/></svg>
-                                    @endif
-                                </span>
                             </div>
                         </a>
                         <div class="p-5 transition-colors duration-300 group-hover:bg-cyan-50/30">
@@ -231,13 +219,15 @@
             </div>
             <div x-ref="track" class="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2">
             @forelse($newsItems as $news)
-                <article class="group w-[86%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-cyan-200 hover:shadow-xl hover:shadow-cyan-900/10 sm:w-[48%] xl:w-[32%]">
+                <article class="group w-[86%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:w-[48%] xl:w-[32%]">
                     <div class="relative">
-                        <img
-                            src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                            alt="{{ $news->title }}"
-                            class="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                        >
+                        <div class="w-full overflow-hidden bg-white">
+                            <img
+                                src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
+                                alt="{{ $news->title }}"
+                                class="mx-auto block h-auto max-h-28 w-auto max-w-full"
+                            >
+                        </div>
                         <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                             {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
                         </span>

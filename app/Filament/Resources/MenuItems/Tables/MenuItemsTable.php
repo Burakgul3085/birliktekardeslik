@@ -19,13 +19,6 @@ class MenuItemsTable
                 TextColumn::make('url')->label('URL'),
                 TextColumn::make('parent.label')->label('Üst Menü')->default('—'),
                 TextColumn::make('sort_order')->label('Sıra'),
-                TextColumn::make('footer_group')
-                    ->label('Footer')
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'quick' => 'Hızlı erişim',
-                        'activities' => 'Faaliyetlerimiz',
-                        default => '—',
-                    }),
                 IconColumn::make('is_active')->boolean()->label('Aktif'),
             ])
             ->recordActions([EditAction::make()])

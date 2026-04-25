@@ -40,6 +40,36 @@
         $legalTextItems,
         fn (array $item): bool => $item['content'] !== ''
     ));
+
+    $excludedMainLabels = ['ana sayfa', 'anasayfa', 'iletişim', 'iletisim', 'bağış', 'bagis', 'bağış yap', 'bagis yap', 'bağış hesapları', 'bagis hesaplari', 'medyada biz'];
+    $footerTopItems = $menuItems
+        ->whereNull('parent_id')
+        ->filter(function ($item) use ($excludedMainLabels) {
+            $label = mb_strtolower(trim((string) $item->label));
+            return ! in_array($label, $excludedMainLabels, true);
+        })
+        ->values();
+    $footerChildren = $menuItems
+        ->whereNotNull('parent_id')
+        ->groupBy('parent_id');
+    $mapsEmbedUrl = trim((string) ($siteSettings->google_maps_embed_url ?? ''));
+    $normalizedMapsUrl = null;
+    $mapsDirectUrl = null;
+    $mapsNeedsExternalOpen = false;
+    if ($mapsEmbedUrl !== '') {
+        $mapsDirectUrl = $mapsEmbedUrl;
+        if (\Illuminate\Support\Str::contains($mapsEmbedUrl, ['maps.app.goo.gl', 'goo.gl/maps'])) {
+            if (filled($siteSettings->address)) {
+                $normalizedMapsUrl = 'https://www.google.com/maps?q=' . urlencode((string) $siteSettings->address) . '&output=embed';
+            } else {
+                $mapsNeedsExternalOpen = true;
+            }
+        } else {
+            $normalizedMapsUrl = \Illuminate\Support\Str::contains($mapsEmbedUrl, ['/maps/embed', 'output=embed'])
+                ? $mapsEmbedUrl
+                : 'https://www.google.com/maps?q=' . urlencode($mapsEmbedUrl) . '&output=embed';
+        }
+    }
 @endphp
 
 <footer
@@ -95,46 +125,83 @@
                 </div>
             </div>
 
-            {{-- Sütun 2: Hızlı erişim --}}
+            {{-- Sütun 2: Hızlı linkler (header ile senkron) --}}
             <div>
-                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Hızlı erişim</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Hızlı linkler</h3>
                 <ul class="mt-4 space-y-2.5 text-sm">
-                    @forelse($footerMenuQuick as $item)
+                    @forelse($footerTopItems as $item)
+                        @php
+                            $children = $footerChildren->get($item->id, collect());
+                        @endphp
                         <li>
-                            <a
-                                href="{{ $item->url }}"
-                                target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
-                                class="group inline-flex items-start gap-2 text-slate-300 transition hover:text-cyan-300"
-                            >
-                                <span class="mt-0.5 text-cyan-500/80 transition group-hover:text-cyan-300" aria-hidden="true">»</span>
-                                <span>{{ $item->label }}</span>
-                            </a>
+                            <div class="space-y-1.5">
+                                <a
+                                    href="{{ $item->url }}"
+                                    target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
+                                    class="group inline-flex items-start gap-2 text-slate-300 transition hover:text-cyan-300"
+                                >
+                                    <span class="mt-0.5 text-cyan-500/80 transition group-hover:text-cyan-300" aria-hidden="true">»</span>
+                                    <span class="font-semibold">{{ $item->label }}</span>
+                                </a>
+
+                                @if ($children->isNotEmpty())
+                                    <ul class="space-y-1 pl-5">
+                                        @foreach ($children as $child)
+                                            <li>
+                                                <a
+                                                    href="{{ $child->url }}"
+                                                    target="{{ $child->open_in_new_tab ? '_blank' : '_self' }}"
+                                                    class="group inline-flex items-start gap-2 text-slate-400 transition hover:text-cyan-300"
+                                                >
+                                                    <span class="mt-0.5 text-cyan-600/70 transition group-hover:text-cyan-300" aria-hidden="true">—</span>
+                                                    <span>{{ $child->label }}</span>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </div>
                         </li>
                     @empty
-                        <li class="text-slate-500">Menü öğelerinde &quot;Footer sütunu&quot; olarak <strong class="text-slate-400">Hızlı erişim</strong> seçilen bağlantılar burada listelenir.</li>
+                        <li class="text-slate-500">Menü yönetimine eklediğiniz üst menüler ve alt menüler burada otomatik listelenir.</li>
                     @endforelse
                 </ul>
             </div>
 
-            {{-- Sütun 3: Faaliyetlerimiz --}}
-            <div>
-                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Faaliyetlerimiz</h3>
-                <ul class="mt-4 space-y-2.5 text-sm">
-                    @forelse($footerMenuActivities as $item)
-                        <li>
-                            <a
-                                href="{{ $item->url }}"
-                                target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
-                                class="group inline-flex items-start gap-2 text-slate-300 transition hover:text-cyan-300"
-                            >
-                                <span class="mt-0.5 text-cyan-500/80 transition group-hover:text-cyan-300" aria-hidden="true">»</span>
-                                <span>{{ $item->label }}</span>
-                            </a>
-                        </li>
-                    @empty
-                        <li class="text-slate-500">Menüde &quot;Footer sütunu&quot; olarak <strong class="text-slate-400">Faaliyetlerimiz</strong> atanan öğeler burada görünür.</li>
-                    @endforelse
-                </ul>
+            {{-- Sütun 3: Harita --}}
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Konumumuz</h3>
+                @if (filled($normalizedMapsUrl))
+                    <div class="overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-800/35 shadow-sm backdrop-blur-sm">
+                        <iframe
+                            src="{{ $normalizedMapsUrl }}"
+                            class="h-52 w-full"
+                            style="border:0;"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            allowfullscreen
+                            title="Google Maps Konum"
+                        ></iframe>
+                    </div>
+                @elseif ($mapsNeedsExternalOpen && filled($mapsDirectUrl))
+                    <div class="rounded-2xl border border-slate-700/70 bg-slate-800/35 p-4 shadow-sm backdrop-blur-sm">
+                        <p class="text-sm leading-relaxed text-slate-300">
+                            Bu bağlantı Google tarafından gömülü haritada kısıtlanabilir. Haritayı yeni sekmede açabilirsiniz.
+                        </p>
+                        <a
+                            href="{{ $mapsDirectUrl }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="mt-3 inline-flex items-center gap-2 rounded-full bg-cyan-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-cyan-500"
+                        >
+                            Haritayı Aç
+                        </a>
+                    </div>
+                @else
+                    <p class="text-sm leading-relaxed text-slate-400">
+                        Genel Ayarlar bölümüne Google Maps linki eklendiğinde bu alanda harita otomatik görünür.
+                    </p>
+                @endif
             </div>
 
             {{-- Sütun 4: İletişim + sosyal --}}
@@ -182,7 +249,7 @@
             </div>
         </div>
 
-        <div class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-8 text-xs text-slate-500 sm:flex-row sm:gap-6">
+        <div class="mt-8 flex flex-col items-center justify-between gap-4 pt-8 text-xs text-slate-500 sm:flex-row sm:gap-6">
             <p class="text-center sm:text-left">
                 © {{ date('Y') }} — Tüm hakları saklıdır.
                 <span class="text-slate-400">·</span>

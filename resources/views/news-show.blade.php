@@ -13,15 +13,18 @@
     </section>
 
     <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 md:px-6">
-        <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-            <img
-                src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                alt="{{ $news->title }}"
-                class="h-[260px] w-full object-cover md:h-[420px]"
-            >
+        <article class="overflow-hidden rounded-3xl border border-cyan-100/70 bg-white/55 shadow-sm backdrop-blur-md">
+            <div class="w-full overflow-hidden bg-white/25">
+                <img
+                    src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
+                    alt="{{ $news->title }}"
+                    class="mx-auto block h-auto w-auto max-w-full"
+                    style="height: auto !important; max-height: 400px !important;"
+                >
+            </div>
             <div class="p-6 md:p-8">
                 @if(!empty($news->summary))
-                    <p class="rounded-2xl bg-slate-50 p-4 text-base leading-relaxed text-slate-700 md:text-lg">
+                    <p class="rounded-2xl border border-white/40 bg-white/45 p-4 text-base leading-relaxed text-slate-700 backdrop-blur-sm md:text-lg">
                         {{ $news->summary }}
                     </p>
                 @endif
@@ -35,8 +38,10 @@
                         <h2 class="text-2xl font-bold tracking-tight text-slate-900">Haber Galerisi</h2>
                         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach($news->gallery_images as $image)
-                                <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                                    <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} galeri görseli" class="h-52 w-full object-cover transition duration-300 hover:scale-[1.03]">
+                                <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-2xl border border-cyan-100/70 bg-white/45 backdrop-blur-sm">
+                                    <div class="w-full overflow-hidden bg-white/20 p-2">
+                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} galeri görseli" class="mx-auto block h-auto max-h-44 w-auto max-w-full">
+                                    </div>
                                 </a>
                             @endforeach
                         </div>
@@ -52,8 +57,10 @@
             </div>
             <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 @forelse($relatedNews as $item)
-                    <a href="{{ route('news.show', ['news' => $item->id]) }}" class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-cyan-200 hover:shadow-lg">
-                        <img src="{{ $item->cover_image ? asset('storage/' . $item->cover_image) : asset('images/default-logo.svg') }}" alt="{{ $item->title }}" class="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.02]">
+                    <a href="{{ route('news.show', ['news' => $item->id]) }}" class="group overflow-hidden rounded-2xl border border-cyan-100/70 bg-white/45 shadow-sm backdrop-blur-sm transition hover:-translate-y-1 hover:border-cyan-200 hover:shadow-lg">
+                        <div class="w-full overflow-hidden bg-white/20 p-2">
+                            <img src="{{ $item->cover_image ? asset('storage/' . $item->cover_image) : asset('images/default-logo.svg') }}" alt="{{ $item->title }}" class="mx-auto block h-auto max-h-28 w-auto max-w-full">
+                        </div>
                         <div class="p-4">
                             <p class="text-xs text-slate-500">{{ optional($item->published_at)->format('d.m.Y') }}</p>
                             <h4 class="mt-1 text-lg font-bold leading-tight text-slate-900">{{ $item->title }}</h4>

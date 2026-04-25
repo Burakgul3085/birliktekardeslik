@@ -54,6 +54,10 @@ class SettingForm
                             TextInput::make('email')->email()->label('E-posta'),
                             TextInput::make('address')->label('Adres')->columnSpanFull(),
                             TextInput::make('website_url')->url()->label('Web Site Linki')->columnSpanFull(),
+                            TextInput::make('google_maps_embed_url')
+                                ->label('Google Maps Linki')
+                                ->helperText('Footer harita alanında gösterilir. En sağlıklı sonuç için tam Google Maps konum veya embed linki kullanın (kısa maps.app.goo.gl linkleri bazı tarayıcılarda iframe kısıtına takılabilir).')
+                                ->columnSpanFull(),
                             Textarea::make('volunteer_preferences')
                                 ->label('Gönüllülük Tercihleri')
                                 ->rows(4)

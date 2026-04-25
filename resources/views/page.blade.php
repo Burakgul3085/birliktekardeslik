@@ -32,16 +32,16 @@
                                         class="h-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_10px_32px_rgba(15,23,42,0.07)] transition-all duration-500 ease-out group-hover/story:shadow-[0_18px_34px_rgba(14,116,144,0.14)]"
                                     >
                                         @if ($imagePath)
-                                            <div class="relative h-full min-h-[190px] overflow-hidden sm:min-h-[220px] lg:min-h-[240px]">
+                                            <div class="relative h-[240px] w-full overflow-hidden bg-white/5 p-2 sm:h-[260px] lg:h-[280px]">
                                                 <img
                                                     src="{{ $imagePath }}"
                                                     alt="{{ $item['title'] }}"
-                                                    class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/story:scale-[1.02]"
+                                                    class="h-full w-full object-contain transition-transform duration-700 ease-out group-hover/story:scale-[1.02]"
                                                     loading="lazy"
                                                 >
                                             </div>
                                         @else
-                                            <div class="grid min-h-[190px] place-items-center bg-slate-100 text-sm text-slate-500 sm:min-h-[220px] lg:min-h-[240px]">
+                                            <div class="grid h-[240px] place-items-center bg-slate-100 text-sm text-slate-500 sm:h-[260px] lg:h-[280px]">
                                                 Görsel eklenmedi
                                             </div>
                                         @endif
@@ -134,9 +134,9 @@
         <section class="mx-auto max-w-6xl px-4 py-12 md:px-6 lg:py-16">
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
                 <div class="items-start gap-8 md:grid md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr]">
-                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
-                        <div class="aspect-[4/5] w-full">
-                            <img src="{{ $presidentImage }}" alt="{{ $page->title }}" class="h-full w-full object-cover object-center">
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/10 p-2 shadow-sm backdrop-blur-sm">
+                        <div class="h-[300px] w-full rounded-xl bg-white/5 p-2 sm:h-[360px] lg:h-[420px]">
+                            <img src="{{ $presidentImage }}" alt="{{ $page->title }}" class="h-full w-full object-contain">
                         </div>
                     </div>
 
@@ -381,28 +381,16 @@
                                     @foreach ($members as $member)
                                         @php
                                             $memberPhoto = ! empty($member['photo']) ? \Illuminate\Support\Facades\Storage::url($member['photo']) : null;
+                                            $displayPhoto = $memberPhoto ?: asset('images/default-logo.svg');
                                         @endphp
                                         <article class="group w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] xl:w-[calc(25%-15px)] max-w-[280px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_36px_rgba(6,78,100,0.2)]">
-                                            <div class="aspect-[3/4] w-full overflow-hidden bg-slate-100">
-                                                @if ($memberPhoto)
-                                                    <img
-                                                        src="{{ $memberPhoto }}"
-                                                        alt="{{ $member['name'] }}"
-                                                        class="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                                                        loading="lazy"
-                                                    >
-                                                @else
-                                                    <div class="relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-slate-200 to-cyan-100/70">
-                                                        <div class="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-200/40 blur-2xl"></div>
-                                                        <div class="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-slate-300/40 blur-2xl"></div>
-                                                        <div class="relative flex h-24 w-24 items-center justify-center rounded-full border border-white/80 bg-white/70 shadow-lg backdrop-blur-sm">
-                                                            <svg class="h-12 w-12 text-cyan-700/70" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
-                                                            </svg>
-                                                        </div>
-                                                        <p class="absolute bottom-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Fotoğraf eklenecek</p>
-                                                    </div>
-                                                @endif
+                                            <div class="h-[280px] w-full overflow-hidden bg-white/10 p-2 sm:h-[300px] lg:h-[320px]">
+                                                <img
+                                                    src="{{ $displayPhoto }}"
+                                                    alt="{{ $member['name'] }}"
+                                                    class="h-full w-full object-contain transition duration-500 group-hover:scale-105"
+                                                    loading="lazy"
+                                                >
                                             </div>
                                             <div class="p-4">
                                                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $member['role'] }}</p>

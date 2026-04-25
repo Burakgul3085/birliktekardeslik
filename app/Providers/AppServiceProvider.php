@@ -65,14 +65,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $view->with('siteSettings', Setting::current());
             $view->with('menuItems', MenuItem::query()->active()->orderBy('sort_order')->get());
-            $view->with(
-                'footerMenuQuick',
-                MenuItem::query()->active()->where('footer_group', 'quick')->orderBy('sort_order')->get()
-            );
-            $view->with(
-                'footerMenuActivities',
-                MenuItem::query()->active()->where('footer_group', 'activities')->orderBy('sort_order')->get()
-            );
+            $view->with('footerMenuQuick', collect());
+            $view->with('footerMenuActivities', collect());
         });
     }
 }

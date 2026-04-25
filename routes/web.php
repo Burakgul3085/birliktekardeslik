@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\AdminOtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -19,3 +20,10 @@ Route::post('/ebulten/kayit', [NewsletterController::class, 'subscribe'])
     ->name('newsletter.subscribe');
 Route::get('/ebulten/iptal/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 Route::get('/sayfa/{slug}', [HomeController::class, 'page'])->name('pages.show');
+
+Route::prefix('bkd-panel')->name('admin.otp.')->group(function (): void {
+    Route::get('/dogrulama', [AdminOtpController::class, 'show'])->name('form');
+    Route::post('/dogrulama', [AdminOtpController::class, 'verify'])
+        ->middleware('throttle:10,1')
+        ->name('verify');
+});
