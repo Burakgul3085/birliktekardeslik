@@ -170,7 +170,10 @@ class HomeController extends Controller
         $message = ContactMessage::query()->create($validated);
 
         $settings = Setting::current();
-        $notifyEmail = $settings->email ?: (string) env('PHPMAILER_FROM_ADDRESS');
+        $notifyEmail = $settings->mailer_notification_email
+            ?: $settings->email
+            ?: $settings->mailer_from_address
+            ?: (string) env('PHPMAILER_FROM_ADDRESS');
 
         if ($notifyEmail) {
             try {
@@ -245,7 +248,10 @@ class HomeController extends Controller
         }
 
         $application = VolunteerApplication::query()->create($validated);
-        $notifyEmail = $settings->email ?: (string) env('PHPMAILER_FROM_ADDRESS');
+        $notifyEmail = $settings->mailer_notification_email
+            ?: $settings->email
+            ?: $settings->mailer_from_address
+            ?: (string) env('PHPMAILER_FROM_ADDRESS');
 
         if ($notifyEmail) {
             try {

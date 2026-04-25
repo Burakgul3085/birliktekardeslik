@@ -14,6 +14,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
+    <div
+        id="page-transition"
+        class="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/88 opacity-0 transition-opacity duration-300"
+        aria-hidden="true"
+    >
+        <div class="flex items-center gap-3">
+            <span class="page-transition-dot page-transition-dot--1"></span>
+            <span class="page-transition-dot page-transition-dot--2"></span>
+            <span class="page-transition-dot page-transition-dot--3"></span>
+        </div>
+    </div>
     <x-navbar :menu-items="$menuItems" :site-settings="$siteSettings" />
     <main class="min-h-[70vh]">{{ $slot }}</main>
     <x-footer :site-settings="$siteSettings" />

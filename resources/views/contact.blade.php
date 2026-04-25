@@ -1,6 +1,7 @@
 <x-layouts.app>
+    <x-page-hero title="İletişim" />
+
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
-        <h1 class="text-3xl font-bold text-slate-900">İletişim</h1>
         <p class="mt-2 text-slate-600">Ad, soyad, e-posta ve mesajınızı yazarak bize ulaşabilirsiniz.</p>
 
         @if (session('success'))

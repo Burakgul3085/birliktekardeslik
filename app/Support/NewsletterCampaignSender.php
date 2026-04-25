@@ -24,7 +24,10 @@ class NewsletterCampaignSender
             'siteSettings' => $settings,
         ])->render();
 
-        $fromNotify = $settings->email ?: (string) env('PHPMAILER_FROM_ADDRESS');
+        $fromNotify = $settings->mailer_notification_email
+            ?: $settings->email
+            ?: $settings->mailer_from_address
+            ?: (string) env('PHPMAILER_FROM_ADDRESS');
         $sent = 0;
         $failed = 0;
 
@@ -72,7 +75,10 @@ class NewsletterCampaignSender
             'siteSettings' => $settings,
         ])->render();
 
-        $fromNotify = $settings->email ?: (string) env('PHPMAILER_FROM_ADDRESS');
+        $fromNotify = $settings->mailer_notification_email
+            ?: $settings->email
+            ?: $settings->mailer_from_address
+            ?: (string) env('PHPMAILER_FROM_ADDRESS');
         $sent = 0;
         $failed = 0;
 

@@ -1,4 +1,6 @@
 <x-layouts.app>
+    <x-page-hero title="Gönüllü Ol" />
+
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6" x-data="{ policyModal: null }">
         @php
             $defaultKvkk = "Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında gönüllü başvuru sürecinde toplanan kişisel verilerin işlenmesine ilişkin bilgilendirme amacı taşır.\n\nForm üzerinden paylaştığınız ad, soyad, e-posta, telefon ve başvuru içeriği; başvurunuzu değerlendirmek, sizinle iletişime geçmek, gönüllülük süreçlerini planlamak ve gerektiğinde yasal yükümlülükleri yerine getirmek amacıyla işlenir.\n\nKişisel verileriniz yalnızca yetkili dernek birimleri tarafından erişilebilir şekilde korunur, üçüncü kişilerle yalnızca hukuki zorunluluk veya açık rızanız bulunan hallerde paylaşılır.\n\nKVKK kapsamındaki erişim, düzeltme, silme, işleme itiraz ve benzeri taleplerinizi derneğimizin iletişim e-posta adresi üzerinden iletebilirsiniz.";
@@ -12,11 +14,11 @@
                     {{ $siteSettings->site_title }}
                 </span>
 
-                <h1 class="mt-4 text-3xl font-bold leading-tight text-slate-900">
+                <h2 class="mt-4 text-3xl font-bold leading-tight text-slate-900">
                     Faaliyetlerimize Gönüllü Katkı
                     <br class="hidden md:block">
                     Sağlamak İster misin?
-                </h1>
+                </h2>
                 <p class="mt-3 text-slate-600">
                     Çalışmalarımızda bizimle birlikte yer almak ister misin? Bilgilerini aşağıdaki formdan ileterek gönüllü olmak için başvuru yapabilirsin.
                 </p>

@@ -1,12 +1,11 @@
 <x-layouts.app>
+    <x-page-hero :title="$page->title" />
+
     @if ($page->slug === 'hikayemiz')
         <section class="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:py-16">
-            <div class="mb-10 text-center">
-                <h1 class="text-3xl font-bold tracking-tight text-cyan-900 md:text-4xl">{{ $page->title }}</h1>
-                @if (! empty($page->content))
-                    <div class="prose mx-auto mt-4 max-w-3xl text-slate-600 prose-slate">{!! $page->content !!}</div>
-                @endif
-            </div>
+            @if (! empty($page->content))
+                <div class="prose mx-auto mb-10 max-w-3xl text-center text-slate-600 prose-slate">{!! $page->content !!}</div>
+            @endif
 
             @php
                 $storyItems = collect($page->story_items ?? [])->filter(fn ($item) => filled($item['title'] ?? null) && filled($item['description'] ?? null));
@@ -133,10 +132,6 @@
             ];
         @endphp
         <section class="mx-auto max-w-6xl px-4 py-12 md:px-6 lg:py-16">
-            <div class="mb-10 text-center">
-                <h1 class="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">{{ $page->title }}</h1>
-            </div>
-
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
                 <div class="items-start gap-8 md:grid md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr]">
                     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
@@ -210,20 +205,6 @@
                 'telegram' => 'Telegram',
             ];
         @endphp
-
-        <section
-            class="relative isolate overflow-hidden py-10 text-white md:py-12"
-            style="background-color:#0b5f79;background-image:linear-gradient(rgba(7,77,98,.86),rgba(7,77,98,.86)),url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22120%22 viewBox=%220 0 240 120%22%3E%3Cg fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.07%22 stroke-width=%222%22%3E%3Cpath d=%22M0 24h240M0 60h240M0 96h240%22/%3E%3Cpath d=%22M30 0v120M90 0v120M150 0v120M210 0v120%22/%3E%3C/g%3E%3C/svg%3E');background-size:cover,240px 120px;background-position:center,center;"
-        >
-            <div class="relative mx-auto max-w-7xl px-4 text-center md:px-6">
-                <h1 class="text-3xl font-extrabold tracking-tight md:text-4xl">{{ $page->title }}</h1>
-                <div class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100">
-                    <a href="{{ route('home') }}" class="transition hover:text-white">Anasayfa</a>
-                    <span aria-hidden="true">›</span>
-                    <span class="text-white">{{ $page->title }}</span>
-                </div>
-            </div>
-        </section>
 
         <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:py-14">
             <h2 class="mb-8 text-center text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
@@ -325,20 +306,6 @@
             $defaultLogo = $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg');
         @endphp
 
-        <section
-            class="relative isolate overflow-hidden py-10 text-white md:py-12"
-            style="background-color:#0b5f79;background-image:linear-gradient(rgba(7,77,98,.86),rgba(7,77,98,.86)),url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22120%22 viewBox=%220 0 240 120%22%3E%3Cg fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.07%22 stroke-width=%222%22%3E%3Cpath d=%22M0 24h240M0 60h240M0 96h240%22/%3E%3Cpath d=%22M30 0v120M90 0v120M150 0v120M210 0v120%22/%3E%3C/g%3E%3C/svg%3E');background-size:cover,240px 120px;background-position:center,center;"
-        >
-            <div class="relative mx-auto max-w-7xl px-4 text-center md:px-6">
-                <h1 class="text-3xl font-extrabold tracking-tight md:text-4xl">{{ $page->title }}</h1>
-                <div class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100">
-                    <a href="{{ route('home') }}" class="transition hover:text-white">Anasayfa</a>
-                    <span aria-hidden="true">›</span>
-                    <span class="text-white">{{ $page->title }}</span>
-                </div>
-            </div>
-        </section>
-
         <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:py-14">
             @if (! empty($page->content))
                 <div class="mx-auto mb-8 max-w-5xl rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center text-sm leading-7 text-slate-600 shadow-sm md:text-base">
@@ -389,24 +356,6 @@
                 ->filter(fn ($section) => filled($section['section_title'] ?? null))
                 ->values();
         @endphp
-
-        <section
-            class="relative isolate overflow-hidden py-12 text-white shadow-inner md:py-14"
-            style="background-color:#0b5f79;background-image:linear-gradient(rgba(7,77,98,.86),rgba(7,77,98,.86)),url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22120%22 viewBox=%220 0 240 120%22%3E%3Cg fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.07%22 stroke-width=%222%22%3E%3Cpath d=%22M0 24h240M0 60h240M0 96h240%22/%3E%3Cpath d=%22M30 0v120M90 0v120M150 0v120M210 0v120%22/%3E%3C/g%3E%3C/svg%3E');background-size:cover,240px 120px;background-position:center,center;"
-        >
-            <div class="absolute inset-0 bg-gradient-to-r from-cyan-950/30 via-transparent to-cyan-950/30"></div>
-            <div class="relative mx-auto max-w-7xl px-4 text-center md:px-6">
-                <h1 class="text-3xl font-extrabold tracking-tight drop-shadow-sm md:text-4xl">{{ $page->title }}</h1>
-                <div class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100">
-                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path d="M10 2.5 2.5 8.2v9.3h5.1v-4.8h4.8v4.8h5.1V8.2L10 2.5Z"/>
-                    </svg>
-                    <a href="{{ route('home') }}" class="transition hover:text-white">Anasayfa</a>
-                    <span aria-hidden="true">›</span>
-                    <span class="text-white">{{ $page->title }}</span>
-                </div>
-            </div>
-        </section>
 
         <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:py-14">
             @if (! empty($page->content))
@@ -476,7 +425,6 @@
     @else
         <section class="mx-auto max-w-4xl px-4 py-12 md:px-6">
             <article class="card-ui">
-                <h1 class="text-3xl font-bold text-slate-900">{{ $page->title }}</h1>
                 <div class="prose mt-6 max-w-none prose-slate">{!! $page->content !!}</div>
             </article>
         </section>

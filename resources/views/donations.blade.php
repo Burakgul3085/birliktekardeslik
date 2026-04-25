@@ -1,6 +1,7 @@
 <x-layouts.app>
+    <x-page-hero title="Hesap Numaralarımız" />
+
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
-        <h1 class="text-3xl font-bold text-slate-900">Hesap Numaralarımız</h1>
         <p class="mt-2 text-slate-600">Aşağıdaki bilgiler üzerinden güvenle bağış yapabilirsiniz.</p>
 
         <div class="mt-6 space-y-5">

@@ -8,6 +8,8 @@ use App\Filament\Widgets\OrganizationOverview;
 use App\Filament\Widgets\SuspiciousActivityAlert;
 use App\Http\Middleware\LogAdminNavigation;
 use App\Models\Setting;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,10 +30,20 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $canDelete = fn (): bool => auth()->check() && (auth()->user()?->canManageContent() ?? false);
+
+        DeleteAction::configureUsing(
+            fn (DeleteAction $action): DeleteAction => $action->visible($canDelete),
+        );
+
+        DeleteBulkAction::configureUsing(
+            fn (DeleteBulkAction $action): DeleteBulkAction => $action->visible($canDelete),
+        );
+
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('bkd-panel')
             ->login(Login::class)
             ->brandName('Birlikte Kardeşlik Derneği')
             ->brandLogo(fn (): string => Setting::current()->logo

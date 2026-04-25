@@ -14,87 +14,163 @@ class SettingForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Genel Ayarlar')->schema([
-                TextInput::make('site_title')->label('Site Başlığı')->required(),
-                Textarea::make('site_description')->label('Açıklama')->rows(3),
-                FileUpload::make('logo')->image()->disk('public')->directory('settings')->label('Logo'),
-                FileUpload::make('favicon')->image()->disk('public')->directory('settings')->label('Favicon'),
-                TextInput::make('phone')->label('Telefon'),
-                TextInput::make('email')->email()->label('E-posta'),
-                TextInput::make('address')->label('Adres'),
-                TextInput::make('website_url')->url()->label('Web Site Linki'),
-                Textarea::make('volunteer_preferences')
-                    ->label('Gönüllülük Tercihleri')
-                    ->rows(4)
-                    ->helperText('Her satıra bir tercih yazın. Örn: Sosyal Medya, Saha Görevlisi, Genel Gönüllü')
-                    ->default("Sosyal Medya\nSaha Görevlisi\nGenel Gönüllü"),
-                Textarea::make('kvkk_text')
-                    ->label('KVKK Aydınlatma Metni')
-                    ->rows(8)
-                    ->columnSpanFull(),
-                Textarea::make('volunteer_clarification_text')
-                    ->label('Gönüllü Başvuru Aydınlatma Metni')
-                    ->rows(8)
-                    ->columnSpanFull(),
-                Textarea::make('privacy_policy_text')
-                    ->label('Gizlilik Politikası Metni')
-                    ->rows(8)
-                    ->columnSpanFull(),
-                TextInput::make('home_focus_1_title')
-                    ->label('Ana sayfa odak kartı 1 başlık')
-                    ->default('Acil Gıda Desteği'),
-                Textarea::make('home_focus_1_text')
-                    ->label('Ana sayfa odak kartı 1 metin')
-                    ->rows(3)
-                    ->default('Afrika’da açlık riski altındaki ailelere temel gıda kolileri ulaştırıyoruz.'),
-                TextInput::make('home_focus_2_title')
-                    ->label('Ana sayfa odak kartı 2 başlık')
-                    ->default('Temiz Su Erişimi'),
-                Textarea::make('home_focus_2_text')
-                    ->label('Ana sayfa odak kartı 2 metin')
-                    ->rows(3)
-                    ->default('Susuzlukla mücadele eden bölgelerde temiz suya erişimi destekliyoruz.'),
-                TextInput::make('home_focus_3_title')
-                    ->label('Ana sayfa odak kartı 3 başlık')
-                    ->default('Beslenme Dayanışması'),
-                Textarea::make('home_focus_3_text')
-                    ->label('Ana sayfa odak kartı 3 metin')
-                    ->rows(3)
-                    ->default('Yemek ve içme suyu odağında düzenli insani yardım çalışmaları yürütüyoruz.'),
-                TextInput::make('home_about_badge')
-                    ->label('Biz Kimiz alanı rozet metni')
-                    ->default('Birlikte Kardeşlik Derneği'),
-                TextInput::make('home_about_title')
-                    ->label('Biz Kimiz alanı başlık')
-                    ->default('Biz Kimiz!'),
-                Textarea::make('home_about_intro')
-                    ->label('Biz Kimiz kısa giriş metni')
-                    ->rows(3)
-                    ->columnSpanFull(),
-                Textarea::make('home_about_body')
-                    ->label('Biz Kimiz açıklama metni')
-                    ->rows(5)
-                    ->columnSpanFull(),
-                Textarea::make('home_about_items')
-                    ->label('Biz Kimiz madde listesi')
-                    ->rows(4)
-                    ->helperText('Her satıra bir madde yazın.')
-                    ->columnSpanFull(),
-                TextInput::make('home_about_button_text')
-                    ->label('Biz Kimiz buton metni')
-                    ->default('Hakkımızda'),
-                FileUpload::make('home_about_image')
-                    ->image()
-                    ->disk('public')
-                    ->directory('settings')
-                    ->label('Biz Kimiz görseli (kare önerilir)'),
-                Textarea::make('header_panel_volunteer_text')
-                    ->label('Header hızlı panel: Gönüllü alanı metni')
-                    ->rows(4)
-                    ->helperText('Ana menüdeki kare ikonundan açılan panelde, gönüllülük bölümünde gösterilir.')
-                    ->columnSpanFull(),
-            ])->columns(2),
-            Section::make('Sosyal Medya')->schema([
+            Section::make('Genel Ayarlar')
+                ->description('Site genel görünümü ve temel bilgiler. Önerilen sıra: Site Kimliği → İletişim Bilgileri → Ana Sayfa alanları → Yasal Metinler.')
+                ->schema([
+                    Section::make('Site Kimliği')
+                        ->icon('heroicon-o-identification')
+                        ->description('Üst menü, footer ve tarayıcı sekmesinde görünen kimlik alanları.')
+                        ->collapsible()
+                        ->schema([
+                            TextInput::make('site_title')
+                                ->label('Site Başlığı')
+                                ->helperText('Menü ve footer gibi ana alanlarda görünür.')
+                                ->required(),
+                            Textarea::make('site_description')
+                                ->label('Kısa Açıklama')
+                                ->rows(3)
+                                ->helperText('Footer ve meta açıklama alanlarında kullanılır.'),
+                            FileUpload::make('logo')
+                                ->image()
+                                ->disk('public')
+                                ->directory('settings')
+                                ->label('Logo')
+                                ->helperText('Menü ve footer logoları için kullanılır.'),
+                            FileUpload::make('favicon')
+                                ->image()
+                                ->disk('public')
+                                ->directory('settings')
+                                ->label('Favicon')
+                                ->helperText('Tarayıcı sekmesinde görünen küçük simge.'),
+                        ])->columns(2),
+
+                    Section::make('İletişim Bilgileri')
+                        ->icon('heroicon-o-phone')
+                        ->description('İletişim sayfası, footer ve bazı tanıtım bloklarında kullanılır.')
+                        ->collapsible()
+                        ->collapsed()
+                        ->schema([
+                            TextInput::make('phone')->label('Telefon'),
+                            TextInput::make('email')->email()->label('E-posta'),
+                            TextInput::make('address')->label('Adres')->columnSpanFull(),
+                            TextInput::make('website_url')->url()->label('Web Site Linki')->columnSpanFull(),
+                            Textarea::make('volunteer_preferences')
+                                ->label('Gönüllülük Tercihleri')
+                                ->rows(4)
+                                ->helperText('Her satıra bir tercih yazın. Örn: Sosyal Medya, Saha Görevlisi, Genel Gönüllü')
+                                ->default("Sosyal Medya\nSaha Görevlisi\nGenel Gönüllü")
+                                ->columnSpanFull(),
+                        ])->columns(2),
+
+                    Section::make('Yasal Metinler')
+                        ->icon('heroicon-o-document-text')
+                        ->description('Footer modallarında ve ilgili başvuru alanlarında gösterilir.')
+                        ->collapsible()
+                        ->collapsed()
+                        ->schema([
+                            Textarea::make('kvkk_text')
+                                ->label('KVKK Aydınlatma Metni')
+                                ->rows(8)
+                                ->helperText('KVKK butonuna tıklanınca açılan metin.')
+                                ->columnSpanFull(),
+                            Textarea::make('volunteer_clarification_text')
+                                ->label('Gönüllü Başvuru Aydınlatma Metni')
+                                ->rows(8)
+                                ->helperText('Gönüllü başvuru formunda gösterilen metin.')
+                                ->columnSpanFull(),
+                            Textarea::make('privacy_policy_text')
+                                ->label('Gizlilik Politikası Metni')
+                                ->rows(8)
+                                ->helperText('Footer gizlilik politikası içeriği.')
+                                ->columnSpanFull(),
+                        ]),
+
+                    Section::make('Ana Sayfa - Odak Kartları')
+                        ->icon('heroicon-o-squares-2x2')
+                        ->description('Ana sayfada öne çıkan 3 kartın başlık ve açıklamalarını düzenler.')
+                        ->collapsible()
+                        ->collapsed()
+                        ->schema([
+                            TextInput::make('home_focus_1_title')
+                                ->label('Kart 1 Başlık')
+                                ->default('Acil Gıda Desteği'),
+                            Textarea::make('home_focus_1_text')
+                                ->label('Kart 1 Metin')
+                                ->rows(3)
+                                ->default('Afrika’da açlık riski altındaki ailelere temel gıda kolileri ulaştırıyoruz.'),
+                            TextInput::make('home_focus_2_title')
+                                ->label('Kart 2 Başlık')
+                                ->default('Temiz Su Erişimi'),
+                            Textarea::make('home_focus_2_text')
+                                ->label('Kart 2 Metin')
+                                ->rows(3)
+                                ->default('Susuzlukla mücadele eden bölgelerde temiz suya erişimi destekliyoruz.'),
+                            TextInput::make('home_focus_3_title')
+                                ->label('Kart 3 Başlık')
+                                ->default('Beslenme Dayanışması'),
+                            Textarea::make('home_focus_3_text')
+                                ->label('Kart 3 Metin')
+                                ->rows(3)
+                                ->default('Yemek ve içme suyu odağında düzenli insani yardım çalışmaları yürütüyoruz.'),
+                        ])->columns(2),
+
+                    Section::make('Ana Sayfa - Biz Kimiz Alanı')
+                        ->icon('heroicon-o-user-group')
+                        ->description('Ana sayfadaki Biz Kimiz bölümünün tüm metin ve görselleri.')
+                        ->collapsible()
+                        ->collapsed()
+                        ->schema([
+                            TextInput::make('home_about_badge')
+                                ->label('Rozet Metni')
+                                ->default('Birlikte Kardeşlik Derneği'),
+                            TextInput::make('home_about_title')
+                                ->label('Başlık')
+                                ->default('Biz Kimiz!'),
+                            Textarea::make('home_about_intro')
+                                ->label('Kısa Giriş Metni')
+                                ->rows(3)
+                                ->columnSpanFull(),
+                            Textarea::make('home_about_body')
+                                ->label('Açıklama Metni')
+                                ->rows(5)
+                                ->columnSpanFull(),
+                            Textarea::make('home_about_items')
+                                ->label('Madde Listesi')
+                                ->rows(4)
+                                ->helperText('Her satıra bir madde yazın.')
+                                ->columnSpanFull(),
+                            TextInput::make('home_about_button_text')
+                                ->label('Buton Metni')
+                                ->default('Hakkımızda'),
+                            FileUpload::make('home_about_image')
+                                ->image()
+                                ->disk('public')
+                                ->directory('settings')
+                                ->label('Görsel (kare önerilir)')
+                                ->helperText('Ana sayfadaki Biz Kimiz görsel alanında kullanılır.'),
+                        ])->columns(2),
+
+                    Section::make('Header Hızlı Panel')
+                        ->icon('heroicon-o-squares-plus')
+                        ->description('Menüdeki kare ikondan açılan panel için metin alanı.')
+                        ->collapsible()
+                        ->collapsed()
+                        ->schema([
+                            Textarea::make('header_panel_volunteer_text')
+                                ->label('Gönüllü Alanı Metni')
+                                ->rows(4)
+                                ->helperText('Ana menüdeki kare ikonundan açılan panelde, gönüllülük bölümünde gösterilir.')
+                                ->columnSpanFull(),
+                        ]),
+                ])
+                ->columns(1),
+
+            Section::make('Sosyal Medya')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->description('Header/footer sosyal ikon linkleri ile hızlı panel başlığını düzenler.')
+                ->collapsible()
+                ->collapsed()
+                ->schema([
                 TextInput::make('social_section_title')
                     ->label('Sosyal medya bölümü başlığı')
                     ->helperText('Header hızlı panelin alt kısmındaki başlık (boşsa varsayılan metin kullanılır).'),

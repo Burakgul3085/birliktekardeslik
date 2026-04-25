@@ -47,11 +47,20 @@ class Setting extends Model
         'linkedin_url',
         'whatsapp_url',
         'telegram_url',
+        'mailer_host',
+        'mailer_port',
+        'mailer_encryption',
+        'mailer_username',
+        'mailer_password',
+        'mailer_from_address',
+        'mailer_from_name',
+        'mailer_notification_email',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'mailer_password' => 'encrypted',
     ];
 
     public static function current(): self
@@ -77,6 +86,8 @@ class Setting extends Model
             'home_about_button_text' => 'Hakkımızda',
             'header_panel_volunteer_text' => 'Faaliyetlerimizde sizinle birlikte hareket etmek ister misiniz? Gönüllü olarak zamanınızı ve emeğinizi paylaşarak toplumsal faydaya katkı sağlayabilirsiniz. Başvuru formu üzerinden bize ulaşın, birlikte iyiliği büyütelim.',
             'social_section_title' => 'Sosyal medyada bizi takip edin',
+            'mailer_encryption' => 'tls',
+            'mailer_port' => 587,
         ]);
     }
 

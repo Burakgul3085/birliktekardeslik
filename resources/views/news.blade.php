@@ -1,10 +1,11 @@
 <x-layouts.app>
+    <x-page-hero title="Haberler ve Duyurular" />
+
     <section class="mx-auto max-w-7xl px-4 pt-10 md:px-6 md:pt-12">
         <div class="rounded-3xl bg-cyan-50/50 p-6 md:p-8">
             <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-700 ring-1 ring-cyan-100">
                 • Son Haberler
             </span>
-            <h1 class="mt-3 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">Haberler ve Duyurular</h1>
             <p class="mt-3 max-w-4xl text-base leading-relaxed text-slate-600 md:text-lg">
                 Derneğimizin saha faaliyetlerinden güncel gelişmeleri, duyuruları ve bilgilendirmeleri bu alandan takip edebilirsiniz.
             </p>

@@ -30,6 +30,31 @@ class NewsResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->check();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->check();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()?->canManageContent();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->check() && auth()->user()?->canManageContent();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->check() && auth()->user()?->canManageContent();
+    }
+
     public static function form(Schema $schema): Schema
     {
         return NewsForm::configure($schema);

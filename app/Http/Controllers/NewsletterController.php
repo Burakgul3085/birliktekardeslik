@@ -65,7 +65,10 @@ class NewsletterController extends Controller
     private function sendWelcomeEmail(NewsletterSubscriber $subscriber): void
     {
         $settings = Setting::current();
-        $notify = $settings->email ?: (string) env('PHPMAILER_FROM_ADDRESS');
+        $notify = $settings->mailer_notification_email
+            ?: $settings->email
+            ?: $settings->mailer_from_address
+            ?: (string) env('PHPMAILER_FROM_ADDRESS');
         if (! $notify) {
             return;
         }

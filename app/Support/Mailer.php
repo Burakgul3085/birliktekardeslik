@@ -13,24 +13,26 @@ class Mailer
      */
     public static function send(string $to, string $toName, string $subject, string $htmlBody, ?string $replyTo = null): void
     {
+        $settings = Setting::current();
+
         $mail = new PHPMailer(true);
         $mail->CharSet = 'UTF-8';
         $mail->isSMTP();
-        $mail->Host = (string) env('PHPMAILER_HOST');
-        $mail->Port = (int) env('PHPMAILER_PORT', 587);
+        $mail->Host = (string) ($settings->mailer_host ?: env('PHPMAILER_HOST'));
+        $mail->Port = (int) ($settings->mailer_port ?: env('PHPMAILER_PORT', 587));
         $mail->SMTPAuth = true;
-        $mail->Username = (string) env('PHPMAILER_USERNAME');
-        $mail->Password = (string) env('PHPMAILER_PASSWORD');
+        $mail->Username = (string) ($settings->mailer_username ?: env('PHPMAILER_USERNAME'));
+        $mail->Password = (string) ($settings->mailer_password ?: env('PHPMAILER_PASSWORD'));
 
-        $encryption = strtolower((string) env('PHPMAILER_ENCRYPTION', 'tls'));
+        $encryption = strtolower((string) ($settings->mailer_encryption ?: env('PHPMAILER_ENCRYPTION', 'tls')));
         if ($encryption === 'ssl') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         } else {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
 
-        $fromAddress = (string) env('PHPMAILER_FROM_ADDRESS');
-        $fromName = (string) env('PHPMAILER_FROM_NAME', config('app.name'));
+        $fromAddress = (string) ($settings->mailer_from_address ?: env('PHPMAILER_FROM_ADDRESS'));
+        $fromName = (string) ($settings->mailer_from_name ?: env('PHPMAILER_FROM_NAME', config('app.name')));
 
         $mail->setFrom($fromAddress, $fromName);
         $mail->addAddress($to, $toName);
@@ -44,7 +46,6 @@ class Mailer
         $mail->Body = $htmlBody;
         $mail->AltBody = strip_tags($htmlBody);
 
-        $settings = Setting::current();
         if ($settings->logo) {
             $logoPath = storage_path('app/public/' . $settings->logo);
             if (is_file($logoPath)) {

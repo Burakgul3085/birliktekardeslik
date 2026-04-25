@@ -1,14 +1,5 @@
 <x-layouts.app>
-    <section class="bg-cyan-900/95 py-10 text-white">
-        <div class="mx-auto max-w-7xl px-4 md:px-6">
-            <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{{ $activity->title }}</h1>
-            <div class="mt-3 text-sm text-cyan-100">
-                <a href="{{ route('activities.index') }}" class="hover:text-white">Faaliyetler</a>
-                <span class="px-2">›</span>
-                <span>{{ $activity->title }}</span>
-            </div>
-        </div>
-    </section>
+    <x-page-hero :title="$activity->title" />
 
     @php
         $accordionItems = [

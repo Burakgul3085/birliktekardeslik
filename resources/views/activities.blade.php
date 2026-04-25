@@ -1,14 +1,10 @@
 <x-layouts.app>
-    <section class="bg-cyan-900/95 py-12 text-white">
-        <div class="mx-auto max-w-7xl px-4 md:px-6">
-            <h1 class="text-4xl font-bold tracking-tight md:text-5xl">Faaliyetlerimiz</h1>
-            <p class="mt-4 max-w-4xl text-base leading-relaxed text-cyan-100 md:text-lg">
-                Afrika’da açlık ve susuzlukla mücadele eden kardeşlerimize yönelik yürüttüğümüz gıda ve temiz su çalışmalarımız.
-            </p>
-        </div>
-    </section>
+    <x-page-hero title="Faaliyetlerimiz" />
 
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
+        <p class="mx-auto mb-8 max-w-4xl text-center text-base leading-relaxed text-slate-600 md:text-lg">
+            Afrika’da açlık ve susuzlukla mücadele eden kardeşlerimize yönelik yürüttüğümüz gıda ve temiz su çalışmalarımız.
+        </p>
         <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             @forelse($activities as $activity)
                 <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">

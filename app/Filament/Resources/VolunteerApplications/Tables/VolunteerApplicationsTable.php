@@ -71,6 +71,7 @@ class VolunteerApplicationsTable
                     ])
                     ->action(function ($record, array $data): void {
                         $settings = Setting::current();
+                        $replyToEmail = $settings->mailer_notification_email ?: $settings->email;
 
                         try {
                             $html = view('emails.volunteer-reply', [
@@ -85,7 +86,7 @@ class VolunteerApplicationsTable
                                 trim($record->first_name . ' ' . $record->last_name),
                                 $data['subject'],
                                 $html,
-                                $settings->email,
+                                $replyToEmail,
                             );
 
                             $record->update([
