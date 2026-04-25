@@ -178,11 +178,22 @@
             $mapsEmbedUrl = $meta['maps_embed_url'] ?? null;
             $donationPageUrl = $meta['donation_page_url'] ?? route('donations');
             $normalizedMapsUrl = null;
+            $mapsDirectUrl = null;
+            $mapsNeedsExternalOpen = false;
             if (filled($mapsEmbedUrl)) {
                 $mapsEmbedUrl = trim((string) $mapsEmbedUrl);
-                $normalizedMapsUrl = \Illuminate\Support\Str::contains($mapsEmbedUrl, ['/maps/embed', 'output=embed'])
-                    ? $mapsEmbedUrl
-                    : 'https://www.google.com/maps?q=' . urlencode($mapsEmbedUrl) . '&output=embed';
+                $mapsDirectUrl = $mapsEmbedUrl;
+                if (\Illuminate\Support\Str::contains($mapsEmbedUrl, ['maps.app.goo.gl', 'goo.gl/maps'])) {
+                    if (filled($settings->address)) {
+                        $normalizedMapsUrl = 'https://www.google.com/maps?q=' . urlencode((string) $settings->address) . '&output=embed';
+                    } else {
+                        $mapsNeedsExternalOpen = true;
+                    }
+                } else {
+                    $normalizedMapsUrl = \Illuminate\Support\Str::contains($mapsEmbedUrl, ['/maps/embed', 'output=embed'])
+                        ? $mapsEmbedUrl
+                        : 'https://www.google.com/maps?q=' . urlencode($mapsEmbedUrl) . '&output=embed';
+                }
             }
             $socialMap = [
                 'instagram_url' => 'instagram',
@@ -289,6 +300,20 @@
                                 referrerpolicy="no-referrer-when-downgrade"
                                 allowfullscreen
                             ></iframe>
+                        </div>
+                    @elseif ($mapsNeedsExternalOpen && filled($mapsDirectUrl))
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <p class="text-sm leading-7 text-slate-600">
+                                Kısa Google Maps bağlantıları gömülü haritada kısıtlanabilir. Haritayı yeni sekmede açabilirsiniz.
+                            </p>
+                            <a
+                                href="{{ $mapsDirectUrl }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="mt-3 inline-flex items-center rounded-full bg-cyan-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-cyan-800"
+                            >
+                                Haritayı Aç
+                            </a>
                         </div>
                     @else
                         <p class="text-sm leading-7 text-slate-600">Google Maps bağlantısı admin panelden eklendiğinde bu alanda harita görünecektir.</p>

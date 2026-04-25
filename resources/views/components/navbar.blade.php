@@ -190,5 +190,31 @@
         </nav>
     </div>
 
+    <div class="border-t border-slate-100 bg-white/95 md:hidden">
+        <div class="no-scrollbar mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-2">
+            <a
+                href="{{ route('home') }}"
+                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+            >Ana Sayfa</a>
+
+            @foreach($headerTopItems as $item)
+                <a
+                    href="{{ $item->url }}"
+                    target="{{ $item->open_in_new_tab ? '_blank' : '_self' }}"
+                    class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+                >{{ $item->label }}</a>
+            @endforeach
+
+            <a
+                href="{{ route('news.index') }}"
+                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+            >Haberler</a>
+            <a
+                href="{{ route('contact') }}"
+                class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+            >İletişim</a>
+        </div>
+    </div>
+
     @include('components.header-contact-panel')
 </header>

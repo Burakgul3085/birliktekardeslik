@@ -7,8 +7,30 @@
         display: none !important;
     }
 
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
     body {
         @apply overflow-x-hidden bg-slate-50 text-slate-700 antialiased;
+    }
+
+    img,
+    svg,
+    video,
+    canvas,
+    iframe {
+        max-width: 100%;
+    }
+
+    iframe {
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
     }
 }
 
@@ -93,6 +115,11 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
+    .responsive-content {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
 }
 
 @keyframes about-orb-float {
@@ -133,5 +160,46 @@
     45% {
         transform: translateY(-6px) scale(1);
         opacity: 1;
+    }
+}
+
+/* Global responsive hardening without layout break */
+@media (max-width: 1024px) {
+    .prose {
+        max-width: 100%;
+    }
+
+    .prose table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-ui {
+        padding: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        line-height: 1.25;
+    }
+
+    main {
+        min-height: 60vh;
+    }
+}
+
+@media (max-width: 640px) {
+    .btn-primary,
+    .btn-hero-cta,
+    .btn-hero-ykd {
+        width: 100%;
+    }
+
+    .prose {
+        font-size: 0.95rem;
+        line-height: 1.7;
     }
 }

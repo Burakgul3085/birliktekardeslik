@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\AdminOtpController;
+use App\Http\Controllers\AdminForgotPasswordController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -26,4 +27,11 @@ Route::prefix('bkd-panel')->name('admin.otp.')->group(function (): void {
     Route::post('/dogrulama', [AdminOtpController::class, 'verify'])
         ->middleware('throttle:10,1')
         ->name('verify');
+});
+
+Route::prefix('bkd-panel')->name('admin.password.')->group(function (): void {
+    Route::get('/sifremi-unuttum', [AdminForgotPasswordController::class, 'show'])->name('forgot');
+    Route::post('/sifremi-unuttum', [AdminForgotPasswordController::class, 'reset'])
+        ->middleware('throttle:10,1')
+        ->name('reset');
 });

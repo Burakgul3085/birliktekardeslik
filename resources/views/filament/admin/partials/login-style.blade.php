@@ -59,6 +59,21 @@
         outline-offset: 2px;
     }
 
+    .fi-simple-layout .bkd-login-forgot__btn {
+        display: inline-flex;
+        margin-top: 0.6rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #0e7490;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .fi-simple-layout .bkd-login-forgot__btn:hover {
+        color: #0f172a;
+        text-decoration: underline;
+    }
+
     .fi-simple-layout .bkd-values {
         margin-top: 1rem;
         border-radius: 0.9rem;
