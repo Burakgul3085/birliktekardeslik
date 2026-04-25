@@ -61,8 +61,10 @@
             <div class="relative mx-auto w-full max-w-md lg:max-w-lg">
                 <div class="about-float-orb absolute -left-4 -top-4 h-16 w-16 rounded-full bg-cyan-500/20 blur-[1px]"></div>
                 <div class="about-float-orb-delayed absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-cyan-300/30 blur-[1px]"></div>
-                <div class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 shadow-xl">
-                    <img src="{{ $aboutImage }}" alt="Biz Kimiz" class="aspect-square w-full rounded-2xl object-cover" />
+                <div class="relative aspect-square overflow-hidden rounded-3xl border border-slate-200/70 bg-transparent p-2 shadow-xl">
+                    <div class="h-full w-full rounded-2xl p-2">
+                        <img src="{{ $aboutImage }}" alt="Biz Kimiz" class="h-full w-full object-contain" />
+                    </div>
                 </div>
             </div>
 
