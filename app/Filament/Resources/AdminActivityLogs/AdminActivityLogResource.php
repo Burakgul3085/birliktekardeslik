@@ -43,7 +43,12 @@ class AdminActivityLogResource extends Resource
 
     public static function canDelete($record): bool
     {
-        return false;
+        return auth()->check() && auth()->user()?->isSuperAdmin();
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->check() && auth()->user()?->isSuperAdmin();
     }
 
     public static function table(Table $table): Table

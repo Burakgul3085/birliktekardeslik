@@ -46,6 +46,20 @@ class ContactMessageResource extends Resource
         return auth()->check() && auth()->user()?->canManageContent();
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $pendingCount = ContactMessage::query()
+            ->where('is_replied', false)
+            ->count();
+
+        return $pendingCount > 0 ? (string) $pendingCount : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
     public static function table(Table $table): Table
     {
         return ContactMessagesTable::configure($table);
