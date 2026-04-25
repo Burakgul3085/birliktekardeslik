@@ -103,6 +103,228 @@
                 </article>
             @endif
         </section>
+    @elseif ($page->slug === 'hakkimizda')
+        @php
+            $settings = \App\Models\Setting::current();
+            $meta = is_array($page->page_meta ?? null) ? $page->page_meta : [];
+            $aboutImage = ! empty($meta['about_image']) ? \Illuminate\Support\Facades\Storage::url($meta['about_image']) : asset('images/default-logo.svg');
+            $socialMap = [
+                'instagram_url' => 'instagram',
+                'youtube_url' => 'youtube',
+                'tiktok_url' => 'tiktok',
+                'facebook_url' => 'facebook',
+                'x_url' => 'x',
+                'linkedin_url' => 'linkedin',
+                'whatsapp_url' => 'whatsapp',
+                'telegram_url' => 'telegram',
+            ];
+            $socialAria = [
+                'instagram' => 'Instagram',
+                'youtube' => 'YouTube',
+                'tiktok' => 'TikTok',
+                'facebook' => 'Facebook',
+                'x' => 'X',
+                'linkedin' => 'LinkedIn',
+                'whatsapp' => 'WhatsApp',
+                'telegram' => 'Telegram',
+            ];
+        @endphp
+        <section class="mx-auto max-w-5xl px-4 py-12 md:px-6 lg:py-16">
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
+                <div class="mx-auto max-w-2xl">
+                    <div class="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white/10 p-2 shadow-sm backdrop-blur-sm">
+                        <div class="rounded-xl bg-white/5 p-2">
+                            <img
+                                src="{{ $aboutImage }}"
+                                alt="{{ $page->title }}"
+                                class="mx-auto block h-auto max-h-[520px] w-full rounded-lg object-contain"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="group mt-8 rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:bg-cyan-50/70 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
+                        <h2 class="mb-3 text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Hakkımızda</h2>
+                        <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
+                            {!! $page->content ?: '<p>Birlikte Kardeşlik Derneği; yardımlaşma, dayanışma ve sosyal sorumluluk bilinciyle faaliyet gösteren bir sivil toplum oluşumudur.</p>' !!}
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+                        @foreach ($socialMap as $field => $platform)
+                            @if (! empty($settings->$field))
+                                <a
+                                    href="{{ $settings->$field }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-cyan-600 hover:text-white"
+                                    title="{{ $socialAria[$platform] ?? $platform }}"
+                                    aria-label="{{ $socialAria[$platform] ?? $platform }}"
+                                >
+                                    <x-social-brand-icon :platform="$platform" icon-class="h-4 w-4" />
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            </article>
+        </section>
+    @elseif ($page->slug === 'vizyon-misyon')
+        @php
+            $settings = \App\Models\Setting::current();
+            $meta = is_array($page->page_meta ?? null) ? $page->page_meta : [];
+            $visionText = $meta['vision_text'] ?? null;
+            $missionText = $meta['mission_text'] ?? null;
+            $socialMap = [
+                'instagram_url' => 'instagram',
+                'youtube_url' => 'youtube',
+                'tiktok_url' => 'tiktok',
+                'facebook_url' => 'facebook',
+                'x_url' => 'x',
+                'linkedin_url' => 'linkedin',
+                'whatsapp_url' => 'whatsapp',
+                'telegram_url' => 'telegram',
+            ];
+            $socialAria = [
+                'instagram' => 'Instagram',
+                'youtube' => 'YouTube',
+                'tiktok' => 'TikTok',
+                'facebook' => 'Facebook',
+                'x' => 'X',
+                'linkedin' => 'LinkedIn',
+                'whatsapp' => 'WhatsApp',
+                'telegram' => 'Telegram',
+            ];
+        @endphp
+        <section class="mx-auto max-w-4xl px-4 py-12 md:px-6 lg:py-16">
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
+                <div class="space-y-5">
+                    <div class="group rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:bg-cyan-50/70 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
+                        <h2 class="mb-3 text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Vizyonumuz</h2>
+                        <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
+                            {!! $visionText ?: '<p>Vizyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
+                        </div>
+                    </div>
+
+                    <div class="group rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:bg-cyan-50/70 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
+                        <h2 class="mb-3 text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Misyonumuz</h2>
+                        <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
+                            {!! $missionText ?: '<p>Misyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+                    @foreach ($socialMap as $field => $platform)
+                        @if (! empty($settings->$field))
+                            <a
+                                href="{{ $settings->$field }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-cyan-600 hover:text-white"
+                                title="{{ $socialAria[$platform] ?? $platform }}"
+                                aria-label="{{ $socialAria[$platform] ?? $platform }}"
+                            >
+                                <x-social-brand-icon :platform="$platform" icon-class="h-4 w-4" />
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
+            </article>
+        </section>
+    @elseif (in_array($page->slug, ['dernek-tuzugu', 'faaliyet-belgesi', 'kurumsal-evrak-arsivi'], true))
+        @php
+            $meta = is_array($page->page_meta ?? null) ? $page->page_meta : [];
+            $documentConfig = [
+                'dernek-tuzugu' => [
+                    'legacy_file_key' => 'charter_file',
+                    'legacy_title_key' => 'charter_title',
+                    'default_title' => 'Dernek Tüzüğü',
+                    'empty_text' => 'Dernek tüzüğü henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+                ],
+                'faaliyet-belgesi' => [
+                    'legacy_file_key' => 'activity_doc_file',
+                    'legacy_title_key' => 'activity_doc_title',
+                    'default_title' => 'Faaliyet Belgesi',
+                    'empty_text' => 'Faaliyet belgesi henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+                ],
+                'kurumsal-evrak-arsivi' => [
+                    'legacy_file_key' => 'archive_doc_file',
+                    'legacy_title_key' => 'archive_doc_title',
+                    'default_title' => 'Kurumsal Evrak Arşivi',
+                    'empty_text' => 'Kurumsal evrak arşivi dosyası henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+                ],
+            ];
+            $currentDoc = $documentConfig[$page->slug] ?? $documentConfig['dernek-tuzugu'];
+            $documentFile = $meta['document_file'] ?? ($meta[$currentDoc['legacy_file_key']] ?? null);
+            $documentUrl = filled($documentFile) ? \Illuminate\Support\Facades\Storage::url($documentFile) : null;
+            $documentTitle = trim((string) ($meta['document_title'] ?? ($meta[$currentDoc['legacy_title_key']] ?? ''))) ?: $currentDoc['default_title'];
+            $documentExt = $documentFile ? strtolower(pathinfo((string) $documentFile, PATHINFO_EXTENSION)) : null;
+            $isImagePreview = in_array($documentExt, ['jpg', 'jpeg', 'png'], true);
+            $isPdfPreview = $documentExt === 'pdf';
+        @endphp
+        <section class="mx-auto max-w-5xl px-4 py-12 md:px-6 lg:py-16">
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] md:p-8">
+                @if (! empty($page->content))
+                    <div class="prose mx-auto mb-6 max-w-none text-center prose-slate prose-p:leading-8">
+                        {!! $page->content !!}
+                    </div>
+                @endif
+
+                @if ($documentUrl)
+                    <div class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-slate-50/60 p-4 md:p-6">
+                        <h2 class="text-center text-xl font-bold text-cyan-900 md:text-2xl">{{ $documentTitle }}</h2>
+
+                        @if ($isPdfPreview)
+                            <div class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                                <iframe
+                                    src="{{ $documentUrl }}"
+                                    class="h-[560px] w-full"
+                                    style="border:0;"
+                                    loading="lazy"
+                                    title="{{ $documentTitle }}"
+                                ></iframe>
+                            </div>
+                        @elseif ($isImagePreview)
+                            <div class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                                <img
+                                    src="{{ $documentUrl }}"
+                                    alt="{{ $documentTitle }}"
+                                    class="mx-auto block h-auto max-h-[620px] w-full rounded-lg object-contain"
+                                >
+                            </div>
+                        @else
+                            <div class="mt-4 rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm">
+                                <p class="text-sm leading-7 text-slate-600">
+                                    Bu dosya türü tarayıcı içinde önizlenemeyebilir. Belgeyi yeni sekmede açabilir veya indirebilirsiniz.
+                                </p>
+                            </div>
+                        @endif
+
+                        <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
+                            <a
+                                href="{{ $documentUrl }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center rounded-full bg-cyan-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-700"
+                            >
+                                Belgeyi Yeni Sekmede Aç
+                            </a>
+                            <a
+                                href="{{ $documentUrl }}"
+                                download
+                                class="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-5 py-2.5 text-sm font-semibold text-cyan-800 transition hover:border-cyan-300 hover:bg-cyan-100"
+                            >
+                                Belgeyi İndir
+                            </a>
+                        </div>
+                    </div>
+                @else
+                    <p class="text-center text-sm text-slate-600">
+                        {{ $currentDoc['empty_text'] }}
+                    </p>
+                @endif
+            </article>
+        </section>
     @elseif ($page->slug === 'baskanin-mesaji')
         @php
             $settings = \App\Models\Setting::current();

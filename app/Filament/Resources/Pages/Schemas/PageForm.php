@@ -71,6 +71,133 @@ class PageForm
                 ->columns(2)
                 ->columnSpanFull()
                 ->visible(fn ($get): bool => (string) $get('slug') === 'baskanin-mesaji'),
+            Section::make('Hakkımızda Sayfası Alanları')
+                ->schema([
+                    FileUpload::make('page_meta.about_image')
+                        ->label('Üst Görsel')
+                        ->image()
+                        ->disk('public')
+                        ->directory('pages/about')
+                        ->imageEditor()
+                        ->maxSize(4096)
+                        ->helperText('Hakkımızda sayfasında en üstte ortalı gösterilecek görsel.'),
+                ])
+                ->columnSpanFull()
+                ->visible(fn ($get): bool => (string) $get('slug') === 'hakkimizda'),
+            Section::make('Vizyon Misyon Sayfası Alanları')
+                ->schema([
+                    RichEditor::make('page_meta.vision_text')
+                        ->label('Vizyon Metni')
+                        ->toolbarButtons([
+                            'bold',
+                            'italic',
+                            'underline',
+                            'strike',
+                            'h2',
+                            'h3',
+                            'bulletList',
+                            'orderedList',
+                            'blockquote',
+                            'link',
+                            'undo',
+                            'redo',
+                        ])
+                        ->columnSpanFull(),
+                    RichEditor::make('page_meta.mission_text')
+                        ->label('Misyon Metni')
+                        ->toolbarButtons([
+                            'bold',
+                            'italic',
+                            'underline',
+                            'strike',
+                            'h2',
+                            'h3',
+                            'bulletList',
+                            'orderedList',
+                            'blockquote',
+                            'link',
+                            'undo',
+                            'redo',
+                        ])
+                        ->columnSpanFull(),
+                ])
+                ->columnSpanFull()
+                ->visible(fn ($get): bool => (string) $get('slug') === 'vizyon-misyon'),
+            Section::make('Dernek Tüzüğü Sayfası Alanları')
+                ->schema([
+                    TextInput::make('page_meta.document_title')
+                        ->label('Belge Başlığı')
+                        ->maxLength(150)
+                        ->placeholder('Dernek Tüzüğü'),
+                    FileUpload::make('page_meta.document_file')
+                        ->label('Tüzük Dosyası (PDF/JPG/PNG/DOC/DOCX)')
+                        ->disk('public')
+                        ->directory('pages/charter')
+                        ->acceptedFileTypes([
+                            'application/pdf',
+                            'image/jpeg',
+                            'image/png',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ])
+                        ->maxSize(15360)
+                        ->downloadable()
+                        ->openable()
+                        ->helperText('Maksimum 15 MB. PDF/JPG/PNG/DOC/DOCX yükleyebilirsiniz. Yüklenen dosya sayfada yeni sekmede açılabilir ve indirilebilir olur.'),
+                ])
+                ->columns(2)
+                ->columnSpanFull()
+                ->visible(fn ($get): bool => (string) $get('slug') === 'dernek-tuzugu'),
+            Section::make('Faaliyet Belgesi Sayfası Alanları')
+                ->schema([
+                    TextInput::make('page_meta.document_title')
+                        ->label('Belge Başlığı')
+                        ->maxLength(150)
+                        ->placeholder('Faaliyet Belgesi'),
+                    FileUpload::make('page_meta.document_file')
+                        ->label('Belge Dosyası (PDF/JPG/PNG/DOC/DOCX)')
+                        ->disk('public')
+                        ->directory('pages/charter')
+                        ->acceptedFileTypes([
+                            'application/pdf',
+                            'image/jpeg',
+                            'image/png',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ])
+                        ->maxSize(15360)
+                        ->downloadable()
+                        ->openable()
+                        ->helperText('Maksimum 15 MB. PDF/JPG/PNG/DOC/DOCX yükleyebilirsiniz.'),
+                ])
+                ->columns(2)
+                ->columnSpanFull()
+                ->visible(fn ($get): bool => (string) $get('slug') === 'faaliyet-belgesi'),
+            Section::make('Kurumsal Evrak Arşivi Sayfası Alanları')
+                ->schema([
+                    TextInput::make('page_meta.document_title')
+                        ->label('Belge Başlığı')
+                        ->maxLength(150)
+                        ->placeholder('Kurumsal Evrak Arşivi'),
+                    FileUpload::make('page_meta.document_file')
+                        ->label('Belge Dosyası (PDF/JPG/PNG/DOC/DOCX)')
+                        ->disk('public')
+                        ->directory('pages/charter')
+                        ->acceptedFileTypes([
+                            'application/pdf',
+                            'image/jpeg',
+                            'image/png',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ])
+                        ->maxSize(15360)
+                        ->downloadable()
+                        ->openable()
+                        ->helperText('Maksimum 15 MB. PDF/JPG/PNG/DOC/DOCX yükleyebilirsiniz.'),
+                ])
+                ->columns(2)
+                ->columnSpanFull()
+                ->visible(fn ($get): bool => (string) $get('slug') === 'kurumsal-evrak-arsivi'),
             Section::make('Yönetim Sayfası Alanları')
                 ->schema([
                     Repeater::make('page_meta.management_sections')
