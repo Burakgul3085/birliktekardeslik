@@ -11,6 +11,10 @@ class Project extends Model
         'title',
         'slug',
         'description',
+        'donation_amount',
+        'donation_currency',
+        'goal_amount',
+        'collected_amount',
         'content',
         'detail_item_1_title',
         'detail_item_1_text',
@@ -19,6 +23,8 @@ class Project extends Model
         'detail_item_3_title',
         'detail_item_3_text',
         'cover_image',
+        'gallery_images',
+        'gallery_videos',
         'status',
         'is_active',
         'sort_order',
@@ -26,6 +32,11 @@ class Project extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'gallery_images' => 'array',
+        'gallery_videos' => 'array',
+        'donation_amount' => 'decimal:2',
+        'goal_amount' => 'decimal:2',
+        'collected_amount' => 'decimal:2',
     ];
 
     public function scopeActive(Builder $query): Builder

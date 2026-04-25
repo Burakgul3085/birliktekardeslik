@@ -2,40 +2,111 @@
     <x-page-hero :title="$activity->title" />
 
     @php
-        $accordionItems = [
-            [
-                'title' => $activity->detail_item_1_title ?: 'Hızlı Müdahale',
-                'text' => $activity->detail_item_1_text ?: 'Kriz anlarında hızlı müdahale ederek ihtiyaç sahiplerine sıcak yemek ve temel gıda desteği sağlıyoruz.',
-            ],
-            [
-                'title' => $activity->detail_item_2_title ?: 'Uzun Vadeli Çözümler',
-                'text' => $activity->detail_item_2_text ?: 'Bölgede kalıcı gıda güvenliği için sürdürülebilir dağıtım ve yerel işbirliği modelleri geliştiriyoruz.',
-            ],
-            [
-                'title' => $activity->detail_item_3_title ?: 'Toplum Desteği',
-                'text' => $activity->detail_item_3_text ?: 'Ailelerin düzenli beslenme ihtiyacına katkı sağlayan insani yardım faaliyetleri yürütüyoruz.',
-            ],
-        ];
+        $statusLabel = $activity->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
+        $statusClass = $activity->status === 'tamamlandi'
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+            : 'border-amber-200 bg-amber-50 text-amber-700';
     @endphp
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-                <div class="w-full overflow-hidden rounded-xl">
+                <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <img
                         src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
                         alt="{{ $activity->title }}"
-                        class="mx-auto block h-auto max-w-full"
-                        style="width: 70% !important;"
+                        class="mx-auto block h-auto max-h-[460px] w-full object-contain"
                     >
                 </div>
                 <h2 class="mt-6 text-3xl font-bold text-slate-900">{{ $activity->title }}</h2>
+                <span class="mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
+                @if (! is_null($activity->donation_amount))
+                    <p class="mt-3 text-2xl font-extrabold text-cyan-800">
+                        {{ number_format((float) $activity->donation_amount, 2, ',', '.') }} {{ $activity->donation_currency ?: 'TL' }}
+                    </p>
+                @endif
                 <p class="mt-3 text-lg leading-relaxed text-slate-700">{{ $activity->description }}</p>
                 <div class="prose prose-slate mt-6 max-w-none text-base leading-relaxed">
                     {!! $activity->content ?: nl2br(e((string) $activity->description)) !!}
                 </div>
 
-                <div class="mt-8 space-y-3" x-data="{ openIdx: 1 }">
-                    @foreach($accordionItems as $idx => $acc)
+                <div class="mt-8">
+                    <a
+                        href="{{ route('donations') }}"
+                        class="inline-flex items-center rounded-full bg-cyan-600 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700"
+                    >
+                        Bağış Yap
+                    </a>
+                </div>
+
+                @php
+                    $galleryImages = collect($activity->gallery_images ?? [])->filter()->values();
+                    $galleryVideos = collect($activity->gallery_videos ?? [])->filter()->values();
+                @endphp
+                @if ($galleryImages->isNotEmpty() || $galleryVideos->isNotEmpty())
+                    <div class="mt-10" x-data="{ previewOpen: false, previewType: null, previewSrc: '' }">
+                        <h3 class="text-xl font-bold text-slate-900">Faaliyet Galerisi</h3>
+                        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                            @foreach ($galleryImages as $image)
+                                <button
+                                    type="button"
+                                    class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 text-left transition hover:border-cyan-300 hover:shadow-md"
+                                    @click="previewOpen = true; previewType = 'image'; previewSrc = '{{ asset('storage/' . ltrim((string) $image, '/')) }}'"
+                                >
+                                    <img
+                                        src="{{ asset('storage/' . ltrim((string) $image, '/')) }}"
+                                        alt="{{ $activity->title }} görseli"
+                                        class="mx-auto block h-auto max-h-[280px] w-full object-contain"
+                                    >
+                                </button>
+                            @endforeach
+                            @foreach ($galleryVideos as $video)
+                                <button
+                                    type="button"
+                                    class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 text-left transition hover:border-cyan-300 hover:shadow-md"
+                                    @click="previewOpen = true; previewType = 'video'; previewSrc = '{{ asset('storage/' . ltrim((string) $video, '/')) }}'"
+                                >
+                                    <video controls class="h-auto max-h-[280px] w-full rounded-lg bg-black/90 object-contain">
+                                        <source src="{{ asset('storage/' . ltrim((string) $video, '/')) }}">
+                                        Tarayıcınız video etiketini desteklemiyor.
+                                    </video>
+                                </button>
+                            @endforeach
+                        </div>
+
+                        <div
+                            x-show="previewOpen"
+                            x-cloak
+                            class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/75 p-4"
+                            @click.self="previewOpen = false; previewSrc = ''; previewType = null"
+                            @keydown.escape.window="previewOpen = false; previewSrc = ''; previewType = null"
+                        >
+                            <div class="relative w-full max-w-5xl rounded-2xl border border-slate-700 bg-slate-900 p-3 shadow-2xl">
+                                <button
+                                    type="button"
+                                    class="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                                    @click="previewOpen = false; previewSrc = ''; previewType = null"
+                                    aria-label="Önizlemeyi kapat"
+                                >✕</button>
+
+                                <template x-if="previewType === 'image' && previewSrc">
+                                    <img :src="previewSrc" alt="Faaliyet galerisi görseli" class="mx-auto block h-auto max-h-[78vh] w-full rounded-xl object-contain" />
+                                </template>
+                                <template x-if="previewType === 'video' && previewSrc">
+                                    <video controls autoplay class="h-auto max-h-[78vh] w-full rounded-xl bg-black object-contain">
+                                        <source :src="previewSrc">
+                                    </video>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="mt-10 space-y-3" x-data="{ openIdx: 1 }">
+                    @foreach([
+                        ['title' => $activity->detail_item_1_title ?: 'Hızlı Müdahale', 'text' => $activity->detail_item_1_text ?: 'Kriz anlarında hızlı müdahale ederek ihtiyaç sahiplerine destek sağlıyoruz.'],
+                        ['title' => $activity->detail_item_2_title ?: 'Uzun Vadeli Çözümler', 'text' => $activity->detail_item_2_text ?: 'Sürdürülebilir etki için yerel işbirliği modelleri geliştiriyoruz.'],
+                        ['title' => $activity->detail_item_3_title ?: 'Toplum Desteği', 'text' => $activity->detail_item_3_text ?: 'Toplum odaklı faaliyetlerle kalıcı fayda üretmeyi hedefliyoruz.'],
+                    ] as $idx => $acc)
                         <div class="overflow-hidden rounded-2xl border border-cyan-200/80 bg-white">
                             <button
                                 type="button"
@@ -43,8 +114,7 @@
                                 @click="openIdx = openIdx === {{ $idx }} ? -1 : {{ $idx }}"
                             >
                                 <span class="text-xl font-semibold text-slate-900">{{ $acc['title'] }}</span>
-                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500 text-white text-lg"
-                                      x-text="openIdx === {{ $idx }} ? '−' : '+'"></span>
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500 text-lg text-white" x-text="openIdx === {{ $idx }} ? '−' : '+'"></span>
                             </button>
                             <div x-show="openIdx === {{ $idx }}" x-collapse class="border-t border-cyan-100 px-5 py-4">
                                 <p class="text-base leading-relaxed text-slate-700">{{ $acc['text'] }}</p>

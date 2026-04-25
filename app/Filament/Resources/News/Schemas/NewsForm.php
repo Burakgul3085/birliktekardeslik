@@ -34,6 +34,16 @@ class NewsForm
                 ->appendFiles()
                 ->helperText('Detay sayfasında galeri olarak görünür.')
                 ->columnSpanFull(),
+            FileUpload::make('gallery_videos')
+                ->label('Galeri videoları')
+                ->disk('public')
+                ->directory('news/gallery-videos')
+                ->multiple()
+                ->reorderable()
+                ->appendFiles()
+                ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'])
+                ->helperText('Detay sayfasında video galerisi olarak görünür.')
+                ->columnSpanFull(),
             Textarea::make('summary')
                 ->label('Kısa özet')
                 ->rows(3)

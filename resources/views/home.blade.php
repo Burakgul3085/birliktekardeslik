@@ -112,25 +112,37 @@
             </div>
             <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($projects as $project)
-                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block">
-                            <div class="w-full overflow-hidden bg-white">
+                    @php
+                        $statusLabel = $project->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
+                        $statusClass = $project->status === 'tamamlandi'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                            : 'border-amber-200 bg-amber-50 text-amber-700';
+                    @endphp
+                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
+                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4">
+                            <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
                                     src="{{ $project->cover_image ? asset('storage/' . $project->cover_image) : asset('images/default-logo.svg') }}"
-                                    class="mx-auto block h-auto max-h-28 w-auto max-w-full"
+                                    class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                     alt="{{ $project->title }}"
                                 >
                             </div>
                         </a>
-                        <div class="p-5 transition-colors duration-300 group-hover:bg-cyan-50/30">
-                            <h3 class="text-2xl font-extrabold uppercase leading-tight tracking-tight text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
-                            <p class="mt-2 text-lg leading-relaxed text-slate-600 transition-colors duration-300 group-hover:text-slate-700">
-                                {{ \Illuminate\Support\Str::limit($project->description ?: strip_tags((string) $project->content), 95) }}
+                        <div class="px-5 pb-5">
+                            <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
+                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
+                                {{ \Illuminate\Support\Str::limit($project->description ?: strip_tags((string) $project->content), 170) }}
                             </p>
-                            <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="mt-4 inline-flex items-center gap-2 text-base font-semibold text-cyan-700 transition duration-300 group-hover:translate-x-1 hover:text-cyan-800">
-                                Devam
-                                <span class="text-lg transition-transform duration-300 group-hover:translate-x-0.5">+</span>
-                            </a>
+                            @if (! is_null($project->donation_amount))
+                                <p class="mt-4 text-lg font-extrabold text-cyan-800">
+                                    {{ number_format((float) $project->donation_amount, 2, ',', '.') }} {{ $project->donation_currency ?: 'TL' }}
+                                </p>
+                            @endif
+                            <div class="mt-5 flex items-center gap-3">
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">Bağış Yap</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">Faaliyet Detayı</a>
+                            </div>
                         </div>
                     </article>
                 @empty
@@ -219,27 +231,26 @@
             </div>
             <div x-ref="track" class="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2">
             @forelse($newsItems as $news)
-                <article class="group w-[86%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:w-[48%] xl:w-[32%]">
-                    <div class="relative">
-                        <div class="w-full overflow-hidden bg-white">
+                <article class="group w-[86%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)] sm:w-[48%] xl:w-[32%]">
+                    <a href="{{ route('news.show', ['news' => $news->id]) }}" class="block p-4">
+                        <div class="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                             <img
                                 src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
                                 alt="{{ $news->title }}"
-                                class="mx-auto block h-auto max-h-28 w-auto max-w-full"
+                                class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                             >
+                            <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                                {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
+                            </span>
                         </div>
-                        <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                            {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
-                        </span>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-2xl font-bold leading-tight text-slate-900">{{ $news->title }}</h3>
-                        <p class="mt-3 text-base leading-relaxed text-slate-600">
-                            {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 130) }}
+                    </a>
+                    <div class="px-5 pb-5">
+                        <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->title }}</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
+                            {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
                         </p>
-                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">
-                            Detaylar
-                            <span>+</span>
+                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">
+                            Haber Detayı
                         </a>
                     </div>
                 </article>

@@ -30,6 +30,16 @@ class ProjectForm
                 ->required()
                 ->unique(ignoreRecord: true),
             Textarea::make('description')->label('Kısa açıklama')->rows(3),
+            TextInput::make('donation_amount')
+                ->label('Bağış Tutarı')
+                ->numeric()
+                ->minValue(0)
+                ->prefix('₺')
+                ->placeholder('Örn: 1500'),
+            TextInput::make('donation_currency')
+                ->label('Para Birimi')
+                ->default('TL')
+                ->maxLength(10),
             Textarea::make('content')->label('Detay içerik')->rows(8)->columnSpanFull(),
             TextInput::make('detail_item_1_title')
                 ->label('Detay açılır menü 1 başlık')
@@ -53,6 +63,25 @@ class ProjectForm
                 ->rows(2)
                 ->default('Ailelerin düzenli beslenme ihtiyacına katkı sağlayan insani yardım faaliyetleri yürütüyoruz.'),
             FileUpload::make('cover_image')->disk('public')->directory('projects')->image()->label('Kapak Gorseli'),
+            FileUpload::make('gallery_images')
+                ->label('Faaliyet Galeri Fotoğrafları')
+                ->disk('public')
+                ->directory('projects/gallery-images')
+                ->multiple()
+                ->reorderable()
+                ->image()
+                ->imageEditor()
+                ->maxSize(15360)
+                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz. Her dosya en fazla 15 MB.'),
+            FileUpload::make('gallery_videos')
+                ->label('Faaliyet Galeri Videoları')
+                ->disk('public')
+                ->directory('projects/gallery-videos')
+                ->multiple()
+                ->reorderable()
+                ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
+                ->maxSize(15360)
+                ->helperText('MP4/WEBM/MOV formatında birden fazla video ekleyebilirsiniz. Her dosya en fazla 15 MB.'),
             Select::make('status')->label('Durum')->options([
                 'devam-ediyor' => 'Devam Ediyor',
                 'tamamlandi' => 'Tamamlandı',

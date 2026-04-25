@@ -13,18 +13,22 @@
     </section>
 
     <section class="mx-auto max-w-7xl px-4 pb-16 pt-8 md:px-6">
-        <article class="overflow-hidden rounded-3xl border border-cyan-100/70 bg-white/55 shadow-sm backdrop-blur-md">
-            <div class="w-full overflow-hidden bg-white/25">
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+                <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <img
                     src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
                     alt="{{ $news->title }}"
-                    class="mx-auto block h-auto w-auto max-w-full"
-                    style="height: auto !important; max-height: 400px !important;"
+                    class="mx-auto block h-auto max-h-[460px] w-full object-contain"
                 >
             </div>
-            <div class="p-6 md:p-8">
+            <div class="mt-6">
+                <h2 class="text-3xl font-bold text-slate-900">{{ $news->title }}</h2>
+                <p class="mt-2 text-sm font-medium text-slate-500">
+                    Yayın Tarihi: {{ optional($news->published_at)->format('d.m.Y H:i') ?: 'Belirtilmedi' }}
+                </p>
                 @if(!empty($news->summary))
-                    <p class="rounded-2xl border border-white/40 bg-white/45 p-4 text-base leading-relaxed text-slate-700 backdrop-blur-sm md:text-lg">
+                    <p class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed text-slate-700 md:text-lg">
                         {{ $news->summary }}
                     </p>
                 @endif
@@ -33,43 +37,80 @@
                     {!! $news->content !!}
                 </div>
 
-                @if(!empty($news->gallery_images))
-                    <div class="mt-8">
-                        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Haber Galerisi</h2>
+                @php
+                    $galleryImages = collect($news->gallery_images ?? [])->filter()->values();
+                    $galleryVideos = collect($news->gallery_videos ?? [])->filter()->values();
+                @endphp
+                @if($galleryImages->isNotEmpty() || $galleryVideos->isNotEmpty())
+                    <div class="mt-8" x-data="{ previewOpen: false, previewType: null, previewSrc: '' }">
+                        <h2 class="text-xl font-bold text-slate-900">Haber Galerisi</h2>
                         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            @foreach($news->gallery_images as $image)
-                                <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-2xl border border-cyan-100/70 bg-white/45 backdrop-blur-sm">
-                                    <div class="w-full overflow-hidden bg-white/20 p-2">
-                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} galeri görseli" class="mx-auto block h-auto max-h-44 w-auto max-w-full">
+                            @foreach($galleryImages as $image)
+                                <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
+                                    <div class="w-full overflow-hidden rounded-lg bg-white p-2">
+                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} galeri görseli" class="mx-auto block h-auto max-h-[220px] w-full object-contain">
                                     </div>
                                 </a>
                             @endforeach
+                            @foreach($galleryVideos as $video)
+                                <button
+                                    type="button"
+                                    class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 text-left transition hover:border-cyan-300 hover:shadow-md"
+                                    @click="previewOpen = true; previewType = 'video'; previewSrc = '{{ asset('storage/' . $video) }}'"
+                                >
+                                    <video controls class="h-auto max-h-[220px] w-full rounded-lg bg-black/90 object-contain">
+                                        <source src="{{ asset('storage/' . $video) }}">
+                                        Tarayıcınız video etiketini desteklemiyor.
+                                    </video>
+                                </button>
+                            @endforeach
+                        </div>
+
+                        <div
+                            x-show="previewOpen"
+                            x-cloak
+                            class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/75 p-4"
+                            @click.self="previewOpen = false; previewSrc = ''; previewType = null"
+                            @keydown.escape.window="previewOpen = false; previewSrc = ''; previewType = null"
+                        >
+                            <div class="relative w-full max-w-5xl rounded-2xl border border-slate-700 bg-slate-900 p-3 shadow-2xl">
+                                <button
+                                    type="button"
+                                    class="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                                    @click="previewOpen = false; previewSrc = ''; previewType = null"
+                                    aria-label="Önizlemeyi kapat"
+                                >✕</button>
+
+                                <template x-if="previewType === 'video' && previewSrc">
+                                    <video controls autoplay class="h-auto max-h-[78vh] w-full rounded-xl bg-black object-contain">
+                                        <source :src="previewSrc">
+                                    </video>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 @endif
             </div>
-        </article>
+            </article>
 
-        <section class="mt-10">
-            <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-bold tracking-tight text-slate-900">Diğer Haberler</h3>
-                <a href="{{ route('news.index') }}" class="text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">Tümünü Gör</a>
-            </div>
-            <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <aside class="space-y-4">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-slate-900">Diğer Haberler</h3>
+                        <a href="{{ route('news.index') }}" class="text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">Tümünü Gör</a>
+                    </div>
+                    <div class="mt-4 space-y-3">
                 @forelse($relatedNews as $item)
-                    <a href="{{ route('news.show', ['news' => $item->id]) }}" class="group overflow-hidden rounded-2xl border border-cyan-100/70 bg-white/45 shadow-sm backdrop-blur-sm transition hover:-translate-y-1 hover:border-cyan-200 hover:shadow-lg">
-                        <div class="w-full overflow-hidden bg-white/20 p-2">
-                            <img src="{{ $item->cover_image ? asset('storage/' . $item->cover_image) : asset('images/default-logo.svg') }}" alt="{{ $item->title }}" class="mx-auto block h-auto max-h-28 w-auto max-w-full">
-                        </div>
-                        <div class="p-4">
-                            <p class="text-xs text-slate-500">{{ optional($item->published_at)->format('d.m.Y') }}</p>
-                            <h4 class="mt-1 text-lg font-bold leading-tight text-slate-900">{{ $item->title }}</h4>
-                        </div>
+                    <a href="{{ route('news.show', ['news' => $item->id]) }}" class="block rounded-xl border border-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-cyan-200 hover:bg-cyan-50/40 hover:text-cyan-800">
+                        {{ $item->title }}
                     </a>
                 @empty
                     <p class="text-sm text-slate-500">Henüz başka haber bulunmuyor.</p>
                 @endforelse
+                    </div>
+                </div>
             </div>
-        </section>
+            </aside>
+        </div>
     </section>
 </x-layouts.app>
