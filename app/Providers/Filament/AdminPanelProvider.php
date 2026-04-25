@@ -77,6 +77,12 @@ class AdminPanelProvider extends PanelProvider
                     ? view('filament.admin.partials.login-clock')->render()
                     : '',
             )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => request()->routeIs('filament.admin.auth.login')
+                    ? ''
+                    : view('filament.admin.partials.file-upload-cancel-fix')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

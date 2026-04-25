@@ -6,10 +6,10 @@ use App\Filament\Resources\Settings\SettingResource;
 use App\Support\DonationQrService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use App\Filament\Pages\BaseEditRecord;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\EditRecord;
 
-class EditSetting extends EditRecord
+class EditSetting extends BaseEditRecord
 {
     protected static string $resource = SettingResource::class;
 

@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\MenuItems\Pages;
 
 use App\Filament\Resources\MenuItems\MenuItemResource;
+use App\Filament\Pages\BaseEditRecord;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
 
-class EditMenuItem extends EditRecord
+class EditMenuItem extends BaseEditRecord
 {
     protected static string $resource = MenuItemResource::class;
 

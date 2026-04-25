@@ -41,6 +41,47 @@
     .about-float-orb-delayed {
         animation: about-orb-float 5s ease-in-out 1.4s infinite;
     }
+
+    /* Hikayemiz: merkez kesikli çizgi (sayfa hizalaması page.blade içinde) */
+    .story-timeline-line {
+        @apply pointer-events-none absolute left-1/2 top-0 z-0 h-full w-px -translate-x-1/2 border-0;
+        background-image: repeating-linear-gradient(
+            to bottom,
+            rgb(8 145 178 / 0.75) 0px,
+            rgb(8 145 178 / 0.75) 9px,
+            transparent 9px,
+            transparent 16px
+        );
+    }
+
+    .story-dot {
+        @apply inline-flex h-4 w-4 shrink-0 rounded-full border-2 border-white bg-cyan-500 shadow ring-4 ring-cyan-500/25;
+        box-shadow: 0 0 0 1px rgba(8, 145, 178, 0.15), 0 8px 18px rgba(8, 145, 178, 0.24);
+    }
+
+    .story-link-line-left,
+    .story-link-line-right {
+        @apply pointer-events-none absolute top-10 hidden h-px w-8 bg-cyan-400/60 lg:block;
+    }
+
+    .story-link-line-left {
+        @apply -left-8;
+    }
+
+    .story-link-line-right {
+        @apply -right-8;
+    }
+
+    /* Metin kartı: zaman çizgisine bakan ok (konum sınıfları Blende) */
+    .story-text-pointer--to-left {
+        @apply absolute top-8 z-10 h-0 w-0 border-y-[10px] border-y-transparent border-r-[12px] border-r-white transition-colors duration-300;
+        @apply -left-3;
+    }
+
+    .story-text-pointer--to-right {
+        @apply absolute top-8 z-10 h-0 w-0 border-y-[10px] border-y-transparent border-l-[12px] border-l-white transition-colors duration-300;
+        @apply -right-3;
+    }
 }
 
 @layer utilities {

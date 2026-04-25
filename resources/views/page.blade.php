@@ -2,9 +2,9 @@
     @if ($page->slug === 'hikayemiz')
         <section class="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:py-16">
             <div class="mb-10 text-center">
-                <h1 class="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">{{ $page->title }}</h1>
+                <h1 class="text-3xl font-bold tracking-tight text-cyan-900 md:text-4xl">{{ $page->title }}</h1>
                 @if (! empty($page->content))
-                    <div class="prose mx-auto mt-4 max-w-3xl prose-slate">{!! $page->content !!}</div>
+                    <div class="prose mx-auto mt-4 max-w-3xl text-slate-600 prose-slate">{!! $page->content !!}</div>
                 @endif
             </div>
 
@@ -13,45 +13,84 @@
             @endphp
 
             @if ($storyItems->isNotEmpty())
-                <div class="relative">
-                    <div class="pointer-events-none absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-gradient-to-b from-cyan-500/0 via-cyan-500/60 to-cyan-500/0 lg:block"></div>
+                <div class="relative mx-auto max-w-6xl">
+                    <div class="story-timeline-line z-0 hidden lg:block" aria-hidden="true"></div>
 
-                    <div class="space-y-8 md:space-y-10">
+                    <div class="space-y-12 md:space-y-14">
                         @foreach ($storyItems as $index => $item)
                             @php
-                                $isLeft = $index % 2 === 0;
+                                $isLeft = $index % 2 === 0; // çift: görsel sol, metin sağ; tek: metin sol, görsel sağ
+                                $textOnRight = $isLeft;
                                 $imagePath = ! empty($item['image']) ? \Illuminate\Support\Facades\Storage::url($item['image']) : null;
+                                $imgOrder = $isLeft ? 'order-1 lg:order-1' : 'order-2 lg:order-3';
+                                $textOrder = $isLeft ? 'order-2 lg:order-3' : 'order-1 lg:order-1';
                             @endphp
 
-                            <article class="group relative lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-6">
-                                <div class="{{ $isLeft ? 'lg:order-1' : 'lg:order-3' }}">
-                                    <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_24px_40px_rgba(6,78,100,0.2)]">
+                            <article class="group/story relative z-10 flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_2.5rem_1fr] lg:items-start lg:gap-0 lg:px-0">
+                                {{-- Görsel sütun --}}
+                                <div class="{{ $imgOrder }}">
+                                    <div
+                                        class="h-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_10px_32px_rgba(15,23,42,0.07)] transition-all duration-500 ease-out group-hover/story:shadow-[0_18px_34px_rgba(14,116,144,0.14)]"
+                                    >
                                         @if ($imagePath)
-                                            <div class="relative overflow-hidden">
+                                            <div class="relative h-full min-h-[190px] overflow-hidden sm:min-h-[220px] lg:min-h-[240px]">
                                                 <img
                                                     src="{{ $imagePath }}"
                                                     alt="{{ $item['title'] }}"
-                                                    class="h-56 w-full object-cover transition duration-700 ease-out group-hover:scale-105 md:h-72"
+                                                    class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/story:scale-[1.02]"
                                                     loading="lazy"
                                                 >
-                                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent opacity-60 transition duration-500 group-hover:opacity-40"></div>
                                             </div>
                                         @else
-                                            <div class="grid h-56 place-items-center bg-slate-100 text-sm text-slate-500 md:h-72">
+                                            <div class="grid min-h-[190px] place-items-center bg-slate-100 text-sm text-slate-500 sm:min-h-[220px] lg:min-h-[240px]">
                                                 Görsel eklenmedi
                                             </div>
                                         @endif
                                     </div>
                                 </div>
 
-                                <div class="relative hidden lg:order-2 lg:flex lg:justify-center">
-                                    <span class="inline-flex h-4 w-4 rounded-full border-4 border-cyan-100 bg-cyan-500 shadow-[0_0_0_6px_rgba(6,182,212,0.16)] transition duration-500 group-hover:scale-110 group-hover:bg-cyan-400"></span>
+                                {{-- Zaman noktası (masaüstü) --}}
+                                <div class="pointer-events-none relative z-20 hidden w-8 shrink-0 items-start justify-center pt-8 lg:flex lg:order-2" aria-hidden="true">
+                                    <span class="story-dot transition-all duration-500 group-hover/story:scale-110 group-hover/story:bg-cyan-400 group-hover/story:ring-cyan-400/35"></span>
                                 </div>
 
-                                <div class="{{ $isLeft ? 'lg:order-3' : 'lg:order-1' }}">
-                                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition duration-500 ease-out group-hover:-translate-y-1 group-hover:border-cyan-200/90 group-hover:bg-cyan-700 group-hover:shadow-[0_24px_40px_rgba(6,78,100,0.24)] md:p-7">
-                                        <h2 class="text-xl font-semibold text-slate-900 transition-colors duration-500 group-hover:text-white">{{ $item['title'] }}</h2>
-                                        <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-500 group-hover:text-cyan-50 md:text-base">{{ $item['description'] }}</p>
+                                {{-- Metin kartı: sadece bu kutu hover (arka plan + metin rengi) --}}
+                                <div class="{{ $textOrder }} flex items-start">
+                                    <div
+                                        @class([
+                                            'group/storytext relative w-full rounded-2xl border border-slate-200/95 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.10)]',
+                                            'transition-all duration-500 ease-out md:p-7',
+                                            'hover:-translate-y-1',
+                                            'hover:border-cyan-300/80',
+                                            'hover:shadow-[0_18px_38px_rgba(6,120,150,0.14)]',
+                                        ])
+                                    >
+                                        @if ($textOnRight)
+                                            <span class="story-link-line-left"></span>
+                                        @else
+                                            <span class="story-link-line-right"></span>
+                                        @endif
+                                        @if ($textOnRight)
+                                            <span
+                                                class="story-text-pointer--to-left hidden transition-colors duration-500 group-hover/storytext:border-r-cyan-100 lg:block"
+                                                aria-hidden="true"
+                                            ></span>
+                                        @else
+                                            <span
+                                                class="story-text-pointer--to-right hidden transition-colors duration-500 group-hover/storytext:border-l-cyan-100 lg:block"
+                                                aria-hidden="true"
+                                            ></span>
+                                        @endif
+                                        <h2
+                                            class="text-lg font-bold text-cyan-900 transition-colors duration-500 group-hover/storytext:text-cyan-700 md:text-xl"
+                                        >
+                                            {{ $item['title'] }}
+                                        </h2>
+                                        <p
+                                            class="mt-3 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover/storytext:text-cyan-800 md:text-base"
+                                        >
+                                            {{ $item['description'] }}
+                                        </p>
                                     </div>
                                 </div>
                             </article>

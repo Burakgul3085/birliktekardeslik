@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\HeroSlides\Pages;
 
 use App\Filament\Resources\HeroSlides\HeroSlideResource;
+use App\Filament\Pages\BaseEditRecord;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
 
-class EditHeroSlide extends EditRecord
+class EditHeroSlide extends BaseEditRecord
 {
     protected static string $resource = HeroSlideResource::class;
 

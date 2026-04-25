@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\News\Pages;
 
 use App\Filament\Resources\News\NewsResource;
+use App\Filament\Pages\BaseEditRecord;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
 
-class EditNews extends EditRecord
+class EditNews extends BaseEditRecord
 {
     protected static string $resource = NewsResource::class;
 

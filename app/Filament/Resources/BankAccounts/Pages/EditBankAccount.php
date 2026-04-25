@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\BankAccounts\Pages;
 
 use App\Filament\Resources\BankAccounts\BankAccountResource;
+use App\Filament\Pages\BaseEditRecord;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
 
-class EditBankAccount extends EditRecord
+class EditBankAccount extends BaseEditRecord
 {
     protected static string $resource = BankAccountResource::class;
 

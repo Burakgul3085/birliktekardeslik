@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\ActivitySectionSettings\Pages;
 
 use App\Filament\Resources\ActivitySectionSettings\ActivitySectionSettingResource;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\BaseEditRecord;
 
-class EditActivitySectionSetting extends EditRecord
+class EditActivitySectionSetting extends BaseEditRecord
 {
     protected static string $resource = ActivitySectionSettingResource::class;
 }
