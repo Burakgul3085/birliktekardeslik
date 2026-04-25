@@ -135,18 +135,21 @@
                             </svg>
                         </button>
 
+                        {{-- pt-2: tetikleyici ile panel arasında tıklanabilir/kaydırılabilir köprü (mt boşluğunda mouseleave tetikleniyordu) --}}
                         <div
                             x-show="open"
                             x-cloak
-                            class="absolute left-0 top-full z-50 mt-1 min-w-[240px] rounded-xl border border-slate-200 bg-white py-2 shadow-xl"
+                            class="absolute left-0 top-full z-50 min-w-[240px] pt-2"
                         >
-                            @foreach($children as $child)
-                                <a
-                                    href="{{ $child->url }}"
-                                    target="{{ $child->open_in_new_tab ? '_blank' : '_self' }}"
-                                    class="block border-b border-slate-100 px-4 py-2.5 text-[15px] font-medium text-slate-700 transition last:border-b-0 hover:bg-slate-50 hover:text-cyan-700"
-                                >{{ $child->label }}</a>
-                            @endforeach
+                            <div class="rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
+                                @foreach($children as $child)
+                                    <a
+                                        href="{{ $child->url }}"
+                                        target="{{ $child->open_in_new_tab ? '_blank' : '_self' }}"
+                                        class="block border-b border-slate-100 px-4 py-2.5 text-[15px] font-medium text-slate-700 transition last:border-b-0 hover:bg-slate-50 hover:text-cyan-700"
+                                    >{{ $child->label }}</a>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @else
