@@ -35,6 +35,12 @@
             'title' => 'Gizlilik Politikasi',
             'content' => trim((string) ($siteSettings->privacy_policy_text ?? '')),
         ],
+        [
+            'key' => 'cookie',
+            'label' => 'Çerez Politikası',
+            'title' => 'Çerez Politikası',
+            'content' => trim((string) ($siteSettings->cookie_policy_text ?? '')),
+        ],
     ];
     $legalTextItems = array_values(array_filter(
         $legalTextItems,

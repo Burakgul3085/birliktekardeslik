@@ -87,6 +87,11 @@ class SettingForm
                                 ->rows(8)
                                 ->helperText('Footer gizlilik politikası içeriği.')
                                 ->columnSpanFull(),
+                            Textarea::make('cookie_policy_text')
+                                ->label('Çerez Politikası Metni')
+                                ->rows(8)
+                                ->helperText('Footer çerez politikası içeriği.')
+                                ->columnSpanFull(),
                         ]),
 
                     Section::make('Ana Sayfa - Odak Kartları')
