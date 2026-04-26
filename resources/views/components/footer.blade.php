@@ -250,11 +250,28 @@
         </div>
 
         <div class="mt-8 flex flex-col items-center justify-between gap-4 pt-8 text-xs text-slate-500 sm:flex-row sm:gap-6">
-            <p class="text-center sm:text-left">
-                © {{ date('Y') }} — Tüm hakları saklıdır.
-                <span class="text-slate-400">·</span>
-                <span class="text-slate-300">{{ $siteSettings->site_title }}</span>
-            </p>
+            <div class="flex flex-col gap-1 text-center sm:text-left">
+                <p>
+                    © {{ date('Y') }} — Tüm hakları saklıdır.
+                    <span class="text-slate-400">·</span>
+                    <span class="text-slate-300">{{ $siteSettings->site_title }}</span>
+                </p>
+                <p class="flex items-center justify-center gap-1.5 sm:justify-start">
+                    <span class="text-slate-600">Geliştirici:</span>
+                    <a
+                        href="https://www.linkedin.com/in/burakgul1006/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1 text-cyan-400 transition hover:text-cyan-300"
+                        title="LinkedIn Profilim"
+                    >
+                        <svg class="h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                        burakgul3085@gmail.com
+                    </a>
+                </p>
+            </div>
             <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
                 <nav class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-slate-400" aria-label="Yasal">
                     @foreach ($legalTextItems as $item)
