@@ -277,14 +277,15 @@
         }
     </style>
 
-    <div class="wa-float fixed bottom-6 right-5 z-[999]" style="filter: drop-shadow(0 4px 16px rgba(34,197,94,0.45));">
+    <div class="wa-float" style="position:fixed; right:20px; bottom:24px; z-index:9999; filter: drop-shadow(0 4px 16px rgba(34,197,94,0.45));">
         <span class="wa-ring absolute inset-0 rounded-full bg-green-400"></span>
         <a
             href="https://wa.me/905425214040"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="WhatsApp ile iletişime geçin"
-            class="wa-btn relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform duration-200"
+            class="wa-btn relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform duration-200"
+            style="background-color:#25D366;"
         >
             <svg viewBox="0 0 32 32" class="h-8 w-8" fill="white" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.003 3C9.374 3 4 8.373 4 15c0 2.388.68 4.617 1.859 6.508L4 29l7.695-1.827A11.94 11.94 0 0016.003 28C22.63 28 28 22.627 28 16S22.63 3 16.003 3zm0 2c5.516 0 10 4.484 10 10s-4.484 10-10 10a9.96 9.96 0 01-5.145-1.432l-.37-.223-4.568 1.084 1.12-4.44-.242-.386A9.955 9.955 0 016 15c0-5.516 4.487-10 10.003-10zm-3.04 5.188c-.22 0-.576.082-.877.408-.302.326-1.152 1.126-1.152 2.747s1.18 3.188 1.344 3.408c.165.22 2.313 3.53 5.607 4.81.784.338 1.395.54 1.872.692.786.25 1.502.215 2.068.13.631-.093 1.944-.794 2.218-1.561.274-.768.274-1.427.192-1.565-.082-.138-.302-.22-.632-.385-.33-.165-1.944-.958-2.246-1.068-.302-.11-.521-.165-.74.165-.22.33-.852 1.068-.963 1.233-.11.166-.22.187-.55.022-.33-.165-1.392-.513-2.652-1.636-.98-.874-1.642-1.952-1.834-2.282-.192-.33-.02-.508.144-.672.148-.148.33-.385.495-.578.165-.192.22-.33.33-.55.11-.22.055-.412-.028-.578-.082-.165-.74-1.784-1.014-2.44-.267-.64-.54-.552-.74-.562l-.63-.01z"/>
