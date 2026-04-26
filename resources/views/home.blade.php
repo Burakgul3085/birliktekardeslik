@@ -262,27 +262,13 @@
     </section>
 
 
-    @php
-        $waSetting = \App\Models\Setting::current();
-        $waNumber = '';
-        if (!empty($waSetting->whatsapp_url)) {
-            $waNumber = preg_replace('/[^0-9]/', '', $waSetting->whatsapp_url);
-        } elseif (!empty($waSetting->phone)) {
-            $waNumber = preg_replace('/[^0-9]/', '', $waSetting->phone);
-            if (str_starts_with($waNumber, '0')) {
-                $waNumber = '90' . substr($waNumber, 1);
-            }
-        }
-    @endphp
-
-    @if($waNumber)
     <style>
         .wa-float { animation: wa-float-in 0.6s ease-out forwards; }
         .wa-ring  { animation: wa-ring-pulse 2s ease-in-out infinite; }
         .wa-btn:hover { transform: scale(1.12); }
         @keyframes wa-float-in {
             0%   { opacity: 0; transform: translateY(40px) scale(0.7); }
-            100% { opacity: 1; transform: translateY(0)    scale(1); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes wa-ring-pulse {
             0%   { transform: scale(1);   opacity: 0.6; }
@@ -292,12 +278,9 @@
     </style>
 
     <div class="wa-float fixed bottom-6 right-5 z-[999]" style="filter: drop-shadow(0 4px 16px rgba(34,197,94,0.45));">
-        {{-- Ping halkası --}}
         <span class="wa-ring absolute inset-0 rounded-full bg-green-400"></span>
-
-        {{-- Buton --}}
         <a
-            href="https://wa.me/{{ $waNumber }}"
+            href="https://wa.me/905425214040"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="WhatsApp ile iletişime geçin"
@@ -308,6 +291,5 @@
             </svg>
         </a>
     </div>
-    @endif
 
 </x-layouts.app>
