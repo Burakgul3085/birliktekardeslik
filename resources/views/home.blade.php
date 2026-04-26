@@ -263,11 +263,12 @@
 
 
     @php
+        $waSetting = \App\Models\Setting::current();
         $waNumber = '';
-        if (!empty($siteSettings->whatsapp_url)) {
-            $waNumber = preg_replace('/[^0-9]/', '', $siteSettings->whatsapp_url);
-        } elseif (!empty($siteSettings->phone)) {
-            $waNumber = preg_replace('/[^0-9]/', '', $siteSettings->phone);
+        if (!empty($waSetting->whatsapp_url)) {
+            $waNumber = preg_replace('/[^0-9]/', '', $waSetting->whatsapp_url);
+        } elseif (!empty($waSetting->phone)) {
+            $waNumber = preg_replace('/[^0-9]/', '', $waSetting->phone);
             if (str_starts_with($waNumber, '0')) {
                 $waNumber = '90' . substr($waNumber, 1);
             }
