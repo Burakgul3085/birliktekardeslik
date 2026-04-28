@@ -66,9 +66,7 @@ class ProjectForm
                 ->disk('public')
                 ->directory('projects')
                 ->image()
-                ->maxSize(51200)
-                ->label('Kapak Gorseli')
-                ->helperText('En fazla 50 MB.'),
+                ->label('Kapak Gorseli'),
             FileUpload::make('gallery_images')
                 ->label('Faaliyet Galeri Fotoğrafları')
                 ->disk('public')
@@ -77,8 +75,7 @@ class ProjectForm
                 ->reorderable()
                 ->image()
                 ->imageEditor()
-                ->maxSize(51200)
-                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz. Her dosya en fazla 50 MB.'),
+                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz.'),
             FileUpload::make('gallery_videos')
                 ->label('Faaliyet Galeri Videoları')
                 ->disk('public')
@@ -86,8 +83,7 @@ class ProjectForm
                 ->multiple()
                 ->reorderable()
                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
-                ->maxSize(51200)
-                ->helperText('MP4/WEBM/MOV formatında 5 adede kadar video ekleyebilirsiniz. Her dosya en fazla 50 MB.'),
+                ->helperText('MP4/WEBM/MOV formatında video ekleyebilirsiniz.'),
             Select::make('status')->label('Durum')->options([
                 'devam-ediyor' => 'Devam Ediyor',
                 'tamamlandi' => 'Tamamlandı',

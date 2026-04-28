@@ -42,7 +42,7 @@ class NewsForm
                 ->reorderable()
                 ->appendFiles()
                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'])
-                ->helperText('Detay sayfasında video galerisi olarak görünür.')
+                ->helperText('Detay sayfasında video galerisi olarak görünür. Boyut sınırı yoktur.')
                 ->columnSpanFull(),
             Textarea::make('summary')
                 ->label('Kısa özet')
