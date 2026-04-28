@@ -77,8 +77,8 @@ class ProjectForm
                 ->reorderable()
                 ->image()
                 ->imageEditor()
-                ->maxSize(51200)
-                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz. Her dosya en fazla 50 MB.'),
+                ->maxSize(102400)
+                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz. Her dosya en fazla 100 MB.'),
             FileUpload::make('gallery_videos')
                 ->label('Faaliyet Galeri Videoları')
                 ->disk('public')
@@ -86,8 +86,8 @@ class ProjectForm
                 ->multiple()
                 ->reorderable()
                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
-                ->maxSize(51200)
-                ->helperText('MP4/WEBM/MOV formatında birden fazla video ekleyebilirsiniz. Her dosya en fazla 50 MB.'),
+                ->maxSize(102400)
+                ->helperText('MP4/WEBM/MOV formatında birden fazla video ekleyebilirsiniz. Her dosya en fazla 100 MB.'),
             Select::make('status')->label('Durum')->options([
                 'devam-ediyor' => 'Devam Ediyor',
                 'tamamlandi' => 'Tamamlandı',
