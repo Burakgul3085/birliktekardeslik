@@ -73,6 +73,41 @@
                 @endforeach
                 <a href="{{ route('donations') }}" class="ml-1 rounded-full bg-white/15 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/25 sm:ml-2">Bağış Yap</a>
                 <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/10">Gönüllü Ol</a>
+
+                <!-- Dil Seçici -->
+                <div class="relative ml-1" x-data="{ langOpen: false }" @click.outside="langOpen = false">
+                    <button
+                        @click="langOpen = !langOpen"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-cyan-50 transition hover:bg-white/20"
+                        aria-label="Dil seçici"
+                    >
+                        <span id="topbar-active-flag">🇹🇷</span>
+                        <span id="topbar-active-label" class="hidden sm:inline">TR</span>
+                        <svg class="h-3 w-3 opacity-70" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
+                    </button>
+                    <div
+                        x-show="langOpen"
+                        x-cloak
+                        class="absolute right-0 top-full z-50 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                    >
+                        @foreach([
+                            ['code'=>'tr','flag'=>'🇹🇷','label'=>'Türkçe'],
+                            ['code'=>'en','flag'=>'🇬🇧','label'=>'English'],
+                            ['code'=>'ar','flag'=>'🇸🇦','label'=>'العربية'],
+                            ['code'=>'ru','flag'=>'🇷🇺','label'=>'Русский'],
+                        ] as $lang)
+                        <button
+                            type="button"
+                            data-lang-btn="{{ $lang['code'] }}"
+                            onclick="switchLang('{{ $lang['code'] }}')"
+                            class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left text-sm text-slate-700 transition last:border-0 hover:bg-cyan-50 hover:text-cyan-700"
+                        >
+                            <span class="text-base">{{ $lang['flag'] }}</span>
+                            <span class="font-medium">{{ $lang['label'] }}</span>
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -199,6 +234,42 @@
                     href="{{ route('donations') }}"
                     class="inline-flex min-h-[2.5rem] items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700"
                 >Bağış Yap</a>
+
+                <!-- Desktop Dil Seçici -->
+                <div class="relative" x-data="{ langOpen: false }" @click.outside="langOpen = false">
+                    <button
+                        @click="langOpen = !langOpen"
+                        class="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50/90 px-3 text-sm text-slate-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
+                        aria-label="Dil seçici"
+                    >
+                        <span id="nav-active-flag" class="text-base">🇹🇷</span>
+                        <span id="nav-active-code" class="text-xs font-bold text-slate-600">TR</span>
+                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
+                    </button>
+                    <div
+                        x-show="langOpen"
+                        x-cloak
+                        class="absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                    >
+                        @foreach([
+                            ['code'=>'tr','flag'=>'🇹🇷','label'=>'Türkçe','sub'=>'TR'],
+                            ['code'=>'en','flag'=>'🇬🇧','label'=>'English','sub'=>'EN'],
+                            ['code'=>'ar','flag'=>'🇸🇦','label'=>'العربية','sub'=>'AR'],
+                            ['code'=>'ru','flag'=>'🇷🇺','label'=>'Русский','sub'=>'RU'],
+                        ] as $lang)
+                        <button
+                            type="button"
+                            data-lang-btn="{{ $lang['code'] }}"
+                            onclick="switchLang('{{ $lang['code'] }}')"
+                            class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left transition last:border-0 hover:bg-cyan-50"
+                        >
+                            <span class="text-lg leading-none">{{ $lang['flag'] }}</span>
+                            <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
+                            <span class="text-xs font-bold text-slate-400">{{ $lang['sub'] }}</span>
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </nav>
     </div>
