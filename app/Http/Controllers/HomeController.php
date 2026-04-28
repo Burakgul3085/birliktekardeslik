@@ -129,6 +129,29 @@ class HomeController extends Controller
         ]);
     }
 
+    public function gallery(Request $request): View
+    {
+        $query = Project::query()->active()->orderBy('sort_order');
+
+        if ($request->filled('activity')) {
+            $query->where('slug', $request->activity);
+        }
+
+        $projects = $query->get()->filter(function ($project) {
+            return ! empty($project->gallery_images) || ! empty($project->gallery_videos);
+        });
+
+        $allProjects = Project::query()->active()->orderBy('sort_order')->get()->filter(function ($project) {
+            return ! empty($project->gallery_images) || ! empty($project->gallery_videos);
+        });
+
+        return view('galeri', [
+            'projects'    => $projects,
+            'allProjects' => $allProjects,
+            'activeSlug'  => $request->input('activity', ''),
+        ]);
+    }
+
     public function activityShow(string $slug): View
     {
         $activity = Project::query()->active()->where('slug', $slug)->firstOrFail();

@@ -12,6 +12,7 @@ Route::get('/iletisim', [HomeController::class, 'contact'])->name('contact');
 Route::post('/iletisim', [HomeController::class, 'submitContact'])->name('contact.submit');
 Route::get('/faaliyetler', [HomeController::class, 'activities'])->name('activities.index');
 Route::get('/faaliyetler/{slug}', [HomeController::class, 'activityShow'])->name('activities.show');
+Route::get('/galeri', [HomeController::class, 'gallery'])->name('gallery');
 Route::get('/haberler', [HomeController::class, 'news'])->name('news.index');
 Route::get('/haberler/{news}', [HomeController::class, 'newsShow'])->name('news.show');
 Route::get('/gonullu-ol', [HomeController::class, 'volunteer'])->name('volunteer');
