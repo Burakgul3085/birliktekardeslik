@@ -74,27 +74,27 @@
                 <a href="{{ route('donations') }}" class="ml-1 rounded-full bg-white/15 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/25 sm:ml-2">Bağış Yap</a>
                 <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/10">Gönüllü Ol</a>
 
-                <!-- Dil Seçici -->
+                <!-- Dil Seçici (topbar) -->
                 <div class="relative ml-1" x-data="{ langOpen: false }" @click.outside="langOpen = false">
                     <button
                         @click="langOpen = !langOpen"
                         class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-cyan-50 transition hover:bg-white/20"
                         aria-label="Dil seçici"
                     >
-                        <span id="topbar-active-flag">🇹🇷</span>
-                        <span id="topbar-active-label" class="hidden sm:inline">TR</span>
+                        <img data-lang-flag src="https://flagcdn.com/w40/tr.png" alt="TR" class="h-4 w-5 rounded-sm object-cover">
+                        <span data-lang-code class="hidden font-bold sm:inline">TR</span>
                         <svg class="h-3 w-3 opacity-70" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
                     </button>
                     <div
                         x-show="langOpen"
                         x-cloak
-                        class="absolute right-0 top-full z-50 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                        class="absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
                     >
                         @foreach([
-                            ['code'=>'tr','flag'=>'🇹🇷','label'=>'Türkçe'],
-                            ['code'=>'en','flag'=>'🇬🇧','label'=>'English'],
-                            ['code'=>'ar','flag'=>'🇸🇦','label'=>'العربية'],
-                            ['code'=>'ru','flag'=>'🇷🇺','label'=>'Русский'],
+                            ['code'=>'tr','img'=>'https://flagcdn.com/w40/tr.png','label'=>'Türkçe'],
+                            ['code'=>'en','img'=>'https://flagcdn.com/w40/gb.png','label'=>'English'],
+                            ['code'=>'ar','img'=>'https://flagcdn.com/w40/sa.png','label'=>'العربية'],
+                            ['code'=>'ru','img'=>'https://flagcdn.com/w40/ru.png','label'=>'Русский'],
                         ] as $lang)
                         <button
                             type="button"
@@ -102,8 +102,9 @@
                             onclick="switchLang('{{ $lang['code'] }}')"
                             class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left text-sm text-slate-700 transition last:border-0 hover:bg-cyan-50 hover:text-cyan-700"
                         >
-                            <span class="text-base">{{ $lang['flag'] }}</span>
-                            <span class="font-medium">{{ $lang['label'] }}</span>
+                            <img src="{{ $lang['img'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-4 w-6 rounded-sm object-cover shadow-sm">
+                            <span class="font-semibold">{{ $lang['label'] }}</span>
+                            <span class="ml-auto text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
                         </button>
                         @endforeach
                     </div>
@@ -239,33 +240,33 @@
                 <div class="relative" x-data="{ langOpen: false }" @click.outside="langOpen = false">
                     <button
                         @click="langOpen = !langOpen"
-                        class="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50/90 px-3 text-sm text-slate-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
+                        class="inline-flex h-10 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50/90 px-3 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
                         aria-label="Dil seçici"
                     >
-                        <span id="nav-active-flag" class="text-base">🇹🇷</span>
-                        <span id="nav-active-code" class="text-xs font-bold text-slate-600">TR</span>
+                        <img data-lang-flag src="https://flagcdn.com/w40/tr.png" alt="TR" class="h-4 w-6 rounded-sm object-cover shadow-sm">
+                        <span data-lang-code class="text-xs font-bold text-slate-600">TR</span>
                         <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
                     </button>
                     <div
                         x-show="langOpen"
                         x-cloak
-                        class="absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                        class="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
                     >
                         @foreach([
-                            ['code'=>'tr','flag'=>'🇹🇷','label'=>'Türkçe','sub'=>'TR'],
-                            ['code'=>'en','flag'=>'🇬🇧','label'=>'English','sub'=>'EN'],
-                            ['code'=>'ar','flag'=>'🇸🇦','label'=>'العربية','sub'=>'AR'],
-                            ['code'=>'ru','flag'=>'🇷🇺','label'=>'Русский','sub'=>'RU'],
+                            ['code'=>'tr','img'=>'https://flagcdn.com/w40/tr.png','label'=>'Türkçe'],
+                            ['code'=>'en','img'=>'https://flagcdn.com/w40/gb.png','label'=>'English'],
+                            ['code'=>'ar','img'=>'https://flagcdn.com/w40/sa.png','label'=>'العربية'],
+                            ['code'=>'ru','img'=>'https://flagcdn.com/w40/ru.png','label'=>'Русский'],
                         ] as $lang)
                         <button
                             type="button"
                             data-lang-btn="{{ $lang['code'] }}"
                             onclick="switchLang('{{ $lang['code'] }}')"
-                            class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left transition last:border-0 hover:bg-cyan-50"
+                            class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50"
                         >
-                            <span class="text-lg leading-none">{{ $lang['flag'] }}</span>
+                            <img src="{{ $lang['img'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
                             <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
-                            <span class="text-xs font-bold text-slate-400">{{ $lang['sub'] }}</span>
+                            <span class="text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
                         </button>
                         @endforeach
                     </div>

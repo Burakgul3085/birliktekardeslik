@@ -63,79 +63,63 @@
     <main class="min-h-[70vh]">{{ $slot }}</main>
     <x-footer :site-settings="$siteSettings" />
 
-    <!-- Google Translate API -->
+    <!-- Google Translate + Dil Seçici JS -->
     <script>
         function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'tr',
-                autoDisplay: false,
-            }, 'google_translate_element');
+            new google.translate.TranslateElement({ pageLanguage: 'tr', autoDisplay: false }, 'google_translate_element');
         }
 
-        var langs = {
-            'tr': { label: 'Türkçe', flag: '🇹🇷', dir: 'ltr' },
-            'en': { label: 'English', flag: '🇬🇧', dir: 'ltr' },
-            'ar': { label: 'العربية', flag: '🇸🇦', dir: 'rtl' },
-            'ru': { label: 'Русский', flag: '🇷🇺', dir: 'ltr' },
+        var langData = {
+            tr: { label: 'Türkçe',  code: 'TR', dir: 'ltr', img: 'https://flagcdn.com/w40/tr.png' },
+            en: { label: 'English', code: 'EN', dir: 'ltr', img: 'https://flagcdn.com/w40/gb.png' },
+            ar: { label: 'العربية', code: 'AR', dir: 'rtl', img: 'https://flagcdn.com/w40/sa.png' },
+            ru: { label: 'Русский', code: 'RU', dir: 'ltr', img: 'https://flagcdn.com/w40/ru.png' },
         };
+
+        function setGoogCookie(val) {
+            var host = window.location.hostname;
+            var exp  = val ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+            var v    = val || 'googtrans=';
+            document.cookie = v + exp + '; path=/';
+            document.cookie = v + exp + '; path=/; domain=' + host;
+            /* .domain.com formu */
+            if (host.indexOf('.') !== -1) {
+                document.cookie = v + exp + '; path=/; domain=.' + host;
+            }
+        }
 
         function switchLang(lang) {
             localStorage.setItem('bkd_lang', lang);
-
-            /* RTL / LTR */
-            var dir = langs[lang] ? langs[lang].dir : 'ltr';
-            document.documentElement.setAttribute('dir', dir);
-            document.documentElement.setAttribute('lang', lang);
-
-            /* Aktif butonu güncelle */
-            document.querySelectorAll('[data-lang-btn]').forEach(function(btn) {
-                var isActive = btn.getAttribute('data-lang-btn') === lang;
-                btn.style.background    = isActive ? 'rgba(255,255,255,0.25)' : 'transparent';
-                btn.style.fontWeight    = isActive ? '700' : '500';
-                btn.style.borderColor   = isActive ? 'rgba(255,255,255,0.5)' : 'transparent';
-            });
-
             if (lang === 'tr') {
-                /* Türkçe'ye dön: sayfayı sıfırla */
-                var cookie = document.cookie.split(';');
-                for (var i = 0; i < cookie.length; i++) {
-                    var c = cookie[i].trim();
-                    if (c.indexOf('googtrans') === 0) {
-                        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + ';';
-                    }
-                }
-                location.reload();
-                return;
+                setGoogCookie(null);           /* cookie sil */
+            } else {
+                setGoogCookie('googtrans=/tr/' + lang);
             }
-
-            /* Google Translate cookie ayarla ve sayfayı yenile */
-            document.cookie = 'googtrans=/tr/' + lang + '; path=/';
-            document.cookie = 'googtrans=/tr/' + lang + '; path=/; domain=' + window.location.hostname;
             location.reload();
         }
 
-        /* Sayfa yüklenince aktif dili işaretle ve bayrağı güncelle */
-        document.addEventListener('DOMContentLoaded', function() {
+        /* Sayfa yüklenince UI'yı güncelle */
+        document.addEventListener('DOMContentLoaded', function () {
             var saved = localStorage.getItem('bkd_lang') || 'tr';
-            var info = langs[saved] || langs['tr'];
+            var info  = langData[saved] || langData.tr;
 
-            /* Bayrak & kod güncelle */
-            ['topbar-active-flag','nav-active-flag'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.textContent = info.flag;
+            /* RTL/LTR */
+            document.documentElement.setAttribute('dir', info.dir);
+
+            /* Bayrak resimlerini güncelle */
+            document.querySelectorAll('[data-lang-flag]').forEach(function (el) {
+                el.src = info.img;
+                el.alt = info.code;
             });
-            ['topbar-active-label','nav-active-code'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.textContent = saved.toUpperCase();
+            document.querySelectorAll('[data-lang-code]').forEach(function (el) {
+                el.textContent = info.code;
             });
 
-            /* Aktif buton stili */
-            document.querySelectorAll('[data-lang-btn]').forEach(function(btn) {
-                var isActive = btn.getAttribute('data-lang-btn') === saved;
-                if (isActive) {
-                    btn.style.background = '#eff6ff';
-                    btn.style.color = '#0891b2';
+            /* Aktif satırı vurgula */
+            document.querySelectorAll('[data-lang-btn]').forEach(function (btn) {
+                if (btn.getAttribute('data-lang-btn') === saved) {
+                    btn.style.background = '#e0f2fe';
+                    btn.style.color      = '#0369a1';
                 }
             });
         });
