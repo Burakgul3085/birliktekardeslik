@@ -21,26 +21,20 @@
         gtag('config', 'G-R2X10WDTGW');
     </script>
 
-    <!-- Google Translate: varsayılan araç çubuğunu gizle -->
+    <!-- Google Translate UI gizleme — gadget DOM'da kalır, select çalışır -->
     <style>
-        .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        .goog-te-banner-frame { display: none !important; }
         body { top: 0 !important; }
-        .goog-te-gadget { display: none !important; }
-        /* RTL modu için genel uyum */
-        [dir="rtl"] .rtl-flip { transform: scaleX(-1); }
-        [dir="rtl"] .flex { flex-direction: row-reverse; }
-        [dir="rtl"] .text-left { text-align: right; }
-        [dir="rtl"] .text-right { text-align: left; }
-        [dir="rtl"] .ml-auto { margin-left: unset; margin-right: auto; }
-        [dir="rtl"] .mr-auto { margin-right: unset; margin-left: auto; }
+        /* Gadget'ı görünmez ama işlevsel tut */
+        #google_translate_element,
+        .goog-te-gadget { position:absolute; left:-9999px; top:-9999px; height:0; overflow:hidden; }
+        /* RTL desteği */
+        [dir="rtl"] { text-align: right; }
     </style>
     <script>
-        /* Dil seçicisi: sayfa yüklenince kayıtlı dili uygula */
         (function() {
             var saved = localStorage.getItem('bkd_lang');
-            if (saved && saved !== 'tr') {
-                document.documentElement.setAttribute('dir', saved === 'ar' ? 'rtl' : 'ltr');
-            }
+            if (saved === 'ar') document.documentElement.setAttribute('dir', 'rtl');
         })();
     </script>
 </head>
@@ -63,65 +57,92 @@
     <main class="min-h-[70vh]">{{ $slot }}</main>
     <x-footer :site-settings="$siteSettings" />
 
-    <!-- Google Translate + Dil Seçici JS -->
+    <!-- Google Translate + Dil Seçici -->
     <script>
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({ pageLanguage: 'tr', autoDisplay: false }, 'google_translate_element');
-        }
-
         var langData = {
-            tr: { label: 'Türkçe',  code: 'TR', dir: 'ltr', img: 'https://flagcdn.com/w40/tr.png' },
-            en: { label: 'English', code: 'EN', dir: 'ltr', img: 'https://flagcdn.com/w40/gb.png' },
-            ar: { label: 'العربية', code: 'AR', dir: 'rtl', img: 'https://flagcdn.com/w40/sa.png' },
-            ru: { label: 'Русский', code: 'RU', dir: 'ltr', img: 'https://flagcdn.com/w40/ru.png' },
+            tr: { label:'Türkçe',  code:'TR', dir:'ltr', img:'https://flagcdn.com/w40/tr.png' },
+            en: { label:'English', code:'EN', dir:'ltr', img:'https://flagcdn.com/w40/gb.png' },
+            ar: { label:'العربية', code:'AR', dir:'rtl', img:'https://flagcdn.com/w40/sa.png' },
+            ru: { label:'Русский', code:'RU', dir:'ltr', img:'https://flagcdn.com/w40/ru.png' },
         };
 
-        function setGoogCookie(val) {
-            var host = window.location.hostname;
-            var exp  = val ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-            var v    = val || 'googtrans=';
-            document.cookie = v + exp + '; path=/';
-            document.cookie = v + exp + '; path=/; domain=' + host;
-            /* .domain.com formu */
-            if (host.indexOf('.') !== -1) {
-                document.cookie = v + exp + '; path=/; domain=.' + host;
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'tr',
+                includedLanguages: 'tr,en,ar,ru',
+                autoDisplay: false
+            }, 'google_translate_element');
+
+            /* Translate hazır olunca kayıtlı dili uygula */
+            var saved = localStorage.getItem('bkd_lang');
+            if (saved && saved !== 'tr') {
+                setTimeout(function() { applyTranslation(saved); }, 800);
             }
+        }
+
+        function applyTranslation(lang) {
+            /* Google Translate'in oluşturduğu gizli select'i bul */
+            var select = document.querySelector('.goog-te-combo');
+            if (!select) { return; }
+            select.value = lang;
+            var evt = document.createEvent('HTMLEvents');
+            evt.initEvent('change', true, true);
+            select.dispatchEvent(evt);
         }
 
         function switchLang(lang) {
             localStorage.setItem('bkd_lang', lang);
+
+            /* RTL / LTR hemen uygula */
+            var dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.setAttribute('dir', dir);
+
+            /* Buton UI güncelle */
+            updateLangUI(lang);
+
             if (lang === 'tr') {
-                setGoogCookie(null);           /* cookie sil */
-            } else {
-                setGoogCookie('googtrans=/tr/' + lang);
+                /* Orijinal dile dön */
+                var restoreEl = document.querySelector('.goog-te-banner-frame');
+                var select = document.querySelector('.goog-te-combo');
+                if (select) {
+                    select.value = '';
+                    var evt = document.createEvent('HTMLEvents');
+                    evt.initEvent('change', true, true);
+                    select.dispatchEvent(evt);
+                }
+                /* Cookie temizle ve yenile */
+                var exp = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+                document.cookie = 'googtrans=; ' + exp;
+                document.cookie = 'googtrans=; ' + exp + '; domain=' + location.hostname;
+                document.cookie = 'googtrans=; ' + exp + '; domain=.' + location.hostname;
+                setTimeout(function() { location.reload(); }, 200);
+                return;
             }
-            location.reload();
+
+            applyTranslation(lang);
         }
 
-        /* Sayfa yüklenince UI'yı güncelle */
-        document.addEventListener('DOMContentLoaded', function () {
-            var saved = localStorage.getItem('bkd_lang') || 'tr';
-            var info  = langData[saved] || langData.tr;
-
-            /* RTL/LTR */
-            document.documentElement.setAttribute('dir', info.dir);
-
-            /* Bayrak resimlerini güncelle */
-            document.querySelectorAll('[data-lang-flag]').forEach(function (el) {
-                el.src = info.img;
-                el.alt = info.code;
+        function updateLangUI(lang) {
+            var info = langData[lang] || langData.tr;
+            document.querySelectorAll('[data-lang-flag]').forEach(function(el) {
+                el.src = info.img; el.alt = info.code;
             });
-            document.querySelectorAll('[data-lang-code]').forEach(function (el) {
+            document.querySelectorAll('[data-lang-code]').forEach(function(el) {
                 el.textContent = info.code;
             });
-
-            /* Aktif satırı vurgula */
-            document.querySelectorAll('[data-lang-btn]').forEach(function (btn) {
-                if (btn.getAttribute('data-lang-btn') === saved) {
-                    btn.style.background = '#e0f2fe';
-                    btn.style.color      = '#0369a1';
-                }
+            document.querySelectorAll('[data-lang-btn]').forEach(function(btn) {
+                var active = btn.getAttribute('data-lang-btn') === lang;
+                btn.style.background = active ? '#e0f2fe' : '';
+                btn.style.color      = active ? '#0369a1' : '';
             });
+        }
+
+        /* Sayfa yüklenince UI'yı hazırla */
+        document.addEventListener('DOMContentLoaded', function() {
+            var saved = localStorage.getItem('bkd_lang') || 'tr';
+            updateLangUI(saved);
+            if (saved === 'ar') document.documentElement.setAttribute('dir', 'rtl');
+            else document.documentElement.setAttribute('dir', 'ltr');
         });
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
