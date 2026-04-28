@@ -88,10 +88,29 @@ class HomeController extends Controller
         ]);
     }
 
-    public function news(): View
+    public function news(Request $request): View
     {
+        $query = News::query()->active();
+
+        if ($request->filled('q')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->q . '%')
+                  ->orWhere('summary', 'like', '%' . $request->q . '%');
+            });
+        }
+
+        $sort = $request->input('sort', 'newest');
+        match ($sort) {
+            'oldest' => $query->oldest('published_at'),
+            default  => $query->latest('published_at'),
+        };
+
         return view('news', [
-            'newsItems' => News::query()->active()->latest('published_at')->paginate(12),
+            'newsItems' => $query->paginate(12)->withQueryString(),
+            'filters'   => [
+                'q'    => $request->input('q', ''),
+                'sort' => $sort,
+            ],
         ]);
     }
 
