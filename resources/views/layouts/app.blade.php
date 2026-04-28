@@ -44,24 +44,28 @@
         if (localStorage.getItem('bkd_lang') === 'ar')
             document.documentElement.setAttribute('dir', 'rtl');
 
-        /* GT select'ini bul, yoksa tekrar dene */
-        function gtApplyLang(lang, attempt) {
-            attempt = attempt || 0;
-            if (lang === 'tr') { location.reload(); return; }
-            var sel = document.querySelector('select.goog-te-combo');
-            if (sel) {
-                sel.value = lang;
-                sel.dispatchEvent(new Event('change'));
-                document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-            } else if (attempt < 30) {
-                setTimeout(function(){ gtApplyLang(lang, attempt + 1); }, 200);
-            }
-        }
-
         window.switchLang = function(lang) {
             localStorage.setItem('bkd_lang', lang);
             updateLangUI(lang);
-            gtApplyLang(lang);
+
+            if (lang === 'tr') {
+                /* Türkçe: orijinal siteye dön */
+                var orig = location.href
+                    .replace(/^https?:\/\/[^.]+\.translate\.goog/, 'https://birliktekardeslik.org')
+                    .replace(/[?&]_x_tr_[^&]*/g, '');
+                location.href = orig.replace(/[?&]$/, '') || 'https://birliktekardeslik.org/';
+                return;
+            }
+
+            /* Google Translate proxy — her zaman çalışır, eklenti/kısıt yok */
+            var currentUrl = location.href;
+            /* Zaten proxy üzerindeyse sadece dili değiştir */
+            if (currentUrl.indexOf('.translate.goog') !== -1) {
+                location.href = currentUrl.replace(/_x_tr_tl=[a-z]+/, '_x_tr_tl=' + lang);
+                return;
+            }
+            /* İlk kez proxy'ye yönlendir */
+            location.href = 'https://translate.google.com/translate?sl=tr&tl=' + lang + '&hl=tr&u=' + encodeURIComponent(currentUrl);
         };
     </script>
 </head>
@@ -99,18 +103,7 @@
         }
 
         function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'tr',
-                includedLanguages: 'tr,en,ar,ru',
-                autoDisplay: false,
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-            }, 'google_translate_element');
-
-            /* GT hazır — kayıtlı dili uygula */
-            var saved = localStorage.getItem('bkd_lang');
-            if (saved && saved !== 'tr') {
-                gtApplyLang(saved);
-            }
+            new google.translate.TranslateElement({ pageLanguage: 'tr', autoDisplay: false }, 'google_translate_element');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
