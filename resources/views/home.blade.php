@@ -138,7 +138,7 @@
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
                     @endphp
-                    <article class="group w-[380px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
+                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" style="width:360px;flex-shrink:0;">
                         <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4">
                             <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
@@ -176,7 +176,7 @@
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
                     @endphp
-                    <article class="group w-[380px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" aria-hidden="true">
+                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" style="width:360px;flex-shrink:0;" aria-hidden="true">
                         <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4" tabindex="-1">
                             <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
