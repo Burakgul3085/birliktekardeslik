@@ -62,7 +62,13 @@ class ProjectForm
                 ->label('Detay açılır menü 3 metin')
                 ->rows(2)
                 ->default('Ailelerin düzenli beslenme ihtiyacına katkı sağlayan insani yardım faaliyetleri yürütüyoruz.'),
-            FileUpload::make('cover_image')->disk('public')->directory('projects')->image()->label('Kapak Gorseli'),
+            FileUpload::make('cover_image')
+                ->disk('public')
+                ->directory('projects')
+                ->image()
+                ->maxSize(51200)
+                ->label('Kapak Gorseli')
+                ->helperText('En fazla 50 MB.'),
             FileUpload::make('gallery_images')
                 ->label('Faaliyet Galeri Fotoğrafları')
                 ->disk('public')
@@ -71,8 +77,8 @@ class ProjectForm
                 ->reorderable()
                 ->image()
                 ->imageEditor()
-                ->maxSize(15360)
-                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz. Her dosya en fazla 15 MB.'),
+                ->maxSize(51200)
+                ->helperText('Birden fazla fotoğraf ekleyebilirsiniz. Her dosya en fazla 50 MB.'),
             FileUpload::make('gallery_videos')
                 ->label('Faaliyet Galeri Videoları')
                 ->disk('public')
@@ -80,8 +86,8 @@ class ProjectForm
                 ->multiple()
                 ->reorderable()
                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
-                ->maxSize(15360)
-                ->helperText('MP4/WEBM/MOV formatında birden fazla video ekleyebilirsiniz. Her dosya en fazla 15 MB.'),
+                ->maxSize(51200)
+                ->helperText('MP4/WEBM/MOV formatında birden fazla video ekleyebilirsiniz. Her dosya en fazla 50 MB.'),
             Select::make('status')->label('Durum')->options([
                 'devam-ediyor' => 'Devam Ediyor',
                 'tamamlandi' => 'Tamamlandı',
