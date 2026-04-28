@@ -138,28 +138,28 @@
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
                     @endphp
-                    <article class="group w-[300px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
-                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4">
-                            <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <article class="group w-[220px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
+                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-3">
+                            <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
                                 <img
                                     src="{{ $project->cover_image ? asset('storage/' . $project->cover_image) : asset('images/default-logo.svg') }}"
-                                    class="mx-auto block h-[180px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                    class="mx-auto block h-[120px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                     alt="{{ $project->title }}"
                                     loading="lazy"
                                 >
                             </div>
                         </a>
-                        <div class="px-4 pb-4">
-                            <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
-                            <h3 class="mt-1.5 line-clamp-2 text-base font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
+                        <div class="px-3 pb-3">
+                            <span class="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
+                            <h3 class="mt-1 line-clamp-2 text-sm font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
                             @if (! is_null($project->donation_amount))
-                                <p class="mt-2 text-base font-extrabold text-cyan-800">
+                                <p class="mt-1 text-sm font-extrabold text-cyan-800">
                                     {{ number_format((float) $project->donation_amount, 2, ',', '.') }} {{ $project->donation_currency ?: 'TL' }}
                                 </p>
                             @endif
-                            <div class="mt-3 flex items-center gap-2">
-                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-700">Bağış Yap</a>
-                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-xs font-semibold text-cyan-700 transition hover:text-cyan-900">Detay</a>
+                            <div class="mt-2 flex items-center gap-2">
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-2.5 py-1 text-[10px] font-semibold text-white transition hover:bg-cyan-700">Bağış Yap</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-[10px] font-semibold text-cyan-700 transition hover:text-cyan-900">Detay</a>
                             </div>
                         </div>
                     </article>
@@ -173,28 +173,28 @@
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
                     @endphp
-                    <article class="group w-[300px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" aria-hidden="true">
-                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4" tabindex="-1">
-                            <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <article class="group w-[220px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" aria-hidden="true">
+                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-3" tabindex="-1">
+                            <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
                                 <img
                                     src="{{ $project->cover_image ? asset('storage/' . $project->cover_image) : asset('images/default-logo.svg') }}"
-                                    class="mx-auto block h-[180px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                    class="mx-auto block h-[120px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                     alt="{{ $project->title }}"
                                     loading="lazy"
                                 >
                             </div>
                         </a>
-                        <div class="px-4 pb-4">
-                            <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
-                            <h3 class="mt-1.5 line-clamp-2 text-base font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
+                        <div class="px-3 pb-3">
+                            <span class="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
+                            <h3 class="mt-1 line-clamp-2 text-sm font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
                             @if (! is_null($project->donation_amount))
-                                <p class="mt-2 text-base font-extrabold text-cyan-800">
+                                <p class="mt-1 text-sm font-extrabold text-cyan-800">
                                     {{ number_format((float) $project->donation_amount, 2, ',', '.') }} {{ $project->donation_currency ?: 'TL' }}
                                 </p>
                             @endif
-                            <div class="mt-3 flex items-center gap-2">
-                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-700" tabindex="-1">Bağış Yap</a>
-                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-xs font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">Detay</a>
+                            <div class="mt-2 flex items-center gap-2">
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-2.5 py-1 text-[10px] font-semibold text-white transition hover:bg-cyan-700" tabindex="-1">Bağış Yap</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-[10px] font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">Detay</a>
                             </div>
                         </div>
                     </article>
