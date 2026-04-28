@@ -23,19 +23,43 @@
 
     <!-- Google Translate stiller -->
     <style>
-        /* Google'ın kendi banner'ını ve widget'ını gizle */
         .goog-te-banner-frame.skiptranslate { display: none !important; }
         body { top: 0 !important; }
         #google_translate_element { display: none !important; }
-        /* RTL desteği */
         [dir="rtl"] { text-align: right; }
     </style>
+
+    <!-- Dil seçici: head'de tanımla, Alpine'dan önce yüklensin -->
     <script>
-        /* Sayfa başında RTL uygula (flash önlemek için) */
-        (function() {
-            if (localStorage.getItem('bkd_lang') === 'ar') {
-                document.documentElement.setAttribute('dir', 'rtl');
+        var langData = {
+            tr: { code:'TR', dir:'ltr', img:'https://flagcdn.com/w40/tr.png' },
+            en: { code:'EN', dir:'ltr', img:'https://flagcdn.com/w40/gb.png' },
+            ar: { code:'AR', dir:'rtl', img:'https://flagcdn.com/w40/sa.png' },
+            ru: { code:'RU', dir:'ltr', img:'https://flagcdn.com/w40/ru.png' },
+        };
+
+        /* Global scope'a aç — onclick ve Alpine her ikisi de erişebilir */
+        window.switchLang = function(lang) {
+            localStorage.setItem('bkd_lang', lang);
+            var past = 'Thu, 01 Jan 1970 00:00:00 GMT';
+            var host = location.hostname;
+            /* Eski cookie sil */
+            document.cookie = 'googtrans=; expires=' + past + '; path=/';
+            document.cookie = 'googtrans=; expires=' + past + '; path=/; domain=' + host;
+            document.cookie = 'googtrans=; expires=' + past + '; path=/; domain=.' + host;
+            if (lang !== 'tr') {
+                var v = 'googtrans=/tr/' + lang;
+                document.cookie = v + '; path=/';
+                document.cookie = v + '; path=/; domain=' + host;
+                document.cookie = v + '; path=/; domain=.' + host;
             }
+            location.reload();
+        };
+
+        /* RTL flash önleme */
+        (function() {
+            if (localStorage.getItem('bkd_lang') === 'ar')
+                document.documentElement.setAttribute('dir', 'rtl');
         })();
     </script>
 </head>
@@ -58,67 +82,37 @@
     <main class="min-h-[70vh]">{{ $slot }}</main>
     <x-footer :site-settings="$siteSettings" />
 
-    <!-- Google Translate + Dil Seçici -->
+    <!-- Google Translate başlatıcı -->
     <script>
-        var langData = {
-            tr: { code:'TR', dir:'ltr', img:'https://flagcdn.com/w40/tr.png' },
-            en: { code:'EN', dir:'ltr', img:'https://flagcdn.com/w40/gb.png' },
-            ar: { code:'AR', dir:'rtl', img:'https://flagcdn.com/w40/sa.png' },
-            ru: { code:'RU', dir:'ltr', img:'https://flagcdn.com/w40/ru.png' },
-        };
-
-        /* Google Translate başlatıcı — sayfa yüklenince çağrılır */
         function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'tr',
-                autoDisplay: false
-            }, 'google_translate_element');
+            new google.translate.TranslateElement({ pageLanguage: 'tr', autoDisplay: false }, 'google_translate_element');
         }
 
-        /* Dil değiştir: cookie ayarla + sayfayı yenile */
-        function switchLang(lang) {
-            localStorage.setItem('bkd_lang', lang);
-
-            var past = 'Thu, 01 Jan 1970 00:00:00 GMT';
-            var host = location.hostname;
-
-            /* Eski cookie'leri sil */
-            document.cookie = 'googtrans=; expires=' + past + '; path=/';
-            document.cookie = 'googtrans=; expires=' + past + '; path=/; domain=' + host;
-            document.cookie = 'googtrans=; expires=' + past + '; path=/; domain=.' + host;
-
-            if (lang !== 'tr') {
-                /* Yeni dil cookie'si yaz */
-                var val = 'googtrans=/tr/' + lang;
-                document.cookie = val + '; path=/';
-                document.cookie = val + '; path=/; domain=' + host;
-                document.cookie = val + '; path=/; domain=.' + host;
-            }
-
-            location.reload();
-        }
-
-        /* UI güncellemesi — bayrak ve kod */
-        function updateLangUI(lang) {
-            var info = langData[lang] || langData.tr;
-            document.querySelectorAll('[data-lang-flag]').forEach(function(el) {
-                el.src = info.img; el.alt = info.code;
-            });
-            document.querySelectorAll('[data-lang-code]').forEach(function(el) {
-                el.textContent = info.code;
-            });
-            document.querySelectorAll('[data-lang-btn]').forEach(function(btn) {
-                var active = btn.getAttribute('data-lang-btn') === lang;
-                btn.style.background = active ? '#e0f2fe' : '';
-                btn.style.color      = active ? '#0369a1' : '';
-                btn.style.fontWeight = active ? '700' : '';
-            });
-        }
-
+        /* Sayfa yüklenince: UI güncelle + event listener ekle */
         document.addEventListener('DOMContentLoaded', function() {
             var saved = localStorage.getItem('bkd_lang') || 'tr';
-            updateLangUI(saved);
-            document.documentElement.setAttribute('dir', saved === 'ar' ? 'rtl' : 'ltr');
+            var info  = langData[saved] || langData.tr;
+
+            /* Bayrak ve kod güncelle */
+            document.querySelectorAll('[data-lang-flag]').forEach(function(el) { el.src = info.img; el.alt = info.code; });
+            document.querySelectorAll('[data-lang-code]').forEach(function(el) { el.textContent = info.code; });
+
+            /* RTL */
+            document.documentElement.setAttribute('dir', info.dir);
+
+            /* Dil butonlarına event listener ekle (onclick yerine) */
+            document.querySelectorAll('[data-lang-btn]').forEach(function(btn) {
+                var lang = btn.getAttribute('data-lang-btn');
+                if (lang === saved) {
+                    btn.style.background = '#e0f2fe';
+                    btn.style.fontWeight = '700';
+                    btn.style.color      = '#0369a1';
+                }
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    window.switchLang(lang);
+                });
+            });
         });
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
