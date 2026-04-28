@@ -173,17 +173,31 @@
                             <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">Videolar</p>
                             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
                                 @foreach($videos as $index => $video)
-                                <div style="border-radius:14px;overflow:hidden;background:#0f172a;box-shadow:0 2px 12px rgba(0,0,0,0.12);">
-                                    <div style="position:relative;aspect-ratio:16/9;">
+                                <div
+                                    onclick="openVideoModal('{{ asset('storage/' . $video) }}', '{{ addslashes($project->title) }} — Video {{ $index + 1 }}')"
+                                    style="border-radius:14px;overflow:hidden;background:#0f172a;box-shadow:0 2px 12px rgba(0,0,0,0.12);cursor:pointer;transition:transform .2s,box-shadow .2s;"
+                                    onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.22)'"
+                                    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.12)'"
+                                >
+                                    <div style="position:relative;aspect-ratio:16/9;background:#0f172a;">
                                         <video
-                                            style="width:100%;height:100%;object-fit:cover;display:block;"
-                                            controls
+                                            style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"
                                             preload="metadata"
-                                            src="{{ asset('storage/' . $video) }}"
+                                            src="{{ asset('storage/' . $video) }}#t=0.5"
                                         ></video>
+                                        {{-- Oynat butonu overlay --}}
+                                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);transition:background .2s;">
+                                            <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.95);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);transition:transform .2s;">
+                                                <svg style="width:22px;height:22px;color:#0891b2;margin-left:3px;" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5.14v14l11-7-11-7z"/>
+                                                </svg>
+                                            </div>
+                                            <span style="color:rgba(255,255,255,0.85);font-size:11px;font-weight:600;margin-top:10px;letter-spacing:.04em;">Tam Ekran İzle</span>
+                                        </div>
                                     </div>
                                     <div style="padding:10px 14px;background:#1e293b;">
-                                        <p style="font-size:12px;font-weight:600;color:#cbd5e1;margin:0;">
+                                        <p style="font-size:12px;font-weight:600;color:#cbd5e1;margin:0;display:flex;align-items:center;gap:6px;">
+                                            <svg style="width:12px;height:12px;color:#38bdf8;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
                                             {{ $project->title }} &mdash; Video {{ $index + 1 }}
                                         </p>
                                     </div>
@@ -201,8 +215,58 @@
         </div>
     </div>
 
+    {{-- Video Modal --}}
+    <div id="videoModal" onclick="closeVideoModal(event)" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+        <div style="position:relative;width:100%;max-width:1000px;" onclick="event.stopPropagation()">
+            {{-- Kapat butonu --}}
+            <button onclick="closeVideoModal()" style="position:absolute;top:-48px;right:0;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:1;"
+                onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                <svg style="width:20px;height:20px;color:#fff;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            {{-- Video başlığı --}}
+            <p id="videoModalTitle" style="color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;margin:0 0 12px;"></p>
+            {{-- Video --}}
+            <div style="border-radius:16px;overflow:hidden;background:#000;box-shadow:0 24px 60px rgba(0,0,0,0.6);">
+                <video id="modalVideo" controls autoplay style="width:100%;max-height:75vh;display:block;outline:none;">
+                    Tarayıcınız video etiketini desteklemiyor.
+                </video>
+            </div>
+            <p style="color:rgba(255,255,255,0.35);font-size:11px;text-align:center;margin:12px 0 0;">Kapatmak için ESC tuşuna basın veya dışarıya tıklayın</p>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
     <script>
         GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
+
+        const videoModal = document.getElementById('videoModal');
+        const modalVideo = document.getElementById('modalVideo');
+        const videoModalTitle = document.getElementById('videoModalTitle');
+
+        function openVideoModal(src, title) {
+            modalVideo.src = src;
+            videoModalTitle.textContent = title;
+            videoModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoModal(e) {
+            if (e && e.target !== videoModal) return;
+            modalVideo.pause();
+            modalVideo.src = '';
+            videoModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                modalVideo.pause();
+                modalVideo.src = '';
+                videoModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
     </script>
 </x-layouts.app>
