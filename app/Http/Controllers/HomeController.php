@@ -55,10 +55,36 @@ class HomeController extends Controller
         ]);
     }
 
-    public function activities(): View
+    public function activities(Request $request): View
     {
+        $query = Project::query()->active();
+
+        if ($request->filled('q')) {
+            $query->where('title', 'like', '%' . $request->q . '%');
+        }
+
+        if ($request->filled('status') && in_array($request->status, ['devam_ediyor', 'tamamlandi'])) {
+            if ($request->status === 'devam_ediyor') {
+                $query->where('status', '!=', 'tamamlandi');
+            } else {
+                $query->where('status', 'tamamlandi');
+            }
+        }
+
+        $sort = $request->input('sort', 'default');
+        match ($sort) {
+            'amount_asc'  => $query->orderByRaw('CAST(donation_amount AS DECIMAL(15,2)) ASC'),
+            'amount_desc' => $query->orderByRaw('CAST(donation_amount AS DECIMAL(15,2)) DESC'),
+            default       => $query->orderBy('sort_order'),
+        };
+
         return view('activities', [
-            'activities' => Project::query()->active()->orderBy('sort_order')->get(),
+            'activities' => $query->get(),
+            'filters'    => [
+                'q'      => $request->input('q', ''),
+                'status' => $request->input('status', ''),
+                'sort'   => $sort,
+            ],
         ]);
     }
 
