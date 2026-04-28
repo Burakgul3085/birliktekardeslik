@@ -5,7 +5,7 @@
         $focusCards = [
             [
                 'title' => $siteSettings->home_focus_1_title ?: 'Acil Gıda Desteği',
-                'text' => $siteSettings->home_focus_1_text ?: 'Afrika’da açlık riski altındaki ailelere temel gıda kolileri ulaştırıyoruz.',
+                'text' => $siteSettings->home_focus_1_text ?: 'Afrika\'da açlık riski altındaki ailelere temel gıda kolileri ulaştırıyoruz.',
                 'icon' => 'food',
             ],
             [
@@ -98,58 +98,117 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-7xl scroll-mt-24 px-4 pt-10 md:px-6 md:pt-12" id="projeler">
-        <div class="rounded-[28px] bg-cyan-50/45 p-5 md:p-8">
-            <div class="grid items-center gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
-                <div class="space-y-2">
-                    <h2 class="max-w-[280px] text-[44px] font-bold leading-[1.08] tracking-tight text-slate-900">
-                        {{ $activitySection->title ?: 'Faaliyetlerimiz' }}
-                    </h2>
+    {{-- ===== FAAALİYETLER - SONSUZ KAYAN ŞERİT ===== --}}
+    @php $marqueeSpeed = max(30, $projects->count() * 5); @endphp
+    <section class="scroll-mt-24 pt-10 md:pt-12" id="projeler">
+        <div class="mx-auto max-w-7xl px-4 md:px-6">
+            <div class="rounded-[28px] bg-cyan-50/45 px-5 pb-5 pt-5 md:px-8 md:pb-6">
+                <div class="grid items-center gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
+                    <div class="space-y-2">
+                        <h2 class="max-w-[280px] text-[44px] font-bold leading-[1.08] tracking-tight text-slate-900">
+                            {{ $activitySection->title ?: 'Faaliyetlerimiz' }}
+                        </h2>
+                    </div>
+                    <p class="max-w-3xl text-base leading-relaxed text-slate-600 md:text-lg">
+                        {{ $activitySection->description ?: 'Kriz bölgelerinde temiz su, gıda ve acil yardım desteğiyle ihtiyaç sahiplerine hızlı ve sürdürülebilir çözümler ulaştırıyoruz.' }}
+                    </p>
                 </div>
-                <p class="max-w-3xl text-base leading-relaxed text-slate-600 md:text-lg">
-                    {{ $activitySection->description ?: 'Afrika’da açlık ve susuzlukla mücadele için yürüttüğümüz gıda, temiz su ve acil yardım faaliyetleri.' }}
-                </p>
             </div>
-            <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                @forelse($projects as $project)
+        </div>
+
+        @if($projects->isNotEmpty())
+        {{-- Kayan şerit alanı --}}
+        <div class="relative mt-6 overflow-hidden">
+            {{-- Sol soluk geçiş --}}
+            <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-white to-transparent md:w-40"></div>
+            {{-- Sağ soluk geçiş --}}
+            <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent md:w-40"></div>
+
+            <div
+                class="flex gap-5 pb-4 pt-2"
+                style="animation: activityMarquee {{ $marqueeSpeed }}s linear infinite; width: max-content; will-change: transform;"
+                onmouseenter="this.style.animationPlayState='paused'"
+                onmouseleave="this.style.animationPlayState='running'"
+            >
+                {{-- Orijinal set --}}
+                @foreach($projects as $project)
                     @php
                         $statusLabel = $project->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
                         $statusClass = $project->status === 'tamamlandi'
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
                     @endphp
-                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
+                    <article class="group w-[300px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]">
                         <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4">
                             <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
                                     src="{{ $project->cover_image ? asset('storage/' . $project->cover_image) : asset('images/default-logo.svg') }}"
-                                    class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                    class="mx-auto block h-[180px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                     alt="{{ $project->title }}"
+                                    loading="lazy"
                                 >
                             </div>
                         </a>
-                        <div class="px-5 pb-5">
+                        <div class="px-4 pb-4">
                             <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
-                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
-                            <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
-                                {{ \Illuminate\Support\Str::limit($project->description ?: strip_tags((string) $project->content), 170) }}
-                            </p>
+                            <h3 class="mt-1.5 line-clamp-2 text-base font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
                             @if (! is_null($project->donation_amount))
-                                <p class="mt-4 text-lg font-extrabold text-cyan-800">
+                                <p class="mt-2 text-base font-extrabold text-cyan-800">
                                     {{ number_format((float) $project->donation_amount, 2, ',', '.') }} {{ $project->donation_currency ?: 'TL' }}
                                 </p>
                             @endif
-                            <div class="mt-5 flex items-center gap-3">
-                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">Bağış Yap</a>
-                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">Faaliyet Detayı</a>
+                            <div class="mt-3 flex items-center gap-2">
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-700">Bağış Yap</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-xs font-semibold text-cyan-700 transition hover:text-cyan-900">Detay</a>
                             </div>
                         </div>
                     </article>
-                @empty
-                    <x-empty-state title="Henüz faaliyet yok" description="Admin panelinden Projeler ve Faaliyetler bölümünden yeni kayıt ekleyebilirsiniz." />
-                @endforelse
+                @endforeach
+
+                {{-- Kopyalanmış set (sonsuz döngü için) --}}
+                @foreach($projects as $project)
+                    @php
+                        $statusLabel = $project->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
+                        $statusClass = $project->status === 'tamamlandi'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                            : 'border-amber-200 bg-amber-50 text-amber-700';
+                    @endphp
+                    <article class="group w-[300px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" aria-hidden="true">
+                        <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="block p-4" tabindex="-1">
+                            <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <img
+                                    src="{{ $project->cover_image ? asset('storage/' . $project->cover_image) : asset('images/default-logo.svg') }}"
+                                    class="mx-auto block h-[180px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                    alt="{{ $project->title }}"
+                                    loading="lazy"
+                                >
+                            </div>
+                        </a>
+                        <div class="px-4 pb-4">
+                            <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
+                            <h3 class="mt-1.5 line-clamp-2 text-base font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $project->title }}</h3>
+                            @if (! is_null($project->donation_amount))
+                                <p class="mt-2 text-base font-extrabold text-cyan-800">
+                                    {{ number_format((float) $project->donation_amount, 2, ',', '.') }} {{ $project->donation_currency ?: 'TL' }}
+                                </p>
+                            @endif
+                            <div class="mt-3 flex items-center gap-2">
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-700" tabindex="-1">Bağış Yap</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-xs font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">Detay</a>
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
             </div>
         </div>
+
+        <div class="mx-auto mt-5 flex max-w-7xl justify-center px-4 md:px-6">
+            <a href="{{ route('pages.show', ['slug' => 'faaliyetler']) }}" class="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-6 py-2.5 text-sm font-semibold text-cyan-700 transition hover:border-cyan-400 hover:bg-cyan-100 hover:text-cyan-900">
+                Tüm Faaliyetleri Gör
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        @endif
     </section>
 
     <section class="mx-auto max-w-7xl px-4 pt-12 md:px-6 md:pt-14">
@@ -261,8 +320,17 @@
         </div>
     </section>
 
-
     <style>
+        @keyframes activityMarquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
         .wa-float { animation: wa-float-in 0.6s ease-out forwards; }
         .wa-ring  { animation: wa-ring-pulse 2s ease-in-out infinite; }
         .wa-btn:hover { transform: scale(1.12); }

@@ -43,7 +43,7 @@ class HomeController extends Controller
     public function index(): View
     {
         $heroSlides = HeroSlide::query()->active()->orderBy('sort_order')->get();
-        $activities = Project::query()->active()->orderBy('sort_order')->take(6)->get();
+        $activities = Project::query()->active()->orderBy('sort_order')->get();
 
         return view('home', [
             'heroSlides' => $heroSlides,
