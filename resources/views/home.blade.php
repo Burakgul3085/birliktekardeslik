@@ -263,71 +263,105 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6" id="haberler">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <span class="inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">
-                    • Son Haberler
-                </span>
-                <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">Haberler ve Duyurular</h2>
+    @php $newsMarqueeSpeed = max(30, $newsItems->count() * 5); @endphp
+    <section class="pt-14" id="haberler">
+        <div class="mx-auto max-w-7xl px-4 md:px-6">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <span class="inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">
+                        • Son Haberler
+                    </span>
+                    <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">Haberler ve Duyurular</h2>
+                </div>
             </div>
         </div>
-        <div
-            x-data="{
-                scrollByAmount() {
-                    return this.$refs.track ? Math.round(this.$refs.track.clientWidth * 0.9) : 360;
-                },
-                prev() {
-                    this.$refs.track?.scrollBy({ left: -this.scrollByAmount(), behavior: 'smooth' });
-                },
-                next() {
-                    this.$refs.track?.scrollBy({ left: this.scrollByAmount(), behavior: 'smooth' });
-                }
-            }"
-            class="mt-7"
-        >
-            <div class="mb-3 flex justify-end gap-2">
-                <button type="button" @click="prev()" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700" aria-label="Önceki haberler">
-                    <span aria-hidden="true">‹</span>
-                </button>
-                <button type="button" @click="next()" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700" aria-label="Sonraki haberler">
-                    <span aria-hidden="true">›</span>
-                </button>
-            </div>
-            <div x-ref="track" class="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2">
-            @forelse($newsItems as $news)
-                <article class="group w-[86%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)] sm:w-[48%] xl:w-[32%]">
-                    <a href="{{ route('news.show', ['news' => $news->id]) }}" class="block p-4">
-                        <div class="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
-                            <img
-                                src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                                alt="{{ $news->title }}"
-                                class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                            >
-                            <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                                {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
-                            </span>
-                        </div>
-                    </a>
-                    <div class="px-5 pb-5">
-                        <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->title }}</h3>
-                        <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
-                            {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
-                        </p>
-                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">
-                            Haber Detayı
+
+        @if($newsItems->isNotEmpty())
+        <div class="relative mt-7 overflow-hidden">
+            {{-- Sol soluk geçiş --}}
+            <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-white to-transparent md:w-40"></div>
+            {{-- Sağ soluk geçiş --}}
+            <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent md:w-40"></div>
+
+            <div
+                class="flex gap-5 pb-4 pt-2"
+                style="animation: newsMarquee {{ $newsMarqueeSpeed }}s linear infinite; width: max-content; will-change: transform;"
+                onmouseenter="this.style.animationPlayState='paused'"
+                onmouseleave="this.style.animationPlayState='running'"
+            >
+                {{-- Orijinal set --}}
+                @foreach($newsItems as $news)
+                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" style="width:360px;flex-shrink:0;">
+                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="block p-4">
+                            <div class="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <img
+                                    src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
+                                    alt="{{ $news->title }}"
+                                    class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                    loading="lazy"
+                                >
+                                <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                                    {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
+                                </span>
+                            </div>
                         </a>
-                    </div>
-                </article>
-            @empty
-                <x-empty-state title="Henüz haber yok" description="Haberler panelinden duyuru ekleyebilirsiniz." />
-            @endforelse
+                        <div class="px-5 pb-5">
+                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->title }}</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
+                                {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
+                            </p>
+                            <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">
+                                Haber Detayı
+                            </a>
+                        </div>
+                    </article>
+                @endforeach
+
+                {{-- Kopyalanmış set (sonsuz döngü için) --}}
+                @foreach($newsItems as $news)
+                    <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_rgba(14,116,144,0.18)]" style="width:360px;flex-shrink:0;" aria-hidden="true">
+                        <a href="{{ route('news.show', ['news' => $news->id]) }}" class="block p-4" tabindex="-1">
+                            <div class="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <img
+                                    src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
+                                    alt="{{ $news->title }}"
+                                    class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                    loading="lazy"
+                                >
+                                <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                                    {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
+                                </span>
+                            </div>
+                        </a>
+                        <div class="px-5 pb-5">
+                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->title }}</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
+                                {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
+                            </p>
+                            <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">
+                                Haber Detayı
+                            </a>
+                        </div>
+                    </article>
+                @endforeach
             </div>
         </div>
+
+        <div class="mx-auto mt-5 flex max-w-7xl justify-center px-4 md:px-6">
+            <a href="{{ route('news.index') }}" class="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-6 py-2.5 text-sm font-semibold text-cyan-700 transition hover:border-cyan-400 hover:bg-cyan-100 hover:text-cyan-900">
+                Tüm Haberleri Gör
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        @endif
     </section>
 
     <style>
         @keyframes activityMarquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes newsMarquee {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }

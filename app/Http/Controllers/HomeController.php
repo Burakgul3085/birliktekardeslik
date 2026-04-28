@@ -50,7 +50,7 @@ class HomeController extends Controller
             'heroSlidesPayload' => $this->heroSlidesPayload($heroSlides),
             'projects' => $activities,
             'activitySection' => ActivitySectionSetting::current(),
-            'newsItems' => News::query()->active()->latest('published_at')->take(6)->get(),
+            'newsItems' => News::query()->active()->latest('published_at')->get(),
             'bankAccounts' => BankAccount::query()->active()->orderBy('sort_order')->get(),
         ]);
     }
