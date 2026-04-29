@@ -6,6 +6,7 @@
             'faaliyet-belgesi' => __('app.page.doc_activity_title'),
             'kurumsal-evrak-arsivi' => __('app.page.doc_archive_title'),
             'basin-kiti' => __('app.page.press_kit_title'),
+            'hakkimizda' => __('app.page.about_us'),
             'yonetim' => __('app.page.management_title'),
             'resmi-bilgiler' => __('app.page.official_page_title'),
             'resmi-belgiler' => __('app.page.official_page_title'),
@@ -126,6 +127,9 @@
             $settings = \App\Models\Setting::current();
             $meta = is_array($page->page_meta ?? null) ? $page->page_meta : [];
             $aboutImage = ! empty($meta['about_image']) ? \Illuminate\Support\Facades\Storage::url($meta['about_image']) : asset('images/default-logo.svg');
+            $aboutContentHtml = ($isTr && ! empty($page->content))
+                ? (string) $page->content
+                : __('app.page.about_content_html');
             $socialMap = [
                 'instagram_url' => 'instagram',
                 'youtube_url' => 'youtube',
@@ -177,7 +181,7 @@
                             <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">{{ __('app.page.about_us') }}</h2>
                         </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
-                            {!! $page->content ?: '<p>Birlikte Kardeşlik Derneği; yardımlaşma, dayanışma ve sosyal sorumluluk bilinciyle faaliyet gösteren bir sivil toplum oluşumudur.</p>' !!}
+                            {!! $aboutContentHtml !!}
                         </div>
                     </div>
 
