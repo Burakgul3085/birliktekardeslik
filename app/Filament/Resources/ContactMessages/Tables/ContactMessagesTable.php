@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Support\Mailer;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -26,7 +27,12 @@ class ContactMessagesTable
                 TextColumn::make('first_name')->label('Ad')->searchable(),
                 TextColumn::make('last_name')->label('Soyad')->searchable(),
                 TextColumn::make('email')->label('E-posta')->searchable()->copyable(),
-                TextColumn::make('message')->label('Mesaj')->limit(70)->wrap()->searchable(),
+                TextColumn::make('message')
+                    ->label('Mesaj')
+                    ->limit(60)
+                    ->wrap()
+                    ->searchable()
+                    ->action('goruntule'),
                 IconColumn::make('is_replied')->label('Yanıtlandı')->boolean(),
                 TextColumn::make('replied_at')->label('Yanıt Tarihi')->dateTime('d.m.Y H:i')->placeholder('-'),
             ])
@@ -38,6 +44,44 @@ class ContactMessagesTable
                     ->placeholder('Tümü'),
             ])
             ->recordActions([
+                Action::make('goruntule')
+                    ->label('Görüntüle')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->modalHeading(fn ($record) => $record->first_name . ' ' . $record->last_name . ' — Mesaj Detayı')
+                    ->modalWidth('2xl')
+                    ->form([
+                        TextInput::make('gonderici')
+                            ->label('Gönderici')
+                            ->disabled(),
+                        TextInput::make('email')
+                            ->label('E-posta')
+                            ->disabled(),
+                        TextInput::make('tarih')
+                            ->label('Gönderim Tarihi')
+                            ->disabled(),
+                        Textarea::make('message')
+                            ->label('Mesaj')
+                            ->rows(10)
+                            ->disabled()
+                            ->columnSpanFull(),
+                        Textarea::make('reply_message')
+                            ->label('Gönderilen Yanıt')
+                            ->rows(6)
+                            ->disabled()
+                            ->columnSpanFull()
+                            ->visible(fn ($record) => $record !== null && $record->is_replied),
+                    ])
+                    ->fillForm(fn ($record) => [
+                        'gonderici'     => trim($record->first_name . ' ' . $record->last_name),
+                        'email'         => $record->email,
+                        'tarih'         => $record->created_at?->format('d.m.Y H:i'),
+                        'message'       => $record->message,
+                        'reply_message' => $record->reply_message,
+                    ])
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Kapat'),
+
                 Action::make('yanitla')
                     ->label('Cevap Ver')
                     ->icon('heroicon-o-paper-airplane')
