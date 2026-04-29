@@ -155,6 +155,19 @@ return [
     |--------------------------------------------------------------------------
     */
     'home' => [
+        /* Who We Are section */
+        'about_title'   => 'Who Are We!',
+        'about_intro'   => 'We provide food and clean water support to our brothers and sisters fighting against hunger and drought in Africa.',
+        'about_body'    => 'As Birlikte Kardeşlik Association, we operate exclusively in the areas of nutrition, basic food, and clean water in Africa. We deliver regular food support to families in need and develop sustainable solutions in the field to increase access to safe drinking water. Our goal is to go beyond short-term aid and contribute to lasting, dignified living conditions.',
+        'about_button'  => 'About Us',
+        'about_items'   => [
+            'Emergency food parcel distributions',
+            'Clean water access and hygiene support',
+            'Hot meal support programmes',
+            'Sustainable nutrition-focused field projects',
+        ],
+
+        /* Focus cards */
         'focus_1_title' => 'Emergency Food Support',
         'focus_1_text'  => 'We provide emergency food and essential supplies to families in need in the fight against hunger.',
         'focus_2_title' => 'Clean Water Access',

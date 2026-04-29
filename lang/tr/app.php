@@ -155,6 +155,19 @@ return [
     |--------------------------------------------------------------------------
     */
     'home' => [
+        /* Biz Kimiz bölümü */
+        'about_title'   => 'Biz Kimiz!',
+        'about_intro'   => 'Afrika\'da açlık ve susuzlukla mücadele eden kardeşlerimize gıda ve temiz su desteği sağlıyoruz.',
+        'about_body'    => 'Birlikte Kardeşlik Derneği olarak Afrika\'da yalnızca yeme içme, temel gıda ve temiz su alanında faaliyet gösteriyoruz. İhtiyaç sahibi ailelere düzenli gıda desteği ulaştırıyor, güvenli içme suyuna erişimi artırmak için sahada sürdürülebilir çözümler geliştiriyoruz. Amacımız, kısa süreli yardımların ötesine geçip kalıcı ve onurlu yaşam koşullarına katkı sağlamaktır.',
+        'about_button'  => 'Hakkımızda',
+        'about_items'   => [
+            'Acil gıda kolisi dağıtımları',
+            'Temiz su erişimi ve hijyen desteği',
+            'Sıcak yemek destek çalışmaları',
+            'Sürdürülebilir beslenme odaklı saha projeleri',
+        ],
+
+        /* Odak kartları */
         'focus_1_title' => 'Acil Gıda Desteği',
         'focus_1_text'  => 'Açlıkla mücadelede ihtiyaç sahibi ailelere acil gıda ve temel ihtiyaç desteği sunuyoruz.',
         'focus_2_title' => 'Temiz Su Erişimi',

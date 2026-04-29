@@ -25,12 +25,7 @@
             ->values()
             ->all();
         if (empty($aboutItems)) {
-            $aboutItems = [
-                'Acil gıda kolisi dağıtımları',
-                'Temiz su erişimi ve hijyen desteği',
-                'Yerel mutfak ve yemek desteği',
-                'Sürdürülebilir beslenme projeleri',
-            ];
+            $aboutItems = __('app.home.about_items');
         }
         $aboutImage = $siteSettings->home_about_image ? asset('storage/' . $siteSettings->home_about_image) : asset('images/default-logo.svg');
     @endphp
@@ -63,7 +58,7 @@
                 <div class="about-float-orb-delayed absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-cyan-300/30 blur-[1px]"></div>
                 <div class="relative aspect-square overflow-hidden rounded-3xl border border-white/40 bg-white/10 p-2 shadow-xl backdrop-blur-md">
                     <div class="h-full w-full rounded-2xl bg-white/5 p-2 backdrop-blur-sm">
-                        <img src="{{ $aboutImage }}" alt="Biz Kimiz" class="h-full w-full object-contain" />
+                        <img src="{{ $aboutImage }}" alt="{{ __('app.home.about_title') }}" class="h-full w-full object-contain" />
                     </div>
                 </div>
             </div>
@@ -73,13 +68,13 @@
                     • {{ $siteSettings->home_about_badge ?: 'Birlikte Kardeşlik Derneği' }}
                 </span>
                 <h2 class="mt-3 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">
-                    {{ $siteSettings->home_about_title ?: 'Biz Kimiz!' }}
+                    {{ $siteSettings->home_about_title ?: __('app.home.about_title') }}
                 </h2>
                 <p class="mt-4 text-lg font-medium leading-relaxed text-slate-700">
-                    {{ $siteSettings->home_about_intro ?: 'Afrika\'da açlık ve susuzlukla mücadele eden kardeşlerimize gıda ve temiz su desteği sağlıyoruz.' }}
+                    {{ $siteSettings->home_about_intro ?: __('app.home.about_intro') }}
                 </p>
                 <p class="mt-4 text-base leading-relaxed text-slate-600">
-                    {{ $siteSettings->home_about_body ?: 'Derneğimiz, Afrika bölgesinde yeme-içme ve temel insani ihtiyaçlar odağında çalışan gönüllü bir dayanışma hareketidir.' }}
+                    {{ $siteSettings->home_about_body ?: __('app.home.about_body') }}
                 </p>
 
                 <div class="mt-6 grid gap-2 sm:grid-cols-2">
@@ -92,7 +87,7 @@
                 </div>
 
                 <a href="{{ route('pages.show', ['slug' => 'hikayemiz']) }}" class="btn-primary mt-7">
-                    {{ $siteSettings->home_about_button_text ?: 'Hakkımızda' }}
+                    {{ $siteSettings->home_about_button_text ?: __('app.home.about_button') }}
                 </a>
             </div>
         </div>
