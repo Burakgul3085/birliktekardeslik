@@ -85,44 +85,66 @@
     <main class="min-h-[70vh]">{{ $slot }}</main>
     <x-footer :site-settings="$siteSettings" />
 
-    <!-- UI güncelleme + Google Translate init -->
+    <!-- Google Translate + Dil Uygulama -->
     <script>
-        /* Aktif dili bayrak/kod olarak göster */
+        /* UI güncelle (bayrak, kod, aktif stil) */
         document.addEventListener('DOMContentLoaded', function() {
             var lang = localStorage.getItem('bkd_lang') || 'tr';
             var info = BKD_LANGS[lang] || BKD_LANGS.tr;
-            document.querySelectorAll('[data-lang-flag]').forEach(function(el){
-                el.src = info.img; el.alt = info.code;
-            });
-            document.querySelectorAll('[data-lang-code]').forEach(function(el){
-                el.textContent = info.code;
-            });
+            document.querySelectorAll('[data-lang-flag]').forEach(function(el){ el.src = info.img; el.alt = info.code; });
+            document.querySelectorAll('[data-lang-code]').forEach(function(el){ el.textContent = info.code; });
             document.querySelectorAll('[data-lang-btn]').forEach(function(btn){
                 var active = btn.getAttribute('data-lang-btn') === lang;
-                btn.style.background  = active ? '#e0f2fe' : '';
-                btn.style.color       = active ? '#0369a1' : '';
-                btn.style.fontWeight  = active ? '700' : '';
+                btn.style.background = active ? '#e0f2fe' : '';
+                btn.style.color      = active ? '#0369a1' : '';
+                btn.style.fontWeight = active ? '700' : '';
             });
             document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
         });
 
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({ pageLanguage: 'tr', autoDisplay: false }, 'google_translate_element');
+        /* Google Translate'in kendi event tetikleme yöntemi */
+        function bkdFireEvent(el, ev) {
+            try {
+                var e = document.createEvent('HTMLEvents');
+                e.initEvent(ev, true, true);
+                el.dispatchEvent(e);
+            } catch(err) {}
+        }
 
-            /* Widget hazır olduktan sonra kaydedilen dili uygula */
+        /* doGTranslate — Google Translate'in resmi programatik API'si
+           select bulunamazsa 500ms sonra tekrar dener */
+        function doGTranslate(pair) {
+            if (!pair) return;
+            var parts = pair.split('|');
+            var target = parts[1];
+            var sel = null;
+            var allSel = document.getElementsByTagName('select');
+            for (var i = 0; i < allSel.length; i++) {
+                if (allSel[i].className.indexOf('goog-te-combo') !== -1) {
+                    sel = allSel[i]; break;
+                }
+            }
+            if (!sel || sel.options.length === 0) {
+                setTimeout(function() { doGTranslate(pair); }, 500);
+                return;
+            }
+            sel.value = target;
+            bkdFireEvent(sel, 'change');
+            bkdFireEvent(sel, 'change'); /* Google iki kez ister */
+        }
+
+        /* Widget başlatıldığında kaydedilen dili uygula */
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'tr',
+                autoDisplay: false
+            }, 'google_translate_element');
+
             var savedLang = localStorage.getItem('bkd_lang');
             if (savedLang && savedLang !== 'tr') {
-                var attempts = 0;
-                var applyTranslation = setInterval(function() {
-                    var sel = document.querySelector('select.goog-te-combo');
-                    if (sel && sel.options.length > 1) {
-                        clearInterval(applyTranslation);
-                        sel.value = savedLang;
-                        sel.dispatchEvent(new Event('change'));
-                    } else if (++attempts > 30) {
-                        clearInterval(applyTranslation);
-                    }
-                }, 300);
+                setTimeout(function() {
+                    doGTranslate('tr|' + savedLang);
+                }, 800);
             }
         }
     </script>
