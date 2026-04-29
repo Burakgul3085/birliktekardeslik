@@ -128,6 +128,8 @@
             window.switchLang(btn.getAttribute('data-lang-btn'));
         });
         console.log('[BKD] Dil sistemi yuklendi. switchLang:', typeof window.switchLang);
+        // TEST - sonra kaldırılacak
+        alert('BKD dil sistemi yuklendi - v' + new Date().getSeconds());
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
