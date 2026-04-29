@@ -73,6 +73,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Legal texts (footer)
+    |--------------------------------------------------------------------------
+    */
+    'legal' => [
+        'kvkk_label'   => 'GDPR Notice',
+        'kvkk_title'   => 'Data Protection Notice',
+        'kvkk_content' => "DATA PROTECTION NOTICE\n\nThis text is intended to inform you about the processing of personal data collected during the volunteer application process in accordance with personal data protection legislation.\n\nThe information you share via the form (name, surname, email, phone and application content) is processed to evaluate your application, communicate with you, plan volunteering processes, and fulfil legal obligations when required.\n\nYour personal data is protected and accessible only by authorised association units, and is shared with third parties only in cases of legal obligation or with your explicit consent.\n\nYou may submit requests regarding access, correction, deletion, objection to processing and similar rights via our association's contact email address.",
+
+        'clarification_label'   => 'Disclosure Text',
+        'clarification_title'   => 'Volunteer Application Disclosure',
+        'clarification_content' => "By filling in the volunteer application form, you acknowledge that the information you have provided is accurate and up to date.\n\nYour application will be evaluated in line with the association's areas of activity and needs. Suitable candidates will be contacted by email or phone.\n\nA volunteer application does not constitute an employment commitment; the outcome of the application may vary depending on the activity schedule and availability.\n\nThe content you share during the application process is used solely for volunteering evaluation and is stored within the framework of the association's privacy policy.",
+
+        'privacy_label'   => 'Privacy Policy',
+        'privacy_title'   => 'Privacy Policy',
+        'privacy_content' => "PRIVACY POLICY\n\nAt Birlikte Kardeşlik Association, we attach great importance to the security of your personal data. This privacy policy has been prepared to explain the purposes for which the information you share through our website and digital channels is processed and how it is protected.\n\n1) Data Collected\nThrough our website, we may collect: contact form details, volunteer application information, newsletter subscription details and technical usage data.\n\n2) Purposes of Data Processing\nCollected personal data is processed to evaluate contact requests, manage volunteer applications, send newsletters and fulfil legal obligations.\n\n3) Data Security\nYour personal data is protected by technical and administrative measures against unauthorised access.\n\n4) Your Rights\nYou have the rights to access, correct, delete and object to the processing of your data. You may submit your requests to our association's contact address.",
+
+        'cookie_label'   => 'Cookie Policy',
+        'cookie_title'   => 'Cookie Policy',
+        'cookie_content' => "COOKIE POLICY\n\nAt Birlikte Kardeşlik Association, we value the privacy of our website visitors. This Cookie Policy explains the types of cookies used on our website, their purposes, and how you can manage your cookie preferences.\n\n1. What is a Cookie?\nCookies are small text files stored on your device when you visit a website. They help the site remember your preferences, manage sessions, and improve user experience.\n\n2. Types of Cookies We Use\nEssential Cookies: Required for the core functionality of the site.\nFunctional Cookies: Remember settings such as language preference and form data.\nPerformance Cookies: Analyse how the site is used.\n\n3. Managing Your Cookie Preferences\nYou can disable cookies in your browser settings. However, this may prevent some site features from working correctly.",
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Volunteer page
     |--------------------------------------------------------------------------
     */

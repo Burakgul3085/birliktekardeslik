@@ -73,6 +73,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Yasal metinler (footer)
+    |--------------------------------------------------------------------------
+    */
+    'legal' => [
+        'kvkk_label'   => 'KVKK',
+        'kvkk_title'   => 'KVKK Aydınlatma Metni',
+        'kvkk_content' => "Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında gönüllü başvuru sürecinde toplanan kişisel verilerin işlenmesine ilişkin bilgilendirme amacı taşır.\n\nForm üzerinden paylaştığınız ad, soyad, e-posta, telefon ve başvuru içeriği; başvurunuzu değerlendirmek, sizinle iletişime geçmek, gönüllülük süreçlerini planlamak ve gerektiğinde yasal yükümlülükleri yerine getirmek amacıyla işlenir.\n\nKişisel verileriniz yalnızca yetkili dernek birimleri tarafından erişilebilir şekilde korunur, üçüncü kişilerle yalnızca hukuki zorunluluk veya açık rızanız bulunan hallerde paylaşılır.\n\nKVKK kapsamındaki erişim, düzeltme, silme, işleme itiraz ve benzeri taleplerinizi derneğimizin iletişim e-posta adresi üzerinden iletebilirsiniz.",
+
+        'clarification_label'   => 'Aydınlatma Metni',
+        'clarification_title'   => 'Aydınlatma Metni',
+        'clarification_content' => "Gönüllü başvuru formunu doldurarak paylaştığınız bilgilerin doğru ve güncel olduğunu kabul etmiş olursunuz.\n\nBaşvurunuz, dernek faaliyet alanları ve ihtiyaçları doğrultusunda değerlendirilir. Uygun görülen adaylarla e-posta veya telefon üzerinden iletişime geçilir.\n\nGönüllülük başvurusu bir istihdam taahhüdü niteliği taşımaz; başvuru sonucu, faaliyet takvimi ve kontenjan durumuna göre değişiklik gösterebilir.\n\nBaşvuru sürecinde paylaştığınız içerik yalnızca gönüllülük değerlendirmesi amacıyla kullanılır ve dernek gizlilik politikası çerçevesinde saklanır.",
+
+        'privacy_label'   => 'Gizlilik Politikası',
+        'privacy_title'   => 'Gizlilik Politikası',
+        'privacy_content' => "GİZLİLİK POLİTİKASI\n\nBirlikte Kardeşlik Derneği olarak kişisel verilerinizin güvenliğine önem veriyoruz. Bu gizlilik politikası, web sitemiz ve dijital kanallarımız üzerinden paylaştığınız bilgilerin hangi amaçlarla işlendiğini ve nasıl korunduğunu açıklamak amacıyla hazırlanmıştır.\n\n1) Toplanan Veriler\nWeb sitemiz üzerinden; iletişim formu bilgileri, gönüllü başvuru bilgileri, e-bülten abonelik bilgileri ve teknik kullanım verileri toplanabilir.\n\n2) Verilerin İşlenme Amaçları\nToplanan kişisel veriler; iletişim taleplerini değerlendirmek, gönüllü başvurularını yönetmek, e-bülten göndermek ve yasal yükümlülükleri yerine getirmek amacıyla işlenir.\n\n3) Veri Güvenliği\nKişisel verileriniz yetkisiz erişime karşı teknik ve idari önlemlerle korunmaktadır.\n\n4) Haklarınız\nKVKK kapsamında verilerinize erişim, düzeltme, silme ve işleme itiraz haklarınız bulunmaktadır. Taleplerinizi dernek iletişim adresimize iletebilirsiniz.",
+
+        'cookie_label'   => 'Çerez Politikası',
+        'cookie_title'   => 'Çerez Politikası',
+        'cookie_content' => "ÇEREZ POLİTİKASI\n\nBirlikte Kardeşlik Derneği olarak web sitemizi ziyaret eden kullanıcılarımızın gizliliğine önem veriyoruz. Bu Çerez Politikası, web sitemizde kullanılan çerezlerin türlerini, kullanım amaçlarını ve çerez tercihlerinizi nasıl yönetebileceğinizi açıklamaktadır.\n\n1. Çerez Nedir?\nÇerezler, bir web sitesini ziyaret ettiğinizde cihazınıza kaydedilen küçük metin dosyalarıdır.\n\n2. Kullandığımız Çerezler\nZorunlu Çerezler: Sitenin temel işlevleri için gereklidir.\nİşlevsel Çerezler: Dil tercihi ve form bilgileri gibi ayarları hatırlar.\nPerformans Çerezleri: Sitenin kullanımını analiz eder.\n\n3. Çerez Tercihleriniz\nTarayıcı ayarlarınızdan çerezleri devre dışı bırakabilirsiniz. Ancak bu, bazı site özelliklerinin çalışmamasına neden olabilir.",
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Gönüllü Ol sayfası
     |--------------------------------------------------------------------------
     */

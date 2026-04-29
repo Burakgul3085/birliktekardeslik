@@ -19,33 +19,31 @@
     $legalTextItems = [
         [
             'key'     => 'kvkk',
-            'label'   => 'KVKK',
-            'title'   => 'KVKK Aydinlatma Metni',
-            'content' => trim((string) ($siteSettings->kvkk_text ?? '')),
+            'label'   => __('app.legal.kvkk_label'),
+            'title'   => __('app.legal.kvkk_title'),
+            'content' => trim((string) ($siteSettings->kvkk_text ?? '')) ?: __('app.legal.kvkk_content'),
         ],
         [
             'key'     => 'clarification',
-            'label'   => 'Aydinlatma Metni',
-            'title'   => 'Aydinlatma Metni',
-            'content' => trim((string) ($siteSettings->volunteer_clarification_text ?? '')),
+            'label'   => __('app.legal.clarification_label'),
+            'title'   => __('app.legal.clarification_title'),
+            'content' => trim((string) ($siteSettings->volunteer_clarification_text ?? '')) ?: __('app.legal.clarification_content'),
         ],
         [
             'key'     => 'privacy',
-            'label'   => 'Gizlilik Politikasi',
-            'title'   => 'Gizlilik Politikasi',
-            'content' => trim((string) ($siteSettings->privacy_policy_text ?? '')),
+            'label'   => __('app.legal.privacy_label'),
+            'title'   => __('app.legal.privacy_title'),
+            'content' => trim((string) ($siteSettings->privacy_policy_text ?? '')) ?: __('app.legal.privacy_content'),
         ],
         [
             'key'     => 'cookie',
-            'label'   => 'Çerez Politikası',
-            'title'   => 'Çerez Politikası',
-            'content' => trim((string) ($siteSettings->cookie_policy_text ?? '')),
+            'label'   => __('app.legal.cookie_label'),
+            'title'   => __('app.legal.cookie_title'),
+            'content' => trim((string) ($siteSettings->cookie_policy_text ?? '')) ?: __('app.legal.cookie_content'),
         ],
     ];
-    $legalTextItems = array_values(array_filter(
-        $legalTextItems,
-        fn (array $item): bool => $item['content'] !== ''
-    ));
+    /* Tüm dillerde içerik her zaman dolu (lang dosyası fallback sağlar) */
+    $legalTextItems = array_values($legalTextItems);
 
     $excludedMainLabels = ['ana sayfa', 'anasayfa', 'iletişim', 'iletisim', 'bağış', 'bagis', 'bağış yap', 'bagis yap', 'bağış hesapları', 'bagis hesaplari', 'medyada biz'];
     $footerTopItems = $menuItems
