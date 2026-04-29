@@ -32,10 +32,18 @@ class HomeController extends Controller
         $defaultImage = asset('images/default-logo.svg');
 
         return $heroSlides->map(function (HeroSlide $slide) use ($defaultImage) {
-            $image = $slide->image_path ? Storage::url($slide->image_path) : $defaultImage;
+            $desktopImage = $slide->image_path ? Storage::url($slide->image_path) : $defaultImage;
+            $tabletImage = $slide->image_path_tablet
+                ? Storage::url($slide->image_path_tablet)
+                : $desktopImage;
+            $mobileImage = $slide->image_path_mobile
+                ? Storage::url($slide->image_path_mobile)
+                : $tabletImage;
 
             return [
-                'image' => $image,
+                'image' => $desktopImage,
+                'image_tablet' => $tabletImage,
+                'image_mobile' => $mobileImage,
             ];
         })->values()->all();
     }

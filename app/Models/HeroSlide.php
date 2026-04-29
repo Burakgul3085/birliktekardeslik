@@ -13,6 +13,8 @@ class HeroSlide extends Model
         'accent_text',
         'subtext',
         'image_path',
+        'image_path_tablet',
+        'image_path_mobile',
         'background_image_path',
         'thumbnail_image_path',
         'button_text',

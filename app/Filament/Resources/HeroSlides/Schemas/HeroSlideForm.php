@@ -21,8 +21,20 @@ class HeroSlideForm
                 ->directory('hero')
                 ->rules(['required', 'file', 'max:20480'])
                 ->required()
-                ->label('Slayt görseli')
-                ->helperText('Her kayıt bir slayttır. Yalnızca görsel kullanılır; metin/buton gösterilmez. 5-6 görsel için 5-6 kayıt ekleyin. Maksimum 20MB (jpg/png/webp önerilir).'),
+                ->label('Masaüstü görseli')
+                ->helperText('Desktop için önerilen boyut: 1920x900 px (16:9). Her kayıt bir slayttır, maksimum 20MB.'),
+            FileUpload::make('image_path_tablet')
+                ->disk('public')
+                ->directory('hero')
+                ->rules(['nullable', 'file', 'max:20480'])
+                ->label('Tablet görseli')
+                ->helperText('Tablet için önerilen boyut: 1400x1000 px (yaklaşık 4:3). Boş bırakılırsa masaüstü görseli kullanılır.'),
+            FileUpload::make('image_path_mobile')
+                ->disk('public')
+                ->directory('hero')
+                ->rules(['nullable', 'file', 'max:20480'])
+                ->label('Telefon görseli')
+                ->helperText('Mobil için önerilen boyut: 1080x1350 px (4:5). Boş bırakılırsa tablet/masaüstü görseli kullanılır.'),
             TextInput::make('sort_order')->numeric()->default(0)->label('Sıralama'),
             Toggle::make('is_active')->default(true)->label('Aktif'),
         ]);

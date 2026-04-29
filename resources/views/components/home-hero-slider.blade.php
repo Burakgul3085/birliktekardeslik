@@ -13,12 +13,16 @@
     class="relative w-full overflow-hidden bg-slate-100"
     style="height:clamp(260px,58svh,600px)"
 >
-    <img
-        src="{{ $firstImage }}"
-        alt="Hero"
-        class="h-full w-full object-contain object-center"
-        loading="eager"
-    >
+    <picture>
+        <source media="(max-width: 767px)" srcset="{{ $slides[0]['image_mobile'] ?? $firstImage }}">
+        <source media="(max-width: 1023px)" srcset="{{ $slides[0]['image_tablet'] ?? $firstImage }}">
+        <img
+            src="{{ $firstImage }}"
+            alt="Hero"
+            class="h-full w-full object-contain object-center"
+            loading="eager"
+        >
+    </picture>
 </div>
 @endif
 
@@ -48,15 +52,19 @@
             class="relative w-full h-[min(58svh,600px)] min-h-[260px] sm:h-[min(62svh,640px)] sm:min-h-[300px] md:h-[min(68svh,720px)] md:min-h-[360px] lg:h-[min(70vh,800px)]"
         >
             <div class="absolute inset-0 z-0">
-                <img
-                    :src="current.image"
-                    :alt="'Hero slayt ' + (idx + 1)"
-                    class="h-full w-full object-contain object-center"
-                    sizes="100vw"
-                    loading="eager"
-                    decoding="async"
-                    fetchpriority="high"
-                />
+                <picture>
+                    <source media="(max-width: 767px)" :srcset="current.image_mobile || current.image_tablet || current.image">
+                    <source media="(max-width: 1023px)" :srcset="current.image_tablet || current.image">
+                    <img
+                        :src="current.image"
+                        :alt="'Hero slayt ' + (idx + 1)"
+                        class="h-full w-full object-contain object-center"
+                        sizes="100vw"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                    />
+                </picture>
             </div>
 
             {{-- Oklar (tam genişlik kenarları) --}}
