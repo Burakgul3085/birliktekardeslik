@@ -6,6 +6,18 @@ use App\Http\Controllers\AdminOtpController;
 use App\Http\Controllers\AdminForgotPasswordController;
 use Illuminate\Support\Facades\Route;
 
+// Dil değiştirme rotası
+Route::get('/locale/{lang}', function (string $lang) {
+    $allowed = ['tr', 'en', 'ar', 'ru'];
+    if (! in_array($lang, $allowed, true)) {
+        $lang = 'tr';
+    }
+    $redirect = url()->previous() ?: '/';
+    return redirect($redirect)
+        ->withCookie(cookie()->forever('bkd_locale', $lang, '/', null, false, false))
+        ->with('bkd_locale', $lang);
+})->name('locale.switch');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/bagis-yap', [HomeController::class, 'donations'])->name('donations');
 Route::get('/iletisim', [HomeController::class, 'contact'])->name('contact');

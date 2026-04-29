@@ -2,14 +2,14 @@
 @php
     $topBarSocialMap = [
         'instagram_url' => 'instagram',
-        'youtube_url' => 'youtube',
-        'tiktok_url' => 'tiktok',
-        'facebook_url' => 'facebook',
-        'x_url' => 'x',
-        'linkedin_url' => 'linkedin',
-        'whatsapp_url' => 'whatsapp',
-        'telegram_url' => 'telegram',
-        'website_url' => 'website',
+        'youtube_url'   => 'youtube',
+        'tiktok_url'    => 'tiktok',
+        'facebook_url'  => 'facebook',
+        'x_url'         => 'x',
+        'linkedin_url'  => 'linkedin',
+        'whatsapp_url'  => 'whatsapp',
+        'telegram_url'  => 'telegram',
+        'website_url'   => 'website',
     ];
     $topBarAria = [
         'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok', 'facebook' => 'Facebook',
@@ -18,27 +18,27 @@
     $logoSrc = $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg');
     $legalTextItems = [
         [
-            'key' => 'kvkk',
-            'label' => 'KVKK',
-            'title' => 'KVKK Aydinlatma Metni',
+            'key'     => 'kvkk',
+            'label'   => 'KVKK',
+            'title'   => 'KVKK Aydinlatma Metni',
             'content' => trim((string) ($siteSettings->kvkk_text ?? '')),
         ],
         [
-            'key' => 'clarification',
-            'label' => 'Aydinlatma Metni',
-            'title' => 'Aydinlatma Metni',
+            'key'     => 'clarification',
+            'label'   => 'Aydinlatma Metni',
+            'title'   => 'Aydinlatma Metni',
             'content' => trim((string) ($siteSettings->volunteer_clarification_text ?? '')),
         ],
         [
-            'key' => 'privacy',
-            'label' => 'Gizlilik Politikasi',
-            'title' => 'Gizlilik Politikasi',
+            'key'     => 'privacy',
+            'label'   => 'Gizlilik Politikasi',
+            'title'   => 'Gizlilik Politikasi',
             'content' => trim((string) ($siteSettings->privacy_policy_text ?? '')),
         ],
         [
-            'key' => 'cookie',
-            'label' => 'Çerez Politikası',
-            'title' => 'Çerez Politikası',
+            'key'     => 'cookie',
+            'label'   => 'Çerez Politikası',
+            'title'   => 'Çerez Politikası',
             'content' => trim((string) ($siteSettings->cookie_policy_text ?? '')),
         ],
     ];
@@ -59,8 +59,8 @@
         ->whereNotNull('parent_id')
         ->groupBy('parent_id');
     $mapsEmbedUrl = trim((string) ($siteSettings->google_maps_embed_url ?? ''));
-    $normalizedMapsUrl = null;
-    $mapsDirectUrl = null;
+    $normalizedMapsUrl  = null;
+    $mapsDirectUrl      = null;
     $mapsNeedsExternalOpen = false;
     if ($mapsEmbedUrl !== '') {
         $mapsDirectUrl = $mapsEmbedUrl;
@@ -75,6 +75,12 @@
                 ? $mapsEmbedUrl
                 : 'https://www.google.com/maps?q=' . urlencode($mapsEmbedUrl) . '&output=embed';
         }
+    }
+
+    /* Menü etiketini çeviren yardımcı (footer için) */
+    function footerMenuLabel(string $label): string {
+        $key = 'app.menu.' . $label;
+        return __($key) !== $key ? __($key) : $label;
     }
 @endphp
 
@@ -94,6 +100,7 @@
 >
     <div class="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <div class="grid gap-10 border-b border-slate-700/80 pb-12 lg:grid-cols-2 lg:gap-12 xl:grid-cols-4">
+
             {{-- Sütun 1: marka + e-bülten --}}
             <div class="space-y-4">
                 <a href="{{ route('home') }}" class="inline-flex items-center gap-3">
@@ -104,36 +111,36 @@
                     {{ $siteSettings->site_description ?: 'Birlikte iyiliği büyütüyoruz. E-bültene kayıt olarak duyurulardan haberdar olabilirsiniz.' }}
                 </p>
                 <div>
-                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-cyan-300/90">E-bülten</p>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-cyan-300/90">{{ __('app.footer.newsletter') }}</p>
                     <form action="{{ route('newsletter.subscribe') }}" method="post" class="flex flex-col gap-2 sm:flex-row sm:items-stretch">
                         @csrf
-                        <label class="sr-only" for="footer-newsletter-email">E-posta</label>
+                        <label class="sr-only" for="footer-newsletter-email">{{ __('app.footer.email') }}</label>
                         <input
                             id="footer-newsletter-email"
                             type="email"
                             name="email"
                             required
                             value="{{ old('email') }}"
-                            placeholder="E-posta adresiniz"
+                            placeholder="{{ __('app.footer.newsletter_ph') }}"
                             class="min-h-[2.75rem] flex-1 rounded-2xl border border-slate-600 bg-slate-800/80 px-4 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
                         >
                         <button
                             type="submit"
                             class="inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm transition hover:bg-cyan-400"
-                            aria-label="E-bültene kayıt ol"
+                            aria-label="{{ __('app.footer.subscribe') }}"
                         >
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                         </button>
                     </form>
-                    <p class="mt-2 text-xs italic text-slate-500">Kaydınızı onay e-postası ve istediğiniz zaman iptal linki alırsınız.</p>
+                    <p class="mt-2 text-xs italic text-slate-500">{{ __('app.footer.newsletter_note') }}</p>
                 </div>
             </div>
 
-            {{-- Sütun 2: Hızlı linkler (header ile senkron) --}}
+            {{-- Sütun 2: Hızlı linkler --}}
             <div>
-                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Hızlı linkler</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">{{ __('app.footer.quick_links') }}</h3>
                 <ul class="mt-4 space-y-2.5 text-sm">
                     @forelse($footerTopItems as $item)
                         @php
@@ -147,7 +154,7 @@
                                     class="group inline-flex items-start gap-2 text-slate-300 transition hover:text-cyan-300"
                                 >
                                     <span class="mt-0.5 text-cyan-500/80 transition group-hover:text-cyan-300" aria-hidden="true">»</span>
-                                    <span class="font-semibold">{{ $item->label }}</span>
+                                    <span class="font-semibold">{{ footerMenuLabel($item->label) }}</span>
                                 </a>
 
                                 @if ($children->isNotEmpty())
@@ -160,7 +167,7 @@
                                                     class="group inline-flex items-start gap-2 text-slate-400 transition hover:text-cyan-300"
                                                 >
                                                     <span class="mt-0.5 text-cyan-600/70 transition group-hover:text-cyan-300" aria-hidden="true">—</span>
-                                                    <span>{{ $child->label }}</span>
+                                                    <span>{{ footerMenuLabel($child->label) }}</span>
                                                 </a>
                                             </li>
                                         @endforeach
@@ -169,14 +176,14 @@
                             </div>
                         </li>
                     @empty
-                        <li class="text-slate-500">Menü yönetimine eklediğiniz üst menüler ve alt menüler burada otomatik listelenir.</li>
+                        <li class="text-slate-500">{{ __('app.footer.menu_auto') }}</li>
                     @endforelse
                 </ul>
             </div>
 
             {{-- Sütun 3: Harita --}}
             <div class="space-y-4">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Konumumuz</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">{{ __('app.footer.our_location') }}</h3>
                 @if (filled($normalizedMapsUrl))
                     <div class="overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-800/35 shadow-sm backdrop-blur-sm">
                         <iframe
@@ -186,13 +193,13 @@
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade"
                             allowfullscreen
-                            title="Google Maps Konum"
+                            title="{{ __('app.footer.our_location') }}"
                         ></iframe>
                     </div>
                 @elseif ($mapsNeedsExternalOpen && filled($mapsDirectUrl))
                     <div class="rounded-2xl border border-slate-700/70 bg-slate-800/35 p-4 shadow-sm backdrop-blur-sm">
                         <p class="text-sm leading-relaxed text-slate-300">
-                            Bu bağlantı Google tarafından gömülü haritada kısıtlanabilir. Haritayı yeni sekmede açabilirsiniz.
+                            {{ __('app.footer.map_restriction') }}
                         </p>
                         <a
                             href="{{ $mapsDirectUrl }}"
@@ -200,41 +207,41 @@
                             rel="noopener noreferrer"
                             class="mt-3 inline-flex items-center gap-2 rounded-full bg-cyan-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-cyan-500"
                         >
-                            Haritayı Aç
+                            {{ __('app.footer.open_map') }}
                         </a>
                     </div>
                 @else
                     <p class="text-sm leading-relaxed text-slate-400">
-                        Genel Ayarlar bölümüne Google Maps linki eklendiğinde bu alanda harita otomatik görünür.
+                        {{ __('app.footer.menu_auto') }}
                     </p>
                 @endif
             </div>
 
             {{-- Sütun 4: İletişim + sosyal --}}
             <div class="space-y-4">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-white">İletişime geçin</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">{{ __('app.footer.contact_us') }}</h3>
                 <ul class="space-y-2 text-sm text-slate-300">
                     @if (filled($siteSettings->email))
                         <li>
-                            <span class="block text-xs font-medium text-slate-500">E-posta</span>
+                            <span class="block text-xs font-medium text-slate-500">{{ __('app.footer.email') }}</span>
                             <a href="mailto:{{ $siteSettings->email }}" class="text-cyan-300 transition hover:text-cyan-200">{{ $siteSettings->email }}</a>
                         </li>
                     @endif
                     @if (filled($siteSettings->phone))
                         <li>
-                            <span class="block text-xs font-medium text-slate-500">Telefon</span>
+                            <span class="block text-xs font-medium text-slate-500">{{ __('app.footer.phone') }}</span>
                             <a href="tel:{{ preg_replace('/\s+/', '', $siteSettings->phone) }}" class="text-cyan-300 transition hover:text-cyan-200">{{ $siteSettings->phone }}</a>
                         </li>
                     @endif
                     @if (filled($siteSettings->address))
                         <li>
-                            <span class="block text-xs font-medium text-slate-500">Adres</span>
+                            <span class="block text-xs font-medium text-slate-500">{{ __('app.footer.address') }}</span>
                             <span class="text-slate-200">{{ $siteSettings->address }}</span>
                         </li>
                     @endif
                 </ul>
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Bizi takip edin</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('app.footer.follow_us') }}</p>
                     <div class="mt-2 flex flex-wrap gap-1.5">
                         @foreach ($topBarSocialMap as $field => $platform)
                             @if (! empty($siteSettings->$field))
@@ -258,12 +265,12 @@
         <div class="mt-8 flex flex-col items-center justify-between gap-4 pt-8 text-xs text-slate-500 sm:flex-row sm:gap-6">
             <div class="flex flex-col gap-1 text-center sm:text-left">
                 <p>
-                    © {{ date('Y') }} — Tüm hakları saklıdır.
+                    © {{ date('Y') }} — {{ __('app.footer.all_rights') }}
                     <span class="text-slate-400">·</span>
                     <span class="text-slate-300">{{ $siteSettings->site_title }}</span>
                 </p>
                 <p class="flex items-center justify-center gap-1.5 sm:justify-start">
-                    <span class="text-slate-600">Geliştirici:</span>
+                    <span class="text-slate-600">{{ __('app.footer.developer') }}:</span>
                     <a
                         href="https://www.linkedin.com/in/burakgul1006/"
                         target="_blank"
@@ -295,8 +302,8 @@
                 <a
                     href="{{ route('filament.admin.auth.login') }}"
                     class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-800/50 text-slate-500 transition hover:border-cyan-500/60 hover:text-cyan-300"
-                    title="Yönetim Girişi"
-                    aria-label="Yönetim Girişi"
+                    title="{{ __('app.footer.admin_login') }}"
+                    aria-label="{{ __('app.footer.admin_login') }}"
                 >
                     <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M10 1.75a4.25 4.25 0 0 0-4.25 4.25v1.11a2.25 2.25 0 0 0-1.75 2.19v6.2a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 16 15.5V9.3a2.25 2.25 0 0 0-1.75-2.19V6A4.25 4.25 0 0 0 10 1.75Zm2.75 5.5V6a2.75 2.75 0 1 0-5.5 0v1.25h5.5Zm-2 4.45a.75.75 0 0 0-1.5 0v1.6a.75.75 0 0 0 1.5 0v-1.6Z" clip-rule="evenodd" />
@@ -322,7 +329,7 @@
                     type="button"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:bg-slate-100"
                     @click="openLegal = false"
-                    aria-label="Kapat"
+                    aria-label="{{ __('app.footer.close') }}"
                 >
                     ×
                 </button>

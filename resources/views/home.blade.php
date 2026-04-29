@@ -4,19 +4,19 @@
     @php
         $focusCards = [
             [
-                'title' => $siteSettings->home_focus_1_title ?: 'Acil Gıda Desteği',
-                'text' => $siteSettings->home_focus_1_text ?: 'Afrika\'da açlık riski altındaki ailelere temel gıda kolileri ulaştırıyoruz.',
-                'icon' => 'food',
+                'title' => $siteSettings->home_focus_1_title ?: __('app.home.focus_1_title'),
+                'text'  => $siteSettings->home_focus_1_text  ?: __('app.home.focus_1_text'),
+                'icon'  => 'food',
             ],
             [
-                'title' => $siteSettings->home_focus_2_title ?: 'Temiz Su Erişimi',
-                'text' => $siteSettings->home_focus_2_text ?: 'Susuzlukla mücadele eden bölgelerde temiz suya erişimi destekliyoruz.',
-                'icon' => 'water',
+                'title' => $siteSettings->home_focus_2_title ?: __('app.home.focus_2_title'),
+                'text'  => $siteSettings->home_focus_2_text  ?: __('app.home.focus_2_text'),
+                'icon'  => 'water',
             ],
             [
-                'title' => $siteSettings->home_focus_3_title ?: 'Beslenme Dayanışması',
-                'text' => $siteSettings->home_focus_3_text ?: 'Yemek ve içme suyu odağında düzenli insani yardım çalışmaları yürütüyoruz.',
-                'icon' => 'solidarity',
+                'title' => $siteSettings->home_focus_3_title ?: __('app.home.focus_3_title'),
+                'text'  => $siteSettings->home_focus_3_text  ?: __('app.home.focus_3_text'),
+                'icon'  => 'solidarity',
             ],
         ];
         $aboutItems = collect(preg_split('/[\r\n,]+/', (string) ($siteSettings->home_about_items ?? '')))
