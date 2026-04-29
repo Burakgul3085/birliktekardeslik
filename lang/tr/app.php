@@ -252,6 +252,16 @@ return [
         'activities_view_all'   => 'Tüm Faaliyetleri Gör',
         'donate_btn'            => 'Bağış Yap',
         'activity_detail'       => 'Faaliyet Detayı',
+        /* Yönetim sayfası */
+        'management_title'      => 'Yönetim',
+        'management_intro'      => 'Derneğimizin yönetim kadrosunu ve görev dağılımını bu alanda inceleyebilirsiniz.',
+        'management_empty_title'=> 'Yönetim',
+        'management_empty_desc' => 'Bu sayfayı admin panelde Yönetim Sayfası Alanları bölümünden oluşturabilirsiniz.',
+        'role_president'        => 'Başkan',
+        'role_vice_president'   => 'Başkan Yardımcısı',
+        'role_secretary_general'=> 'Genel Sekreter',
+        'role_treasurer'        => 'Sayman',
+        'role_member'           => 'Üye',
         /* Genel */
         'social_media_us'       => 'Sosyal Medyada Biz',
         'vision_title'          => 'Vizyon ve Misyonumuz',

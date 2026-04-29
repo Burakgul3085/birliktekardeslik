@@ -252,6 +252,16 @@ return [
         'activities_view_all'   => 'View All Activities',
         'donate_btn'            => 'Donate',
         'activity_detail'       => 'Activity Detail',
+        /* Management page */
+        'management_title'      => 'Management',
+        'management_intro'      => 'You can review our association management team and role distribution in this section.',
+        'management_empty_title'=> 'Management',
+        'management_empty_desc' => 'You can build this page from the Management Page Fields section in the admin panel.',
+        'role_president'        => 'President',
+        'role_vice_president'   => 'Vice President',
+        'role_secretary_general'=> 'Secretary General',
+        'role_treasurer'        => 'Treasurer',
+        'role_member'           => 'Member',
         /* General */
         'social_media_us'       => 'Follow Us on Social Media',
         'vision_title'          => 'Our Vision and Mission',

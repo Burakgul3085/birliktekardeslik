@@ -252,6 +252,16 @@ return [
         'activities_view_all'   => 'عرض جميع الأنشطة',
         'donate_btn'            => 'تبرع',
         'activity_detail'       => 'تفاصيل النشاط',
+        /* صفحة الإدارة */
+        'management_title'      => 'الإدارة',
+        'management_intro'      => 'يمكنكم الاطلاع على فريق إدارة الجمعية وتوزيع المهام في هذا القسم.',
+        'management_empty_title'=> 'الإدارة',
+        'management_empty_desc' => 'يمكن إنشاء هذه الصفحة من قسم حقول صفحة الإدارة في لوحة الإدارة.',
+        'role_president'        => 'الرئيس',
+        'role_vice_president'   => 'نائب الرئيس',
+        'role_secretary_general'=> 'الأمين العام',
+        'role_treasurer'        => 'أمين الصندوق',
+        'role_member'           => 'عضو',
         /* عام */
         'social_media_us'       => 'تابعنا على وسائل التواصل الاجتماعي',
         'vision_title'          => 'رؤيتنا ورسالتنا',

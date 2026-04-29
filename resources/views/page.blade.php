@@ -6,6 +6,7 @@
             'faaliyet-belgesi' => __('app.page.doc_activity_title'),
             'kurumsal-evrak-arsivi' => __('app.page.doc_archive_title'),
             'basin-kiti' => __('app.page.press_kit_title'),
+            'yonetim' => __('app.page.management_title'),
         ];
         $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
             ? $pageHeroTitleMap[$page->slug]
@@ -805,14 +806,36 @@
     @elseif ($page->slug === 'yonetim')
         @php
             $meta = is_array($page->page_meta ?? null) ? $page->page_meta : [];
+            $managementIntro = $isTr ? ($page->content ?: __('app.page.management_intro')) : __('app.page.management_intro');
+            $managementRoleMap = [
+                'başkan' => 'app.page.role_president',
+                'baskan' => 'app.page.role_president',
+                'başkan yardımcısı' => 'app.page.role_vice_president',
+                'baskan yardimcisi' => 'app.page.role_vice_president',
+                'genel sekreter' => 'app.page.role_secretary_general',
+                'sayman' => 'app.page.role_treasurer',
+                'üye' => 'app.page.role_member',
+                'uye' => 'app.page.role_member',
+            ];
+            $translateManagementRole = function (?string $value) use ($isTr, $managementRoleMap): string {
+                $value = trim((string) $value);
+                if ($value === '' || $isTr) {
+                    return $value;
+                }
+                $normalized = \Illuminate\Support\Str::of($value)->lower()->ascii()->value();
+                $key = $managementRoleMap[$normalized] ?? null;
+                return $key ? __($key) : $value;
+            };
             $sections = collect($meta['management_sections'] ?? [])
                 ->filter(fn ($section) => filled($section['section_title'] ?? null))
                 ->values();
         @endphp
 
         <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:py-14">
-            @if (! empty($page->content))
-                <div class="prose mx-auto mb-10 max-w-3xl text-center prose-slate">{!! $page->content !!}</div>
+            @if (! empty($managementIntro))
+                <div class="prose mx-auto mb-10 max-w-3xl text-center prose-slate">
+                    {!! $isTr ? $managementIntro : e($managementIntro) !!}
+                </div>
             @endif
 
             @if ($sections->isNotEmpty())
@@ -827,7 +850,7 @@
                         @if ($members->isNotEmpty())
                             <div>
                                 <h2 class="mb-6 text-center text-2xl font-extrabold uppercase tracking-wide text-cyan-950 md:mb-8 md:text-3xl">
-                                    {{ $section['section_title'] }}
+                                    {{ $translateManagementRole($section['section_title']) }}
                                 </h2>
 
                                 <div class="mx-auto flex max-w-6xl flex-wrap justify-center gap-5">
@@ -846,7 +869,7 @@
                                                 >
                                             </div>
                                             <div class="p-4">
-                                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $member['role'] }}</p>
+                                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $translateManagementRole($member['role']) }}</p>
                                                 <h3 class="mt-1 text-lg font-bold text-slate-900">{{ $member['name'] }}</h3>
                                             </div>
                                         </article>
@@ -858,8 +881,8 @@
                 </div>
             @else
                 <article class="card-ui">
-                    <h2 class="text-2xl font-semibold text-slate-900">Yönetim</h2>
-                    <p class="mt-4 text-slate-600">Bu sayfayı admin panelde Yönetim Sayfası Alanları bölümünden oluşturabilirsiniz.</p>
+                    <h2 class="text-2xl font-semibold text-slate-900">{{ __('app.page.management_empty_title') }}</h2>
+                    <p class="mt-4 text-slate-600">{{ __('app.page.management_empty_desc') }}</p>
                 </article>
             @endif
         </section>
