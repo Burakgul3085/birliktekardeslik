@@ -40,8 +40,10 @@
         .notranslate, [translate="no"] { unicode-bidi: isolate; }
 
         /* Proxy'de Kurumsal dropdown CSS hover fallback
-           (Alpine.js proxy'de başlamadığında x-cloak dropdown'u gizler;
-            bu kural üst eleman hover'ında zorla gösterir) */
+           Alpine.js proxy'de başlamadığında x-cloak + x-show dropdown'u gizler.
+           Specificity: 0,2,0 > [x-cloak] 0,1,0 → !important + yüksek specificity kazanır.
+           Ayrıca x-show'un inline display:none'ını da !important geçer. */
+        .nav-has-dd:hover > .nav-dd-panel,
         .nav-has-dd:hover .nav-dd-panel { display: block !important; }
     </style>
 

@@ -110,8 +110,13 @@ const enablePageTransition = () => {
     window.addEventListener('beforeunload', showTransition);
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', enablePageTransition);
-} else {
-    enablePageTransition();
+/* Proxy modda (translate.goog) sayfa geçiş animasyonunu devre dışı bırak.
+   Proxy, window.location.assign() ile native link navigation'ı engelleyebilir;
+   devre dışı bırakınca tarayıcı native <a href> navigasyonu kullanır. */
+if (!window.location.hostname.includes('translate.goog')) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enablePageTransition);
+    } else {
+        enablePageTransition();
+    }
 }
