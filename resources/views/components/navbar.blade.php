@@ -144,37 +144,6 @@
             <a href="{{ route('volunteer') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-white px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50">{{ __('app.nav.volunteer_short') }}</a>
         </div>
 
-        <div class="hidden shrink-0 md:flex lg:hidden">
-            <div class="relative" x-data="{ tabletLangOpen: false }" @click.outside="tabletLangOpen = false">
-                <button
-                    type="button"
-                    @click="tabletLangOpen = !tabletLangOpen"
-                    class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50/90 px-2.5 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
-                    aria-label="Dil seçici"
-                >
-                    <img src="{{ $currentFlag }}" alt="{{ strtoupper($currentLocale) }}" class="h-5 w-7 rounded object-cover shadow-sm">
-                    <span class="text-xs font-bold text-slate-600">{{ strtoupper($currentLocale) }}</span>
-                    <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
-                </button>
-                <div
-                    x-show="tabletLangOpen"
-                    x-cloak
-                    class="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
-                >
-                    @foreach($langList as $lang)
-                        <a
-                            href="{{ route('locale.switch', $lang['code']) }}"
-                            class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50 {{ $currentLocale === $lang['code'] ? 'bg-cyan-50' : '' }}"
-                        >
-                            <img src="{{ $lang['flag'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
-                            <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
-                            <span class="text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
         @php
             $excludedMainLabels = ['ana sayfa', 'anasayfa', 'iletişim', 'iletisim', 'bağış', 'bagis', 'bağış yap', 'bagis yap', 'bağış hesapları', 'bagis hesaplari', 'medyada biz'];
             $headerTopItems = $menuItems
