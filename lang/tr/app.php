@@ -220,6 +220,8 @@ return [
         'doc_archive_empty'     => 'Kurumsal evrak arşivi dosyası henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
         /* Resmi bilgiler */
         'official_assoc_id'     => 'Dernek Kimliği',
+        'official_page_title'   => 'Resmi Bilgiler',
+        'official_assoc_desc'   => 'Kurumsal kimlik ve resmi bilgiler bu alanda paylaşılır.',
         'official_donation'     => 'Bağış Hesabı',
         'official_social'       => 'Sosyal Medya Hesaplarımız',
         'official_visit'        => 'Bizi Ziyaret Edin',

@@ -220,6 +220,8 @@ return [
         'doc_archive_empty'     => 'The corporate document archive has not been uploaded yet. You can upload a PDF, JPG, PNG, DOC or DOCX file from the admin panel.',
         /* Official information */
         'official_assoc_id'     => 'Association Identity',
+        'official_page_title'   => 'Official Information',
+        'official_assoc_desc'   => 'Corporate identity and official information are shared in this section.',
         'official_donation'     => 'Donation Account',
         'official_social'       => 'Our Social Media Accounts',
         'official_visit'        => 'Visit Us',

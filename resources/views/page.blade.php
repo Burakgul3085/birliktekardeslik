@@ -7,6 +7,8 @@
             'kurumsal-evrak-arsivi' => __('app.page.doc_archive_title'),
             'basin-kiti' => __('app.page.press_kit_title'),
             'yonetim' => __('app.page.management_title'),
+            'resmi-bilgiler' => __('app.page.official_page_title'),
+            'resmi-belgiler' => __('app.page.official_page_title'),
         ];
         $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
             ? $pageHeroTitleMap[$page->slug]
@@ -621,6 +623,9 @@
                         : 'https://www.google.com/maps?q=' . urlencode($mapsEmbedUrl) . '&output=embed';
                 }
             }
+            $officialAssocDesc = $isTr
+                ? ($settings->site_description ?: __('app.page.official_assoc_desc'))
+                : __('app.page.official_assoc_desc');
             $socialMap = [
                 'instagram_url' => 'instagram',
                 'youtube_url' => 'youtube',
@@ -655,7 +660,7 @@
                         <span class="text-2xl font-bold text-slate-200">01</span>
                     </div>
                     <p class="text-base leading-8 text-slate-600">
-                        {{ $settings->site_description ?: 'Kurumsal kimlik ve resmi bilgiler bu alanda paylaşılır.' }}
+                        {{ $officialAssocDesc }}
                     </p>
                 </article>
 

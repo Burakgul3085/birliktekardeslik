@@ -220,6 +220,8 @@ return [
         'doc_archive_empty'     => 'لم يتم تحميل أرشيف الوثائق المؤسسية بعد. يمكنك تحميل ملف PDF أو JPG أو PNG أو DOC أو DOCX من لوحة الإدارة.',
         /* المعلومات الرسمية */
         'official_assoc_id'     => 'هوية الجمعية',
+        'official_page_title'   => 'المعلومات الرسمية',
+        'official_assoc_desc'   => 'تتم مشاركة الهوية المؤسسية والمعلومات الرسمية في هذا القسم.',
         'official_donation'     => 'حساب التبرع',
         'official_social'       => 'حسابات التواصل الاجتماعي',
         'official_visit'        => 'زورونا',
