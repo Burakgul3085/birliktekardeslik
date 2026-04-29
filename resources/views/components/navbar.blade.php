@@ -1,3 +1,24 @@
+{{-- Dil geçiş fonksiyonu — butonlara en yakın yerde tanımla --}}
+<script>
+window.switchLang = function(lang) {
+    if (!lang) return;
+    localStorage.setItem('bkd_lang', lang);
+    var h = location.hostname;
+    if (lang === 'tr') {
+        var exp = 'expires=Thu, 01 Jan 1970 00:00:01 GMT';
+        document.cookie = 'googtrans=; ' + exp + '; path=/';
+        document.cookie = 'googtrans=; ' + exp + '; path=/; domain=' + h;
+        document.cookie = 'googtrans=; ' + exp + '; path=/; domain=.' + h;
+    } else {
+        var v = '/tr/' + lang;
+        document.cookie = 'googtrans=' + v + '; path=/';
+        document.cookie = 'googtrans=' + v + '; path=/; domain=' + h;
+        document.cookie = 'googtrans=' + v + '; path=/; domain=.' + h;
+    }
+    location.reload();
+};
+</script>
+
 <header
     x-data="{
         contactOpen: false,
