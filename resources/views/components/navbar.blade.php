@@ -5,6 +5,19 @@
         return __($key) !== $key ? __($key) : $label;
     }
     $currentLocale = app()->getLocale();
+    $langList = [
+        ['code' => 'tr', 'flag' => 'https://flagcdn.com/w40/tr.png', 'label' => 'Türkçe'],
+        ['code' => 'en', 'flag' => 'https://flagcdn.com/w40/gb.png', 'label' => 'English'],
+        ['code' => 'ar', 'flag' => 'https://flagcdn.com/w40/sa.png', 'label' => 'العربية'],
+        ['code' => 'ru', 'flag' => 'https://flagcdn.com/w40/ru.png', 'label' => 'Русский'],
+    ];
+    $flagMap = [
+        'tr' => 'https://flagcdn.com/w40/tr.png',
+        'en' => 'https://flagcdn.com/w40/gb.png',
+        'ar' => 'https://flagcdn.com/w40/sa.png',
+        'ru' => 'https://flagcdn.com/w40/ru.png',
+    ];
+    $currentFlag = $flagMap[$currentLocale] ?? $flagMap['tr'];
 @endphp
 
 <header
@@ -86,6 +99,33 @@
         </a>
 
         <div class="flex shrink-0 items-center gap-1.5 md:hidden">
+            <div class="relative" x-data="{ mobileLangOpen: false }" @click.outside="mobileLangOpen = false">
+                <button
+                    type="button"
+                    @click="mobileLangOpen = !mobileLangOpen"
+                    class="inline-flex h-10 items-center gap-1 rounded-xl border border-slate-200 bg-white px-2 text-[10px] font-bold uppercase text-slate-700 shadow-sm"
+                    aria-label="Dil seçici"
+                >
+                    <img src="{{ $currentFlag }}" alt="{{ strtoupper($currentLocale) }}" class="h-4 w-5 rounded object-cover">
+                    {{ strtoupper($currentLocale) }}
+                </button>
+                <div
+                    x-show="mobileLangOpen"
+                    x-cloak
+                    class="absolute right-0 top-full z-50 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                >
+                    @foreach($langList as $lang)
+                        <a
+                            href="{{ route('locale.switch', $lang['code']) }}"
+                            class="flex items-center gap-2 border-b border-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 last:border-0 hover:bg-cyan-50 {{ $currentLocale === $lang['code'] ? 'bg-cyan-50' : '' }}"
+                        >
+                            <img src="{{ $lang['flag'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-4 w-5 rounded object-cover">
+                            <span class="flex-1">{{ $lang['label'] }}</span>
+                            <span class="text-[10px] uppercase text-slate-400">{{ $lang['code'] }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
             <button
                 type="button"
                 @click="contactOpen = true"
@@ -102,6 +142,37 @@
             </button>
             <a href="{{ route('donations') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full bg-cyan-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700">{{ __('app.nav.donate_short') }}</a>
             <a href="{{ route('volunteer') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-white px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50">{{ __('app.nav.volunteer_short') }}</a>
+        </div>
+
+        <div class="hidden shrink-0 md:flex lg:hidden">
+            <div class="relative" x-data="{ tabletLangOpen: false }" @click.outside="tabletLangOpen = false">
+                <button
+                    type="button"
+                    @click="tabletLangOpen = !tabletLangOpen"
+                    class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50/90 px-2.5 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
+                    aria-label="Dil seçici"
+                >
+                    <img src="{{ $currentFlag }}" alt="{{ strtoupper($currentLocale) }}" class="h-5 w-7 rounded object-cover shadow-sm">
+                    <span class="text-xs font-bold text-slate-600">{{ strtoupper($currentLocale) }}</span>
+                    <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
+                </button>
+                <div
+                    x-show="tabletLangOpen"
+                    x-cloak
+                    class="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                >
+                    @foreach($langList as $lang)
+                        <a
+                            href="{{ route('locale.switch', $lang['code']) }}"
+                            class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50 {{ $currentLocale === $lang['code'] ? 'bg-cyan-50' : '' }}"
+                        >
+                            <img src="{{ $lang['flag'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
+                            <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
+                            <span class="text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
 
         @php
@@ -203,21 +274,6 @@
                 >{{ __('app.nav.donate') }}</a>
 
                 {{-- Dil Seçici --}}
-                @php
-                    $langList = [
-                        ['code' => 'tr', 'flag' => 'https://flagcdn.com/w40/tr.png', 'label' => 'Türkçe'],
-                        ['code' => 'en', 'flag' => 'https://flagcdn.com/w40/gb.png', 'label' => 'English'],
-                        ['code' => 'ar', 'flag' => 'https://flagcdn.com/w40/sa.png', 'label' => 'العربية'],
-                        ['code' => 'ru', 'flag' => 'https://flagcdn.com/w40/ru.png', 'label' => 'Русский'],
-                    ];
-                    $flagMap = [
-                        'tr' => 'https://flagcdn.com/w40/tr.png',
-                        'en' => 'https://flagcdn.com/w40/gb.png',
-                        'ar' => 'https://flagcdn.com/w40/sa.png',
-                        'ru' => 'https://flagcdn.com/w40/ru.png',
-                    ];
-                    $currentFlag = $flagMap[$currentLocale] ?? $flagMap['tr'];
-                @endphp
                 <div
                     class="relative"
                     x-data="{ langOpen: false }"
