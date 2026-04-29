@@ -25,17 +25,19 @@
         /* Google Translate banner'ını gizle, body kaymasını önle */
         .goog-te-banner-frame.skiptranslate { display: none !important; }
         body { top: 0 !important; }
-        /* Widget kutucuğu — sağ alt köşede küçük */
+        /* Widget kutucuğu */
         #bkd-gt-wrap {
             position: fixed; bottom: 70px; right: 16px; z-index: 9990;
             background: #fff; border: 1px solid #e2e8f0;
             border-radius: 10px; padding: 4px 8px;
             box-shadow: 0 2px 12px rgba(0,0,0,.10);
-            opacity: 0; pointer-events: none; /* başlangıçta görünmez */
+            opacity: 0; pointer-events: none;
             transition: opacity .3s;
         }
         #bkd-gt-wrap.ready { opacity: 1; pointer-events: auto; }
         [dir="rtl"] { text-align: right; }
+        /* notranslate class'lı elementleri proxy çeviriden koru */
+        .notranslate, [translate="no"] { unicode-bidi: isolate; }
     </style>
 
     <!-- Dil değişkenleri — her şeyden önce tanımlanır -->

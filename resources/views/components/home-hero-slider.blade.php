@@ -3,8 +3,9 @@
 ])
 
 <section
-    class="relative z-10 w-full max-w-[100vw] overflow-x-hidden"
+    class="relative z-10 w-full max-w-[100vw] overflow-x-hidden notranslate"
     aria-label="Ana tanıtım slider"
+    translate="no"
     x-data="homeHeroSlider({ slides: @js($slides) })"
     @touchstart.passive="startTouch($event)"
     @touchend.passive="endTouch($event)"
