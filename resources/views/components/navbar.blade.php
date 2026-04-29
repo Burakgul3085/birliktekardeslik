@@ -213,7 +213,8 @@ window.switchLang = function(lang) {
                     $hasChildren = $children->isNotEmpty();
                 @endphp
                 @if ($hasChildren)
-                    <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                    {{-- nav-has-dd: proxy'de Alpine çalışmazsa CSS hover ile dropdown açılır --}}
+                    <div class="nav-has-dd relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4"
@@ -226,10 +227,11 @@ window.switchLang = function(lang) {
                         </button>
 
                         {{-- pt-2: tetikleyici ile panel arasında tıklanabilir/kaydırılabilir köprü (mt boşluğunda mouseleave tetikleniyordu) --}}
+                        {{-- nav-dd-panel: proxy'de .nav-has-dd:hover .nav-dd-panel CSS kuralıyla görünür olur --}}
                         <div
                             x-show="open"
                             x-cloak
-                            class="absolute left-0 top-full z-50 min-w-[240px] pt-2"
+                            class="nav-dd-panel absolute left-0 top-full z-50 min-w-[240px] pt-2"
                         >
                             <div class="rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
                                 @foreach($children as $child)

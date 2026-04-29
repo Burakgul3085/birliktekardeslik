@@ -38,6 +38,11 @@
         [dir="rtl"] { text-align: right; }
         /* notranslate class'lı elementleri proxy çeviriden koru */
         .notranslate, [translate="no"] { unicode-bidi: isolate; }
+
+        /* Proxy'de Kurumsal dropdown CSS hover fallback
+           (Alpine.js proxy'de başlamadığında x-cloak dropdown'u gizler;
+            bu kural üst eleman hover'ında zorla gösterir) */
+        .nav-has-dd:hover .nav-dd-panel { display: block !important; }
     </style>
 
     <!-- Dil değişkenleri — her şeyden önce tanımlanır -->
@@ -152,6 +157,21 @@
                 });
             }
         });
+    </script>
+
+    <!-- Proxy'de sayfa-geçiş JS'ini atla: capture phase, app.js'den önce çalışır -->
+    <script>
+        document.addEventListener('click', function(e) {
+            if (!location.hostname.includes('translate.goog')) return;
+            var link = e.target.closest('a[href]');
+            if (!link) return;
+            var href = link.getAttribute('href') || '';
+            /* javascript: ve # linkleri atla — bunlar zaten JS ile çalışıyor */
+            if (!href || href === '#' || href.startsWith('javascript:')) return;
+            /* app.js'nin preventDefault + window.location.assign'ını engelle;
+               tarayıcı native link gezinmesini yapsın */
+            e.stopPropagation();
+        }, true); /* capture:true → bubble-phase app.js dinleyicisinden önce */
     </script>
 
     <!-- Google Translate — widget veya proxy fallback -->
