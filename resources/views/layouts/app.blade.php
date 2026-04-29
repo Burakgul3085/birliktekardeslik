@@ -108,6 +108,22 @@
 
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({ pageLanguage: 'tr', autoDisplay: false }, 'google_translate_element');
+
+            /* Widget hazır olduktan sonra kaydedilen dili uygula */
+            var savedLang = localStorage.getItem('bkd_lang');
+            if (savedLang && savedLang !== 'tr') {
+                var attempts = 0;
+                var applyTranslation = setInterval(function() {
+                    var sel = document.querySelector('select.goog-te-combo');
+                    if (sel && sel.options.length > 1) {
+                        clearInterval(applyTranslation);
+                        sel.value = savedLang;
+                        sel.dispatchEvent(new Event('change'));
+                    } else if (++attempts > 30) {
+                        clearInterval(applyTranslation);
+                    }
+                }, 300);
+            }
         }
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
