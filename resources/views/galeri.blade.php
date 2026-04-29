@@ -72,7 +72,7 @@
                     <a href="{{ route('gallery', ['activity' => $proj->slug]) }}"
                        style="display:inline-block;padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;
                               {{ $activeSlug === $proj->slug ? 'background:#0891b2;color:#fff;box-shadow:0 2px 8px rgba(8,145,178,0.35);' : 'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;' }}"
-                    >{{ $proj->title }}</a>
+                    >{{ $proj->getLocalized('title', $proj->title) }}</a>
                     @endforeach
                 </div>
             </div>
