@@ -96,6 +96,8 @@
         }
 
         /* ── select.goog-te-combo'yu bul ve dili uygula ── */
+        /* Bulamazsa 15 deneme (~4.5sn) sonra proxy'e yönlendir */
+        var BKD_PROXY = 'birliktekardeslik-org.translate.goog';
         function bkdApplyLang(lang, tries) {
             tries = tries || 0;
             if (lang === 'tr') { location.reload(); return; }
@@ -104,8 +106,14 @@
                 sel.value = lang;
                 bkdFire(sel, 'change');
                 bkdFire(sel, 'change');
-            } else if (tries < 40) {
+            } else if (tries < 15) {
                 setTimeout(function(){ bkdApplyLang(lang, tries + 1); }, 300);
+            } else {
+                /* Fallback: proxy yönlendirme */
+                var qs  = location.search.replace(/[?&]_x_tr_[^&]*/g,'');
+                var sep = qs ? '&' : '?';
+                window.location.href = 'https://' + BKD_PROXY + location.pathname + qs + sep +
+                    '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
             }
         }
 
