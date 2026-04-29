@@ -270,9 +270,12 @@ return [
         /* General */
         'social_media_us'       => 'Follow Us on Social Media',
         'vision_title'          => 'Our Vision and Mission',
+        'vision_page_title'     => 'Vision & Mission',
         'vision_subtitle'       => 'Our values, goals and approach in humanitarian aid',
         'vision_our'            => 'Our Vision',
         'mission_our'           => 'Our Mission',
+        'vision_body'           => 'We aspire to be a pioneering solidarity movement working for a world where the helping hand knows no geographic, linguistic, or cultural boundaries; where every person can live with dignity and look to tomorrow with confidence. We sincerely believe that this journey, which starts today with a small step, will become hope for many more people tomorrow. Our goal is not only to deliver aid, but to build a lasting bridge of brotherhood and strengthen bonds of love and solidarity among communities. A fairer, more compassionate, and more humane world is possible — and we are here for that world.',
+        'mission_body'          => 'Especially in Africa and in regions around the world struggling with poverty, hunger, and humanitarian crises, we work tirelessly to meet the most basic needs of people in need through food distribution, basic shelter support, qurban organizations, and charitable aid. We do not only provide temporary relief; we act with a sustainable support approach so people can stand on their own feet. Believing that every donation, every volunteer, and every prayer creates a real difference, we embrace humanitarian aid not as a duty, but as a way of life. We will continue on our path as long as even one person remains beyond our reach.',
         'about_us'              => 'About Us',
         'no_image'              => 'No image added',
     ],

@@ -270,9 +270,12 @@ return [
         /* Genel */
         'social_media_us'       => 'Sosyal Medyada Biz',
         'vision_title'          => 'Vizyon ve Misyonumuz',
+        'vision_page_title'     => 'Vizyon Misyon',
         'vision_subtitle'       => 'İnsani yardım odağında değerlerimiz, hedeflerimiz ve yaklaşımımız',
         'vision_our'            => 'Vizyonumuz',
         'mission_our'           => 'Misyonumuz',
+        'vision_body'           => "Yardım elinin coğrafya, dil ve kültür sınırı tanımadığı; her insanın onurlu bir şekilde yaşayabildiği ve güvenle yarına bakabildiği bir dünya için çalışan öncü bir dayanışma hareketi olmak istiyoruz. Bugün küçük bir adımla başlayan bu yolculuğun, yarın daha fazla insana umut olacağına yürekten inanıyoruz. Hedefimiz yalnızca yardım ulaştırmak değil; kalıcı bir kardeşlik köprüsü inşa etmek, toplumlar arasında sevgi ve dayanışma bağları kurmaktır. Daha adil, daha merhametli ve daha insancıl bir dünya mümkün — ve biz bu dünya için buradayız.",
+        'mission_body'          => "Afrika başta olmak üzere dünyanın yoksulluk, açlık ve insani krizlerle boğuşan bölgelerinde; gıda dağıtımı, temel barınma desteği, kurban organizasyonları ve sadaka yardımları aracılığıyla ihtiyaç sahibi insanların en temel gereksinimlerini karşılamak için durmaksızın çalışıyoruz. Yalnızca anlık bir yardım sunmakla kalmıyor; insanların kendi ayakları üzerinde durabilmesi için sürdürülebilir bir destek anlayışıyla hareket ediyoruz. Her bağışın, her gönüllünün ve her duanın gerçek bir fark yarattığına inanarak, insani yardımı bir görev değil bir yaşam biçimi olarak benimsiyoruz. Ulaşamadığımız tek bir insan kaldığı sürece yolumuza devam edeceğiz.",
         'about_us'              => 'Hakkımızda',
         'no_image'              => 'Görsel eklenmedi',
     ],

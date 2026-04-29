@@ -10,6 +10,7 @@
             'resmi-bilgiler' => __('app.page.official_page_title'),
             'resmi-belgiler' => __('app.page.official_page_title'),
             'baskanin-mesaji' => __('app.page.president_message_title'),
+            'vizyon-misyon' => __('app.page.vision_page_title'),
         ];
         $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
             ? $pageHeroTitleMap[$page->slug]
@@ -209,6 +210,12 @@
             $meta = is_array($page->page_meta ?? null) ? $page->page_meta : [];
             $visionText = $meta['vision_text'] ?? null;
             $missionText = $meta['mission_text'] ?? null;
+            $visionHtml = ($isTr && filled($visionText))
+                ? (string) $visionText
+                : nl2br(e(__('app.page.vision_body')));
+            $missionHtml = ($isTr && filled($missionText))
+                ? (string) $missionText
+                : nl2br(e(__('app.page.mission_body')));
             $socialMap = [
                 'instagram_url' => 'instagram',
                 'youtube_url' => 'youtube',
@@ -244,7 +251,7 @@
                             <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">{{ __('app.page.vision_our') }}</h2>
                         </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
-                            {!! $visionText ?: '<p>Vizyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
+                            {!! $visionHtml !!}
                         </div>
                     </div>
 
@@ -254,7 +261,7 @@
                             <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">{{ __('app.page.mission_our') }}</h2>
                         </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
-                            {!! $missionText ?: '<p>Misyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
+                            {!! $missionHtml !!}
                         </div>
                     </div>
                 </div>
