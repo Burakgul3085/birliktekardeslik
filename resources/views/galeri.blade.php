@@ -97,6 +97,7 @@
                     @php
                         $images = is_array($project->gallery_images) ? array_values(array_filter($project->gallery_images)) : [];
                         $videos = is_array($project->gallery_videos) ? array_values(array_filter($project->gallery_videos)) : [];
+                        $projectTitle = $project->getLocalized('title', $project->title);
                     @endphp
                     @if(count($images) > 0 || count($videos) > 0)
 
@@ -112,7 +113,7 @@
                                 </svg>
                             </div>
                             <div style="flex:1;min-width:0;">
-                                <h2 style="font-size:1.15rem;font-weight:800;color:#0f172a;margin:0;line-height:1.3;">{{ $project->title }}</h2>
+                                <h2 style="font-size:1.15rem;font-weight:800;color:#0f172a;margin:0;line-height:1.3;">{{ $projectTitle }}</h2>
                                 <div style="display:flex;gap:12px;margin-top:4px;">
                                     @if(count($images) > 0)
                                     <span style="font-size:12px;color:#0891b2;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
@@ -146,13 +147,13 @@
                                 <a href="{{ asset('storage/' . $image) }}"
                                    class="glightbox"
                                    data-gallery="photos-{{ $project->slug }}"
-                                   data-title="{{ $project->title }} — {{ $index + 1 }}"
+                                   data-title="{{ $projectTitle }} — {{ $index + 1 }}"
                                    style="display:block;position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:transform .2s,box-shadow .2s;"
                                    onmouseover="this.style.transform='scale(1.03)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.15)'"
                                    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)'"
                                 >
                                     <img src="{{ asset('storage/' . $image) }}"
-                                         alt="{{ $project->title }} {{ __('app.gallery.photo_count') }} {{ $index + 1 }}"
+                                         alt="{{ $projectTitle }} {{ __('app.gallery.photo_count') }} {{ $index + 1 }}"
                                          style="width:100%;height:100%;object-fit:cover;display:block;"
                                          loading="lazy">
                                     <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%);opacity:0;transition:opacity .2s;"
@@ -173,7 +174,7 @@
                             <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">{{ __('app.gallery.videos_heading') }}</p>
                             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
                                 @foreach($videos as $index => $video)
-                                @php $videoLabel = $project->title . ' — ' . __('app.gallery.video_label') . ' ' . ($index + 1); @endphp
+                                @php $videoLabel = $projectTitle . ' — ' . __('app.gallery.video_label') . ' ' . ($index + 1); @endphp
                                 <div
                                     onclick="openVideoModal('{{ asset('storage/' . $video) }}', '{{ addslashes($videoLabel) }}')"
                                     style="border-radius:14px;overflow:hidden;background:#0f172a;box-shadow:0 2px 12px rgba(0,0,0,0.12);cursor:pointer;transition:transform .2s,box-shadow .2s;"

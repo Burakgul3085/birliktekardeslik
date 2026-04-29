@@ -506,6 +506,10 @@
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($activities as $activity)
                     @php
+                        /** @var \App\Models\Project $activity */
+                        $activityTitle = $activity->getLocalized('title', $activity->title);
+                        $activityDescription = $activity->getLocalized('description', $activity->description);
+                        $activityContent = $activity->getLocalized('content', $activity->content);
                         $statusLabel = $activity->status === 'tamamlandi' ? __('app.page.activities_done') : __('app.page.activities_ongoing');
                         $statusClass = $activity->status === 'tamamlandi'
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
@@ -516,7 +520,7 @@
                             <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
                                     src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
-                                    alt="{{ $activity->title }}"
+                                    alt="{{ $activityTitle }}"
                                     class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                 >
                             </div>
@@ -525,10 +529,10 @@
                         <div class="px-5 pb-5">
                             <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
                             <h2 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">
-                                <a href="{{ route('activities.show', ['slug' => $activity->slug]) }}">{{ $activity->title }}</a>
+                                <a href="{{ route('activities.show', ['slug' => $activity->slug]) }}">{{ $activityTitle }}</a>
                             </h2>
                             <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
-                                {{ \Illuminate\Support\Str::limit($activity->description ?: strip_tags((string) $activity->content), 170) }}
+                                {{ \Illuminate\Support\Str::limit($activityDescription ?: strip_tags((string) $activityContent), 170) }}
                             </p>
 
                             @if (! is_null($activity->donation_amount))

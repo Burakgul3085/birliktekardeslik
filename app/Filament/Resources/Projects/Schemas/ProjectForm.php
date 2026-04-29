@@ -7,6 +7,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -14,54 +16,82 @@ class ProjectForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $locales = [
+            'tr' => 'Turkce',
+            'en' => 'English',
+            'ar' => 'Arabic',
+            'ru' => 'Russian',
+        ];
+
+        $translationTabs = [];
+        foreach ($locales as $locale => $label) {
+            $translationTabs[] = Tabs\Tab::make($label)
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make("title_i18n.$locale")
+                            ->label('Baslik')
+                            ->required($locale === 'tr')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) use ($locale): void {
+                                if ($locale !== 'tr' || filled($get('slug'))) {
+                                    return;
+                                }
+                                $set('slug', Str::slug((string) $state));
+                            }),
+                        Textarea::make("description_i18n.$locale")
+                            ->label('Kisa aciklama')
+                            ->rows(3),
+                    ]),
+                    Textarea::make("content_i18n.$locale")
+                        ->label('Detay icerik')
+                        ->rows(8)
+                        ->columnSpanFull(),
+                    Grid::make(2)->schema([
+                        TextInput::make("detail_item_1_title_i18n.$locale")
+                            ->label('Detay acilir menu 1 baslik')
+                            ->default('Hizli Mudahale'),
+                        Textarea::make("detail_item_1_text_i18n.$locale")
+                            ->label('Detay acilir menu 1 metin')
+                            ->rows(2)
+                            ->default('Kriz anlarinda hizli mudahale ederek ihtiyac sahiplerine destek sagliyoruz.'),
+                        TextInput::make("detail_item_2_title_i18n.$locale")
+                            ->label('Detay acilir menu 2 baslik')
+                            ->default('Uzun Vadeli Cozumler'),
+                        Textarea::make("detail_item_2_text_i18n.$locale")
+                            ->label('Detay acilir menu 2 metin')
+                            ->rows(2)
+                            ->default('Surdurulebilir etki icin yerel isbirligi modelleri gelistiriyoruz.'),
+                        TextInput::make("detail_item_3_title_i18n.$locale")
+                            ->label('Detay acilir menu 3 baslik')
+                            ->default('Toplum Destegi'),
+                        Textarea::make("detail_item_3_text_i18n.$locale")
+                            ->label('Detay acilir menu 3 metin')
+                            ->rows(2)
+                            ->default('Toplum odakli faaliyetlerle kalici fayda uretmeyi hedefliyoruz.'),
+                    ]),
+                ]);
+        }
+
         return $schema->components([
-            TextInput::make('title')
-                ->label('Başlık')
-                ->required()
-                ->live(onBlur: true)
-                ->afterStateUpdated(function ($state, callable $set, callable $get): void {
-                    if (filled($get('slug'))) {
-                        return;
-                    }
-                    $set('slug', Str::slug((string) $state));
-                }),
+            Tabs::make('translations')
+                ->label('Dil bazli icerik')
+                ->persistTabInQueryString()
+                ->tabs($translationTabs)
+                ->columnSpanFull(),
             TextInput::make('slug')
                 ->label('Slug')
                 ->required()
                 ->unique(ignoreRecord: true),
-            Textarea::make('description')->label('Kısa açıklama')->rows(3),
             TextInput::make('donation_amount')
-                ->label('Bağış Tutarı')
+                ->label('Bagis Tutari')
                 ->numeric()
                 ->minValue(0)
                 ->prefix('₺')
-                ->placeholder('Örn: 1500'),
+                ->placeholder('Orn: 1500'),
             TextInput::make('donation_currency')
                 ->label('Para Birimi')
                 ->default('TL')
                 ->maxLength(10),
-            Textarea::make('content')->label('Detay içerik')->rows(8)->columnSpanFull(),
-            TextInput::make('detail_item_1_title')
-                ->label('Detay açılır menü 1 başlık')
-                ->default('Hızlı Müdahale'),
-            Textarea::make('detail_item_1_text')
-                ->label('Detay açılır menü 1 metin')
-                ->rows(2)
-                ->default('Kriz anlarında hızlı müdahale ederek ihtiyaç sahiplerine sıcak yemek ve temel gıda desteği sağlıyoruz.'),
-            TextInput::make('detail_item_2_title')
-                ->label('Detay açılır menü 2 başlık')
-                ->default('Uzun Vadeli Çözümler'),
-            Textarea::make('detail_item_2_text')
-                ->label('Detay açılır menü 2 metin')
-                ->rows(2)
-                ->default('Bölgede kalıcı gıda güvenliği için sürdürülebilir dağıtım ve yerel işbirliği modelleri geliştiriyoruz.'),
-            TextInput::make('detail_item_3_title')
-                ->label('Detay açılır menü 3 başlık')
-                ->default('Toplum Desteği'),
-            Textarea::make('detail_item_3_text')
-                ->label('Detay açılır menü 3 metin')
-                ->rows(2)
-                ->default('Ailelerin düzenli beslenme ihtiyacına katkı sağlayan insani yardım faaliyetleri yürütüyoruz.'),
             FileUpload::make('cover_image')
                 ->disk('public')
                 ->directory('projects')
@@ -77,13 +107,13 @@ class ProjectForm
                 ->imageEditor()
                 ->helperText('Birden fazla fotoğraf ekleyebilirsiniz.'),
             FileUpload::make('gallery_videos')
-                ->label('Faaliyet Galeri Videoları')
+                ->label('Faaliyet Galeri Videolari')
                 ->disk('public')
                 ->directory('projects/gallery-videos')
                 ->multiple()
                 ->reorderable()
                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
-                ->helperText('MP4/WEBM/MOV formatında video ekleyebilirsiniz.'),
+                ->helperText('MP4/WEBM/MOV formatinda video ekleyebilirsiniz.'),
             Select::make('status')->label('Durum')->options([
                 'devam-ediyor' => 'Devam Ediyor',
                 'tamamlandi' => 'Tamamlandı',

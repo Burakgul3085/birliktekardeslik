@@ -1,5 +1,11 @@
 <x-layouts.app>
-    <x-page-hero :title="$activity->title" />
+    @php
+        $activityTitle = $activity->getLocalized('title', $activity->title);
+        $activityDescription = $activity->getLocalized('description', $activity->description);
+        $activityContent = $activity->getLocalized('content', $activity->content);
+        $activityDetailItems = $activity->getLocalizedDetailItems();
+    @endphp
+    <x-page-hero :title="$activityTitle" />
 
     @php
         $statusLabel = $activity->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
@@ -13,20 +19,20 @@
                 <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <img
                         src="{{ $activity->cover_image ? asset('storage/' . $activity->cover_image) : asset('images/default-logo.svg') }}"
-                        alt="{{ $activity->title }}"
+                        alt="{{ $activityTitle }}"
                         class="mx-auto block h-auto max-h-[460px] w-full object-contain"
                     >
                 </div>
-                <h2 class="mt-6 text-3xl font-bold text-slate-900">{{ $activity->title }}</h2>
+                <h2 class="mt-6 text-3xl font-bold text-slate-900">{{ $activityTitle }}</h2>
                 <span class="mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ $statusLabel }}</span>
                 @if (! is_null($activity->donation_amount))
                     <p class="mt-3 text-2xl font-extrabold text-cyan-800">
                         {{ number_format((float) $activity->donation_amount, 2, ',', '.') }} {{ $activity->donation_currency ?: 'TL' }}
                     </p>
                 @endif
-                <p class="mt-3 text-lg leading-relaxed text-slate-700">{{ $activity->description }}</p>
+                <p class="mt-3 text-lg leading-relaxed text-slate-700">{{ $activityDescription }}</p>
                 <div class="prose prose-slate mt-6 max-w-none text-base leading-relaxed">
-                    {!! $activity->content ?: nl2br(e((string) $activity->description)) !!}
+                    {!! $activityContent ?: nl2br(e((string) $activityDescription)) !!}
                 </div>
 
                 <div class="mt-8">
@@ -44,7 +50,7 @@
                 @endphp
                 @if ($galleryImages->isNotEmpty() || $galleryVideos->isNotEmpty())
                     <div class="mt-10" x-data="{ previewOpen: false, previewType: null, previewSrc: '' }">
-                        <h3 class="text-xl font-bold text-slate-900">Faaliyet Galerisi</h3>
+                        <h3 class="text-xl font-bold text-slate-900">{{ __('app.page.activity_gallery') }}</h3>
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             @foreach ($galleryImages as $image)
                                 <button
@@ -54,7 +60,7 @@
                                 >
                                     <img
                                         src="{{ asset('storage/' . ltrim((string) $image, '/')) }}"
-                                        alt="{{ $activity->title }} görseli"
+                                        alt="{{ $activityTitle }} {{ __('app.page.activity_image_alt') }}"
                                         class="mx-auto block h-auto max-h-[280px] w-full object-contain"
                                     >
                                 </button>
@@ -67,7 +73,7 @@
                                 >
                                     <video controls class="h-auto max-h-[280px] w-full rounded-lg bg-black/90 object-contain">
                                         <source src="{{ asset('storage/' . ltrim((string) $video, '/')) }}">
-                                        Tarayıcınız video etiketini desteklemiyor.
+                                        {{ __('app.page.video_not_supported') }}
                                     </video>
                                 </button>
                             @endforeach
@@ -85,11 +91,11 @@
                                     type="button"
                                     class="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
                                     @click="previewOpen = false; previewSrc = ''; previewType = null"
-                                    aria-label="Önizlemeyi kapat"
+                                    aria-label="{{ __('app.page.close_preview') }}"
                                 >✕</button>
 
                                 <template x-if="previewType === 'image' && previewSrc">
-                                    <img :src="previewSrc" alt="Faaliyet galerisi görseli" class="mx-auto block h-auto max-h-[78vh] w-full rounded-xl object-contain" />
+                                    <img :src="previewSrc" alt="{{ __('app.page.activity_gallery_image') }}" class="mx-auto block h-auto max-h-[78vh] w-full rounded-xl object-contain" />
                                 </template>
                                 <template x-if="previewType === 'video' && previewSrc">
                                     <video controls autoplay class="h-auto max-h-[78vh] w-full rounded-xl bg-black object-contain">
@@ -102,11 +108,7 @@
                 @endif
 
                 <div class="mt-10 space-y-3" x-data="{ openIdx: 1 }">
-                    @foreach([
-                        ['title' => $activity->detail_item_1_title ?: 'Hızlı Müdahale', 'text' => $activity->detail_item_1_text ?: 'Kriz anlarında hızlı müdahale ederek ihtiyaç sahiplerine destek sağlıyoruz.'],
-                        ['title' => $activity->detail_item_2_title ?: 'Uzun Vadeli Çözümler', 'text' => $activity->detail_item_2_text ?: 'Sürdürülebilir etki için yerel işbirliği modelleri geliştiriyoruz.'],
-                        ['title' => $activity->detail_item_3_title ?: 'Toplum Desteği', 'text' => $activity->detail_item_3_text ?: 'Toplum odaklı faaliyetlerle kalıcı fayda üretmeyi hedefliyoruz.'],
-                    ] as $idx => $acc)
+                    @foreach($activityDetailItems as $idx => $acc)
                         <div class="overflow-hidden rounded-2xl border border-cyan-200/80 bg-white">
                             <button
                                 type="button"
@@ -127,22 +129,22 @@
             <aside class="space-y-4">
                 @foreach($bankAccounts as $account)
                     <a href="{{ route('donations') }}" class="block rounded-2xl border border-cyan-100 bg-cyan-50/40 p-4 shadow-sm transition hover:border-cyan-300 hover:shadow-md">
-                        <p class="text-xl font-bold uppercase text-slate-900">Bağış Yap | IBAN ({{ $account->currency }})</p>
+                        <p class="text-xl font-bold uppercase text-slate-900">{{ __('app.page.donate_btn') }} | IBAN ({{ $account->currency }})</p>
                         <div class="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-3">
-                            <img src="{{ asset('storage/' . $donationQrPath) }}" alt="Bağış QR Kodu" class="h-56 w-full rounded-lg object-contain">
+                            <img src="{{ asset('storage/' . $donationQrPath) }}" alt="{{ __('app.page.donation_qr_alt') }}" class="h-56 w-full rounded-lg object-contain">
                         </div>
                     </a>
                 @endforeach
 
                 <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <h3 class="text-lg font-semibold text-slate-900">Diğer Faaliyetler</h3>
+                    <h3 class="text-lg font-semibold text-slate-900">{{ __('app.page.other_activities') }}</h3>
                     <div class="mt-4 space-y-3">
                         @forelse($relatedActivities as $related)
                             <a href="{{ route('activities.show', ['slug' => $related->slug]) }}" class="block rounded-xl border border-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-cyan-200 hover:bg-cyan-50/40 hover:text-cyan-800">
                                 {{ $related->title }}
                             </a>
                         @empty
-                            <p class="text-sm text-slate-500">Henüz başka faaliyet bulunmuyor.</p>
+                            <p class="text-sm text-slate-500">{{ __('app.page.no_other_activities') }}</p>
                         @endforelse
                     </div>
                 </div>
