@@ -204,6 +204,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Donations page
+    |--------------------------------------------------------------------------
+    */
+    'donations' => [
+        'page_title'        => 'Our Bank Accounts',
+        'page_desc'         => 'You can safely donate using the information below.',
+        'notice_title'      => '⚠️ Donation Description is Required!',
+        'notice_body'       => 'During your bank transfer or EFT, please',
+        'notice_bold'       => 'do not leave the description field blank.',
+        'notice_suffix'     => 'To ensure your donation is recorded correctly, please fill in the following details in the description:',
+        'item_name'         => 'Full Name',
+        'item_name_desc'    => 'Donor\'s full name',
+        'item_phone'        => 'Phone Number',
+        'item_purpose'      => 'Activity / Donation Purpose',
+        'item_purpose_desc' => 'Qurban Donation, Food Aid, General Donation, etc.',
+        'example_label'     => 'Example Description:',
+        'example_text'      => 'John Smith – +90 532 123 45 67 – Qurban Donation',
+        'account_name'      => 'Account Name:',
+        'branch_name'       => 'Branch Name:',
+        'account_no'        => 'Account No:',
+        'iban_copy_btn'     => 'Copy IBAN',
+        'iban_copied'       => 'IBAN copied to clipboard.',
+        'qr_scan'           => 'You can scan the IBAN',
+        'qr_note'           => 'The QR code always opens the donation page.',
+        'empty_title'       => 'No active accounts',
+        'empty_desc'        => 'Active bank accounts added from the admin panel will appear here.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Quick contact panel (grid icon)
     |--------------------------------------------------------------------------
     */

@@ -9,7 +9,7 @@
     <div class="relative mx-auto max-w-7xl px-4 text-center md:px-6">
         <h1 class="text-3xl font-extrabold tracking-tight md:text-4xl">{{ $title }}</h1>
         <div class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100">
-            <a href="{{ route('home') }}" class="transition hover:text-white">Anasayfa</a>
+            <a href="{{ route('home') }}" class="transition hover:text-white">{{ __('app.nav.home') }}</a>
             <span aria-hidden="true">›</span>
             <span class="text-white">{{ $title }}</span>
         </div>

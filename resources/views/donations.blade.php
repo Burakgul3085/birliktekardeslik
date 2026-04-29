@@ -1,8 +1,8 @@
 <x-layouts.app>
-    <x-page-hero title="Hesap Numaralarımız" />
+    <x-page-hero :title="__('app.donations.page_title')" />
 
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
-        <p class="mt-2 text-slate-600">Aşağıdaki bilgiler üzerinden güvenle bağış yapabilirsiniz.</p>
+        <p class="mt-2 text-slate-600">{{ __('app.donations.page_desc') }}</p>
 
         <div
             x-data="{ visible: false }"
@@ -28,28 +28,28 @@
                 </div>
 
                 <div class="flex-1">
-                    <p class="text-base font-bold text-amber-900">⚠️ Bağış Açıklaması Zorunludur!</p>
+                    <p class="text-base font-bold text-amber-900">{{ __('app.donations.notice_title') }}</p>
                     <p class="mt-1 text-sm text-amber-800">
-                        Havale veya EFT işleminiz sırasında lütfen <strong class="underline decoration-amber-500 decoration-2">açıklama alanını boş bırakmayınız.</strong>
-                        Bağışınızın doğru kaydedilebilmesi için açıklama kısmına aşağıdaki bilgileri eksiksiz yazınız:
+                        {{ __('app.donations.notice_body') }} <strong class="underline decoration-amber-500 decoration-2">{{ __('app.donations.notice_bold') }}</strong>
+                        {{ __('app.donations.notice_suffix') }}
                     </p>
                     <ul class="mt-3 space-y-1.5 text-sm text-amber-800">
                         <li class="flex items-center gap-2">
                             <span class="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-white">1</span>
-                            <span><strong>Ad Soyad</strong> — Bağışçı adı soyadı</span>
+                            <span><strong>{{ __('app.donations.item_name') }}</strong> — {{ __('app.donations.item_name_desc') }}</span>
                         </li>
                         <li class="flex items-center gap-2">
                             <span class="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-white">2</span>
-                            <span><strong>Telefon Numarası</strong></span>
+                            <span><strong>{{ __('app.donations.item_phone') }}</strong></span>
                         </li>
                         <li class="flex items-center gap-2">
                             <span class="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-white">3</span>
-                            <span><strong>Faaliyet / Bağış Amacı</strong> — Kurban Bağışı, Gıda Yardımı, Genel Bağış vb.</span>
+                            <span><strong>{{ __('app.donations.item_purpose') }}</strong> — {{ __('app.donations.item_purpose_desc') }}</span>
                         </li>
                     </ul>
                     <div class="mt-3 rounded-xl border border-amber-200 bg-white/70 px-4 py-2.5">
-                        <p class="text-xs font-semibold text-amber-700">Örnek Açıklama:</p>
-                        <p class="mt-0.5 font-mono text-sm font-medium text-slate-800">Ali Yılmaz – 0532 123 45 67 – Kurban Bağışı</p>
+                        <p class="text-xs font-semibold text-amber-700">{{ __('app.donations.example_label') }}</p>
+                        <p class="mt-0.5 font-mono text-sm font-medium text-slate-800">{{ __('app.donations.example_text') }}</p>
                     </div>
                 </div>
             </div>
@@ -70,11 +70,11 @@
                             <span class="inline-flex rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-700">{{ $account->currency }}</span>
 
                             <p class="text-2xl font-bold text-slate-900">
-                                Hesap Adı: <span class="font-semibold">{{ $account->recipient_name }}</span>
+                                {{ __('app.donations.account_name') }} <span class="font-semibold">{{ $account->recipient_name }}</span>
                             </p>
 
                             <p class="text-xl font-semibold text-slate-900">
-                                Şube Adı:
+                                {{ __('app.donations.branch_name') }}
                                 <span class="font-medium">
                                     {{ $account->branch_name ?: ($account->bank_name . ' Şubesi') }}
                                 </span>
@@ -82,26 +82,26 @@
 
                             <div class="rounded-2xl border border-slate-200 bg-white p-4">
                                 <p class="text-lg font-semibold text-slate-900">IBAN: <span class="font-mono">{{ $account->iban }}</span></p>
-                                <p class="mt-2 text-lg font-semibold text-slate-900">Hesap No: <span class="font-medium">{{ $account->account_number ?: '-' }}</span></p>
+                                <p class="mt-2 text-lg font-semibold text-slate-900">{{ __('app.donations.account_no') }} <span class="font-medium">{{ $account->account_number ?: '-' }}</span></p>
                             </div>
 
+                            @php $ibanCopied = __('app.donations.iban_copied'); @endphp
                             <button @click="navigator.clipboard.writeText('{{ $account->iban }}'); copied = true; setTimeout(() => copied = false, 2000)" class="btn-primary w-full max-w-sm">
-                                IBAN Kopyala
+                                {{ __('app.donations.iban_copy_btn') }}
                             </button>
-                            <p x-show="copied" class="text-xs text-emerald-600">IBAN panoya kopyalandı.</p>
+                            <p x-show="copied" class="text-xs text-emerald-600">{{ __('app.donations.iban_copied') }}</p>
                         </div>
 
                         <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-4">
-                            <p class="mb-3 text-sm font-semibold text-slate-700">IBAN'ı tarayabilirsiniz</p>
-                            <img src="{{ asset('storage/' . $donationQrPath) }}" alt="Bağış QR Kodu" class="h-44 w-44 rounded-xl border border-slate-200 object-cover">
-                            <p class="mt-3 text-center text-xs text-slate-500">QR kod her zaman bağış sayfasını açar.</p>
+                            <p class="mb-3 text-sm font-semibold text-slate-700">{{ __('app.donations.qr_scan') }}</p>
+                            <img src="{{ asset('storage/' . $donationQrPath) }}" alt="{{ __('app.donations.page_title') }}" class="h-44 w-44 rounded-xl border border-slate-200 object-cover">
+                            <p class="mt-3 text-center text-xs text-slate-500">{{ __('app.donations.qr_note') }}</p>
                         </div>
                     </div>
                 </article>
             @empty
-                <x-empty-state title="Aktif hesap bulunmuyor" description="Admin panelden aktif banka hesabı eklediğinizde burada görünecektir." />
+                <x-empty-state :title="__('app.donations.empty_title')" :description="__('app.donations.empty_desc')" />
             @endforelse
         </div>
     </section>
 </x-layouts.app>
-

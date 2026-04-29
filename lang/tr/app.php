@@ -204,6 +204,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Bağış Yap sayfası
+    |--------------------------------------------------------------------------
+    */
+    'donations' => [
+        'page_title'        => 'Hesap Numaralarımız',
+        'page_desc'         => 'Aşağıdaki bilgiler üzerinden güvenle bağış yapabilirsiniz.',
+        'notice_title'      => '⚠️ Bağış Açıklaması Zorunludur!',
+        'notice_body'       => 'Havale veya EFT işleminiz sırasında lütfen',
+        'notice_bold'       => 'açıklama alanını boş bırakmayınız.',
+        'notice_suffix'     => 'Bağışınızın doğru kaydedilebilmesi için açıklama kısmına aşağıdaki bilgileri eksiksiz yazınız:',
+        'item_name'         => 'Ad Soyad',
+        'item_name_desc'    => 'Bağışçı adı soyadı',
+        'item_phone'        => 'Telefon Numarası',
+        'item_purpose'      => 'Faaliyet / Bağış Amacı',
+        'item_purpose_desc' => 'Kurban Bağışı, Gıda Yardımı, Genel Bağış vb.',
+        'example_label'     => 'Örnek Açıklama:',
+        'example_text'      => 'Ali Yılmaz – 0532 123 45 67 – Kurban Bağışı',
+        'account_name'      => 'Hesap Adı:',
+        'branch_name'       => 'Şube Adı:',
+        'account_no'        => 'Hesap No:',
+        'iban_copy_btn'     => 'IBAN Kopyala',
+        'iban_copied'       => 'IBAN panoya kopyalandı.',
+        'qr_scan'           => 'IBAN\'ı tarayabilirsiniz',
+        'qr_note'           => 'QR kod her zaman bağış sayfasını açar.',
+        'empty_title'       => 'Aktif hesap bulunmuyor',
+        'empty_desc'        => 'Admin panelden aktif banka hesabı eklediğinizde burada görünecektir.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Hızlı iletişim paneli (kare ikon)
     |--------------------------------------------------------------------------
     */
