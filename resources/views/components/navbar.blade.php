@@ -209,31 +209,10 @@
                     ];
                     $langMap = json_encode(array_column($langList, null, 'code'));
                 @endphp
+                {{-- Dil Seçici — şimdilik sadece görsel, işlev sonradan eklenecek --}}
                 <div
                     class="relative"
-                    x-data="{
-                        langOpen: false,
-                        langs: {{ $langMap }},
-                        current: 'tr',
-                        init() {
-                            var saved = localStorage.getItem('bkd_lang') || 'tr';
-                            this.current = this.langs[saved] ? saved : 'tr';
-                        },
-                        flag() { return (this.langs[this.current] || this.langs['tr']).flag; },
-                        code() { return (this.langs[this.current] || this.langs['tr']).code.toUpperCase(); },
-                        go(code) {
-                            this.current = code;
-                            localStorage.setItem('bkd_lang', code);
-                            this.langOpen = false;
-                            if (code === 'tr') {
-                                window.location.href = 'https://birliktekardeslik.org' + window.location.pathname;
-                            } else {
-                                var path = window.location.pathname;
-                                window.location.href = 'https://birliktekardeslik-org.translate.goog' + path
-                                    + '?_x_tr_sl=tr&_x_tr_tl=' + code + '&_x_tr_hl=tr&_x_tr_pto=wapp';
-                            }
-                        }
-                    }"
+                    x-data="{ langOpen: false, current: 'tr' }"
                     @click.outside="langOpen = false"
                 >
                     <button
@@ -242,8 +221,12 @@
                         class="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50/90 px-2.5 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
                         aria-label="Dil seçici"
                     >
-                        <img :src="flag()" :alt="code()" class="h-5 w-7 rounded object-cover shadow-sm">
-                        <span class="text-xs font-bold text-slate-600" x-text="code()"></span>
+                        <img
+                            :src="{ tr: 'https://flagcdn.com/w40/tr.png', en: 'https://flagcdn.com/w40/gb.png', ar: 'https://flagcdn.com/w40/sa.png', ru: 'https://flagcdn.com/w40/ru.png' }[current]"
+                            :alt="current.toUpperCase()"
+                            class="h-5 w-7 rounded object-cover shadow-sm"
+                        >
+                        <span class="text-xs font-bold text-slate-600" x-text="current.toUpperCase()"></span>
                         <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
                     </button>
 
@@ -258,12 +241,17 @@
                         x-transition:leave-end="opacity-0 scale-95"
                         class="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
                     >
-                        @foreach($langList as $lang)
+                        @foreach([
+                            ['code' => 'tr', 'flag' => 'https://flagcdn.com/w40/tr.png', 'label' => 'Türkçe'],
+                            ['code' => 'en', 'flag' => 'https://flagcdn.com/w40/gb.png', 'label' => 'English'],
+                            ['code' => 'ar', 'flag' => 'https://flagcdn.com/w40/sa.png', 'label' => 'العربية'],
+                            ['code' => 'ru', 'flag' => 'https://flagcdn.com/w40/ru.png', 'label' => 'Русский'],
+                        ] as $lang)
                         <button
                             type="button"
-                            @click="go('{{ $lang['code'] }}')"
+                            @click="current = '{{ $lang['code'] }}'; langOpen = false"
                             class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50"
-                            :class="current === '{{ $lang['code'] }}' ? 'bg-cyan-50 font-bold' : ''"
+                            :class="current === '{{ $lang['code'] }}' ? 'bg-cyan-50' : ''"
                         >
                             <img src="{{ $lang['flag'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
                             <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
