@@ -4,25 +4,13 @@ window.switchLang = function(lang) {
     if (!lang) return;
     localStorage.setItem('bkd_lang', lang);
 
-    var originDomain = 'birliktekardeslik.org';
-    var proxyDomain  = 'birliktekardeslik-org.translate.goog';
+    /* UI'ı hemen güncelle */
+    if (typeof bkdUpdateUI === 'function') bkdUpdateUI(lang);
 
-    /* Şu an proxy'de miyiz? */
-    var onProxy = location.hostname === proxyDomain;
-
-    if (lang === 'tr') {
-        /* Orijinal siteye dön */
-        window.location.href = 'https://' + originDomain + location.pathname + location.search;
-        return;
+    /* Çeviriyi uygula */
+    if (typeof bkdApplyLang === 'function') {
+        bkdApplyLang(lang);
     }
-
-    /* Zaten proxy'deyse sadece dil parametresini güncelle */
-    var path   = location.pathname;
-    var search = location.search.replace(/[?&]_x_tr_tl=[^&]*/g, '');
-    var sep    = search ? '&' : '?';
-    var params = '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
-
-    window.location.href = 'https://' + proxyDomain + path + search + sep + params;
 };
 </script>
 
