@@ -2,6 +2,7 @@
     @php
         $isTr = app()->getLocale() === 'tr';
         $pageHeroTitleMap = [
+            'hikayemiz' => __('app.page.story_page_title'),
             'dernek-tuzugu' => __('app.page.doc_charter_title'),
             'faaliyet-belgesi' => __('app.page.doc_activity_title'),
             'kurumsal-evrak-arsivi' => __('app.page.doc_archive_title'),
@@ -21,12 +22,28 @@
 
     @if ($page->slug === 'hikayemiz')
         <section class="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:py-16">
-            @if (! empty($page->content))
-                <div class="prose mx-auto mb-10 max-w-3xl text-center text-slate-600 prose-slate">{!! $page->content !!}</div>
+            @php
+                $storyIntroHtml = ($isTr && ! empty($page->content))
+                    ? (string) $page->content
+                    : '<p>' . e(__('app.page.story_intro')) . '</p>';
+            @endphp
+            @if (! empty($storyIntroHtml))
+                <div class="prose mx-auto mb-10 max-w-3xl text-center text-slate-600 prose-slate">{!! $storyIntroHtml !!}</div>
             @endif
 
             @php
-                $storyItems = collect($page->story_items ?? [])->filter(fn ($item) => filled($item['title'] ?? null) && filled($item['description'] ?? null));
+                $defaultStoryItems = collect(__('app.page.story_items'));
+                $storyItems = $isTr
+                    ? collect($page->story_items ?? [])
+                    : $defaultStoryItems->map(function ($item, $index) use ($page) {
+                        $source = collect($page->story_items ?? [])->get($index, []);
+                        return [
+                            'title' => $item['title'] ?? null,
+                            'description' => $item['description'] ?? null,
+                            'image' => $source['image'] ?? null,
+                        ];
+                    });
+                $storyItems = $storyItems->filter(fn ($item) => filled($item['title'] ?? null) && filled($item['description'] ?? null));
             @endphp
 
             @if ($storyItems->isNotEmpty())
@@ -117,8 +134,8 @@
                 </div>
             @else
                 <article class="card-ui">
-                    <h2 class="text-2xl font-semibold text-slate-900">Hikayemiz</h2>
-                    <p class="mt-4 text-slate-600">Bu sayfa içeriği admin panelinden düzenlenecektir.</p>
+                    <h2 class="text-2xl font-semibold text-slate-900">{{ __('app.page.story_empty_title') }}</h2>
+                    <p class="mt-4 text-slate-600">{{ __('app.page.story_empty_desc') }}</p>
                 </article>
             @endif
         </section>
