@@ -5,9 +5,12 @@ namespace App\Filament\Resources\News\Schemas;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class NewsForm
@@ -15,7 +18,51 @@ class NewsForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title')->label('Başlık')->required(),
+            Tabs::make('i18n_tabs')
+                ->columnSpanFull()
+                ->tabs([
+                    Tab::make('TR')
+                        ->schema([
+                            Grid::make(1)->schema([
+                                TextInput::make('title_i18n.tr')->label('Başlık (TR)')->required(),
+                                Textarea::make('summary_i18n.tr')
+                                    ->label('Kısa özet (TR)')
+                                    ->rows(3)
+                                    ->helperText('Ana sayfada kart içinde kısa açıklama olarak görünür.'),
+                                RichEditor::make('content_i18n.tr')->label('İçerik (TR)')->required(),
+                            ]),
+                        ]),
+                    Tab::make('EN')
+                        ->schema([
+                            Grid::make(1)->schema([
+                                TextInput::make('title_i18n.en')->label('Title (EN)'),
+                                Textarea::make('summary_i18n.en')
+                                    ->label('Short summary (EN)')
+                                    ->rows(3),
+                                RichEditor::make('content_i18n.en')->label('Content (EN)'),
+                            ]),
+                        ]),
+                    Tab::make('AR')
+                        ->schema([
+                            Grid::make(1)->schema([
+                                TextInput::make('title_i18n.ar')->label('العنوان (AR)'),
+                                Textarea::make('summary_i18n.ar')
+                                    ->label('الملخص القصير (AR)')
+                                    ->rows(3),
+                                RichEditor::make('content_i18n.ar')->label('المحتوى (AR)'),
+                            ]),
+                        ]),
+                    Tab::make('RU')
+                        ->schema([
+                            Grid::make(1)->schema([
+                                TextInput::make('title_i18n.ru')->label('Заголовок (RU)'),
+                                Textarea::make('summary_i18n.ru')
+                                    ->label('Краткое описание (RU)')
+                                    ->rows(3),
+                                RichEditor::make('content_i18n.ru')->label('Содержимое (RU)'),
+                            ]),
+                        ]),
+                ]),
             FileUpload::make('cover_image')
                 ->label('Haber kapak görseli')
                 ->disk('public')
@@ -44,12 +91,6 @@ class NewsForm
                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'])
                 ->helperText('Detay sayfasında video galerisi olarak görünür. Boyut sınırı yoktur.')
                 ->columnSpanFull(),
-            Textarea::make('summary')
-                ->label('Kısa özet')
-                ->rows(3)
-                ->helperText('Ana sayfada kart içinde kısa açıklama olarak görünür.')
-                ->columnSpanFull(),
-            RichEditor::make('content')->label('İçerik')->required()->columnSpanFull(),
             DateTimePicker::make('published_at')->label('Yayın Tarihi')->seconds(false),
             Toggle::make('is_active')->default(true)->label('Aktif'),
         ])->columns(2);

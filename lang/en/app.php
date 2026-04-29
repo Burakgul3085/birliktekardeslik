@@ -277,6 +277,7 @@ return [
         'news_view_all_short'   => 'View All',
         'news_published_at'     => 'Published At:',
         'news_not_specified'    => 'Not specified',
+        'news_new'              => 'New',
         'news_gallery'          => 'News Gallery',
         'news_gallery_image'    => 'gallery image',
         'other_news'            => 'Other News',

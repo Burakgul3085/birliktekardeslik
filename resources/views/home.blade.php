@@ -302,19 +302,19 @@
                             <div class="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
                                     src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                                    alt="{{ $news->title }}"
+                                    alt="{{ $news->getLocalized('title') }}"
                                     class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                     loading="lazy"
                                 >
                                 <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                                    {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
+                                    {{ optional($news->published_at)->format('d M') ?: __('app.page.news_new') }}
                                 </span>
                             </div>
                         </a>
                         <div class="px-5 pb-5">
-                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->title }}</h3>
+                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->getLocalized('title') }}</h3>
                             <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
-                                {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
+                                {{ \Illuminate\Support\Str::limit($news->getLocalized('summary') ?: strip_tags((string) $news->getLocalized('content')), 170) }}
                             </p>
                             <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">
                                 {{ __('app.home.news_detail') }}
@@ -330,19 +330,19 @@
                             <div class="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <img
                                     src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                                    alt="{{ $news->title }}"
+                                    alt="{{ $news->getLocalized('title') }}"
                                     class="mx-auto block h-auto max-h-[250px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                                     loading="lazy"
                                 >
                                 <span class="absolute left-3 top-3 inline-flex rounded-full bg-cyan-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                                    {{ optional($news->published_at)->format('d M') ?: 'Yeni' }}
+                                    {{ optional($news->published_at)->format('d M') ?: __('app.page.news_new') }}
                                 </span>
                             </div>
                         </a>
                         <div class="px-5 pb-5">
-                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->title }}</h3>
+                            <h3 class="text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">{{ $news->getLocalized('title') }}</h3>
                             <p class="mt-3 text-sm leading-7 text-slate-600 transition-colors duration-300 group-hover:text-cyan-900">
-                                {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
+                                {{ \Illuminate\Support\Str::limit($news->getLocalized('summary') ?: strip_tags((string) $news->getLocalized('content')), 170) }}
                             </p>
                             <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">
                                 {{ __('app.home.news_detail') }}

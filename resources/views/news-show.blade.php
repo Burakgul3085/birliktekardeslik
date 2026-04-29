@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <x-page-hero :title="$news->title" />
+    <x-page-hero :title="$news->getLocalized('title')" />
 
     <section class="mx-auto max-w-7xl px-4 pt-10 md:px-6 md:pt-12">
         <div class="rounded-3xl bg-cyan-50/50 p-6 md:p-8">
@@ -18,23 +18,23 @@
                 <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <img
                     src="{{ $news->cover_image ? asset('storage/' . $news->cover_image) : asset('images/default-logo.svg') }}"
-                    alt="{{ $news->title }}"
+                    alt="{{ $news->getLocalized('title') }}"
                     class="mx-auto block h-auto max-h-[460px] w-full object-contain"
                 >
             </div>
             <div class="mt-6">
-                <h2 class="text-3xl font-bold text-slate-900">{{ $news->title }}</h2>
+                <h2 class="text-3xl font-bold text-slate-900">{{ $news->getLocalized('title') }}</h2>
                 <p class="mt-2 text-sm font-medium text-slate-500">
                     {{ __('app.page.news_published_at') }} {{ optional($news->published_at)->format('d.m.Y H:i') ?: __('app.page.news_not_specified') }}
                 </p>
-                @if(!empty($news->summary))
+                @if(!empty($news->getLocalized('summary')))
                     <p class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed text-slate-700 md:text-lg">
-                        {{ $news->summary }}
+                        {{ $news->getLocalized('summary') }}
                     </p>
                 @endif
 
                 <div class="prose prose-slate mt-6 max-w-none">
-                    {!! $news->content !!}
+                    {!! $news->getLocalized('content') !!}
                 </div>
 
                 @php
@@ -48,7 +48,7 @@
                             @foreach($galleryImages as $image)
                                 <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
                                     <div class="w-full overflow-hidden rounded-lg bg-white p-2">
-                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} {{ __('app.page.news_gallery_image') }}" class="mx-auto block h-auto max-h-[220px] w-full object-contain">
+                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->getLocalized('title') }} {{ __('app.page.news_gallery_image') }}" class="mx-auto block h-auto max-h-[220px] w-full object-contain">
                                     </div>
                                 </a>
                             @endforeach
@@ -102,7 +102,7 @@
                     <div class="mt-4 space-y-3">
                 @forelse($relatedNews as $item)
                     <a href="{{ route('news.show', ['news' => $item->id]) }}" class="block rounded-xl border border-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-cyan-200 hover:bg-cyan-50/40 hover:text-cyan-800">
-                        {{ $item->title }}
+                        {{ $item->getLocalized('title') }}
                     </a>
                 @empty
                     <p class="text-sm text-slate-500">{{ __('app.page.no_other_news') }}</p>

@@ -277,6 +277,7 @@ return [
         'news_view_all_short'   => 'Tumunu Gor',
         'news_published_at'     => 'Yayin Tarihi:',
         'news_not_specified'    => 'Belirtilmedi',
+        'news_new'              => 'Yeni',
         'news_gallery'          => 'Haber Galerisi',
         'news_gallery_image'    => 'galeri gorseli',
         'other_news'            => 'Diger Haberler',

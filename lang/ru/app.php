@@ -277,6 +277,7 @@ return [
         'news_view_all_short'   => 'Смотреть все',
         'news_published_at'     => 'Дата публикации:',
         'news_not_specified'    => 'Не указано',
+        'news_new'              => 'Новое',
         'news_gallery'          => 'Галерея новости',
         'news_gallery_image'    => 'изображение галереи',
         'other_news'            => 'Другие новости',

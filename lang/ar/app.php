@@ -277,6 +277,7 @@ return [
         'news_view_all_short'   => 'عرض الكل',
         'news_published_at'     => 'تاريخ النشر:',
         'news_not_specified'    => 'غير محدد',
+        'news_new'              => 'جديد',
         'news_gallery'          => 'معرض الأخبار',
         'news_gallery_image'    => 'صورة المعرض',
         'other_news'            => 'أخبار أخرى',
