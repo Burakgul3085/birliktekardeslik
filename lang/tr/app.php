@@ -242,6 +242,8 @@ return [
         'press_empty_desc'      => 'Bu sayfa içeriği ve dosyaları admin panelde Basın Kiti Sayfası Alanları bölümünden düzenlenecektir.',
         /* Faaliyetler sayfası */
         'activities_search'     => 'Faaliyet ara...',
+        'activities_page_title' => 'Faaliyetler',
+        'activities_intro'      => 'Topluma değer katan yardım, eğitim ve dayanışma çalışmalarımızı bu alandan inceleyebilirsiniz.',
         'activities_all'        => 'Tümü',
         'activities_ongoing'    => 'Devam Ediyor',
         'activities_done'       => 'Tamamlandı',

@@ -242,6 +242,8 @@ return [
         'press_empty_desc'      => 'This page content and files can be managed from the Press Kit Page Fields section in the admin panel.',
         /* Activities page */
         'activities_search'     => 'Search activities...',
+        'activities_page_title' => 'Activities',
+        'activities_intro'      => 'You can review our aid, education, and solidarity projects that create social value from this section.',
         'activities_all'        => 'All',
         'activities_ongoing'    => 'Ongoing',
         'activities_done'       => 'Completed',

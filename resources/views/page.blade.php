@@ -13,6 +13,7 @@
             'resmi-belgiler' => __('app.page.official_page_title'),
             'baskanin-mesaji' => __('app.page.president_message_title'),
             'vizyon-misyon' => __('app.page.vision_page_title'),
+            'faaliyetler' => __('app.page.activities_page_title'),
         ];
         $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
             ? $pageHeroTitleMap[$page->slug]
@@ -409,6 +410,9 @@
             $fq     = request('q', '');
             $fstat  = request('status', '');
             $fsort  = request('sort', 'default');
+            $activitiesIntroHtml = ($isTr && ! empty($page->content))
+                ? (string) $page->content
+                : '<p>' . e(__('app.page.activities_intro')) . '</p>';
 
             $actQuery = \App\Models\Project::query()->active();
 
@@ -430,9 +434,9 @@
             $pageUrl    = request()->url();
         @endphp
         <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:py-14">
-            @if (! empty($page->content))
+            @if (! empty($activitiesIntroHtml))
                 <div class="mx-auto mb-8 max-w-4xl rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center text-sm leading-7 text-slate-600 shadow-sm md:text-base">
-                    {!! $page->content !!}
+                    {!! $activitiesIntroHtml !!}
                 </div>
             @endif
 
