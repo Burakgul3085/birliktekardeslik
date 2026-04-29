@@ -121,11 +121,13 @@
 
         /* Event delegation — document seviyesinde, Alpine'dan tamamen bağımsız */
         document.addEventListener('click', function(e) {
+            console.log('[BKD] click target:', e.target.tagName, e.target.getAttribute('data-lang-btn'));
             var btn = e.target.closest('[data-lang-btn]');
             if (!btn) return;
-            e.stopPropagation();
+            console.log('[BKD] lang button clicked:', btn.getAttribute('data-lang-btn'));
             window.switchLang(btn.getAttribute('data-lang-btn'));
         });
+        console.log('[BKD] Dil sistemi yuklendi. switchLang:', typeof window.switchLang);
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
