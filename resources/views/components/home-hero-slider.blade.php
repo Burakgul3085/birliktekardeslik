@@ -2,11 +2,32 @@
     'slides' => [],
 ])
 
+@php
+    $firstImage = $slides[0]['image'] ?? null;
+@endphp
+
+{{-- Statik fallback: Alpine.js başlamazsa (proxy, JS hata vb.) bu görünür --}}
+@if($firstImage)
+<div
+    id="hero-static-fallback"
+    class="relative w-full overflow-hidden bg-slate-100"
+    style="height:clamp(260px,58svh,600px)"
+>
+    <img
+        src="{{ $firstImage }}"
+        alt="Hero"
+        class="h-full w-full object-contain object-center"
+        loading="eager"
+    >
+</div>
+@endif
+
 <section
-    class="relative z-10 w-full max-w-[100vw] overflow-x-hidden notranslate"
+    class="relative z-10 w-full max-w-[100vw] overflow-x-hidden"
     aria-label="Ana tanıtım slider"
     translate="no"
     x-data="homeHeroSlider({ slides: @js($slides) })"
+    x-init="$nextTick(function(){ var f=document.getElementById('hero-static-fallback'); if(f) f.remove(); })"
     @touchstart.passive="startTouch($event)"
     @touchend.passive="endTouch($event)"
 >
