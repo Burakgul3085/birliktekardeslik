@@ -167,6 +167,17 @@ return [
             'Sustainable nutrition-focused field projects',
         ],
 
+        /* 4-step cards */
+        'step_1_title' => 'Grow Hope',
+        'step_1_text'  => 'A small contribution turns into great hope for those in need.',
+        'step_2_title' => 'Deliver Support',
+        'step_2_text'  => 'Your donation is quickly distributed in the field as food, water and hygiene aid.',
+        'step_3_title' => 'Touch Lives',
+        'step_3_text'  => 'Families gain safer access to clean water and basic nutrition.',
+        'step_4_title' => 'Strengthen Solidarity',
+        'step_4_text'  => 'Continuous support contributes to lasting recovery in the region.',
+        'steps_donate' => 'Donate',
+
         /* Activities section */
         'activities_title'     => 'Our Activities',
         'activities_desc'      => 'We deliver fast and sustainable solutions to those in need with clean water, food and emergency aid support in crisis regions.',

@@ -167,6 +167,17 @@ return [
             'Sürdürülebilir beslenme odaklı saha projeleri',
         ],
 
+        /* 4'lü adım kartları */
+        'step_1_title' => 'Umudu Büyüt',
+        'step_1_text'  => 'Küçük bir destek, ihtiyaç sahipleri için büyük bir umuda dönüşür.',
+        'step_2_title' => 'Destek Ulaştır',
+        'step_2_text'  => 'Bağışın gıda, su ve hijyen desteği olarak sahada hızlıca dağıtılır.',
+        'step_3_title' => 'Hayata Dokun',
+        'step_3_text'  => 'Aileler temiz suya ve temel beslenme imkanına daha güvenli şekilde erişir.',
+        'step_4_title' => 'Dayanışmayı Güçlendir',
+        'step_4_text'  => 'Sürekli destekle bölgede kalıcı iyileşmeye katkı sağlanır.',
+        'steps_donate' => 'Bağış Yap',
+
         /* Faaliyetlerimiz bölümü */
         'activities_title'     => 'Faaliyetlerimiz',
         'activities_desc'      => 'Kriz bölgelerinde temiz su, gıda ve acil yardım desteğiyle ihtiyaç sahiplerine hızlı ve sürdürülebilir çözümler ulaştırıyoruz.',

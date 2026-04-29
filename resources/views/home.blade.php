@@ -225,38 +225,38 @@
                     <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-cyan-700 group-hover:shadow-lg group-hover:shadow-cyan-700/30">
                         <svg class="h-7 w-7 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21a1 1 0 0 1-.7-.3l-6-6a5 5 0 1 1 7.1-7.1l.6.6.6-.6a5 5 0 1 1 7.1 7.1l-6 6a1 1 0 0 1-.7.3Z"/></svg>
                     </span>
-                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">Umudu Büyüt</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">Küçük bir destek, ihtiyaç sahipleri için büyük bir umuda dönüşür.</p>
+                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">{{ __('app.home.step_1_title') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">{{ __('app.home.step_1_text') }}</p>
                 </article>
                 <article class="group relative rounded-2xl bg-slate-50 p-4 text-center ring-1 ring-transparent transition-all duration-500 ease-out hover:-translate-y-1.5 hover:bg-white hover:shadow-xl hover:shadow-cyan-900/10 hover:ring-cyan-100">
                     <span class="absolute left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-white transition-transform duration-500 group-hover:scale-110">02</span>
                     <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-cyan-700 group-hover:shadow-lg group-hover:shadow-cyan-700/30">
                         <svg class="h-7 w-7 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 11a1 1 0 0 1 1-1h5V5a1 1 0 1 1 2 0v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 0 1-1-1Z"/></svg>
                     </span>
-                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">Destek Ulaştır</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">Bağışın gıda, su ve hijyen desteği olarak sahada hızlıca dağıtılır.</p>
+                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">{{ __('app.home.step_2_title') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">{{ __('app.home.step_2_text') }}</p>
                 </article>
                 <article class="group relative rounded-2xl bg-slate-50 p-4 text-center ring-1 ring-transparent transition-all duration-500 ease-out hover:-translate-y-1.5 hover:bg-white hover:shadow-xl hover:shadow-cyan-900/10 hover:ring-cyan-100">
                     <span class="absolute left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-white transition-transform duration-500 group-hover:scale-110">03</span>
                     <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-cyan-700 group-hover:shadow-lg group-hover:shadow-cyan-700/30">
                         <svg class="h-7 w-7 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2s6 7 6 11a6 6 0 1 1-12 0c0-4 6-11 6-11Z"/></svg>
                     </span>
-                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">Hayata Dokun</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">Aileler temiz suya ve temel beslenme imkanına daha güvenli şekilde erişir.</p>
+                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">{{ __('app.home.step_3_title') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">{{ __('app.home.step_3_text') }}</p>
                 </article>
                 <article class="group relative rounded-2xl bg-slate-50 p-4 text-center ring-1 ring-transparent transition-all duration-500 ease-out hover:-translate-y-1.5 hover:bg-white hover:shadow-xl hover:shadow-cyan-900/10 hover:ring-cyan-100">
                     <span class="absolute left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-white transition-transform duration-500 group-hover:scale-110">04</span>
                     <span class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-cyan-700 group-hover:shadow-lg group-hover:shadow-cyan-700/30">
                         <svg class="h-7 w-7 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 12a1 1 0 0 1 1-1h3.28l1.36-4.08a1 1 0 0 1 1.91.03L12.72 11H16a1 1 0 0 1 .8.4l1.45 1.93 1.78-3.56a1 1 0 0 1 1.9.45V18a1 1 0 1 1-2 0v-3.76l-.9 1.8a1 1 0 0 1-1.7.12L15.5 13H12a1 1 0 0 1-.95-.68l-1.1-3.3-.95 2.86A1 1 0 0 1 8 13H4a1 1 0 0 1-1-1Z"/></svg>
                     </span>
-                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">Dayanışmayı Güçlendir</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">Sürekli destekle bölgede kalıcı iyileşmeye katkı sağlanır.</p>
+                    <h3 class="mt-3 text-lg font-bold text-slate-900 transition-colors duration-500 group-hover:text-cyan-700">{{ __('app.home.step_4_title') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-slate-700">{{ __('app.home.step_4_text') }}</p>
                 </article>
             </div>
 
             <div class="mt-7 flex justify-center">
                 <a href="{{ route('donations') }}" class="group inline-flex min-w-[220px] items-center justify-center gap-2 rounded-full bg-cyan-700 px-8 py-3 text-sm font-semibold text-white shadow-md transition-all duration-500 hover:-translate-y-1 hover:scale-[1.02] hover:bg-cyan-800 hover:shadow-xl hover:shadow-cyan-700/30">
-                    Bağış Yap
+                    {{ __('app.home.steps_donate') }}
                     <span class="text-base transition-transform duration-500 group-hover:translate-x-1 group-hover:scale-110">+</span>
                 </a>
             </div>
