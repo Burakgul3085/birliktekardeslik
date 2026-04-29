@@ -204,6 +204,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Quick contact panel (grid icon)
+    |--------------------------------------------------------------------------
+    */
+    'panel' => [
+        'contact_heading'     => 'Get in Touch',
+        'contact_subtitle'    => 'The information below is managed from the admin panel.',
+        'label_email'         => 'Email',
+        'label_address'       => 'Address',
+        'label_phone'         => 'Phone',
+        'volunteer_heading'   => 'Volunteer',
+        'volunteer_text'      => 'Would you like to join our activities? By volunteering your time and effort, you can contribute to the social good.',
+        'volunteer_btn'       => 'Online volunteer form',
+        'social_title'        => 'Follow us on social media',
+        'social_empty'        => 'Social media links will appear here once added in the admin panel.',
+        'close'               => 'Close panel',
+        'website_label'       => 'Website',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Form success messages
     |--------------------------------------------------------------------------
     */

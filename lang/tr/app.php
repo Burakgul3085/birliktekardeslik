@@ -204,6 +204,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Hızlı iletişim paneli (kare ikon)
+    |--------------------------------------------------------------------------
+    */
+    'panel' => [
+        'contact_heading'     => 'İletişime geçin',
+        'contact_subtitle'    => 'Aşağıdaki bilgiler yönetim panelinden yönetilir.',
+        'label_email'         => 'E-posta',
+        'label_address'       => 'Adres',
+        'label_phone'         => 'Telefon',
+        'volunteer_heading'   => 'Gönüllü ol',
+        'volunteer_text'      => 'Faaliyetlerimizde sizinle birlikte hareket etmek ister misiniz? Gönüllü olarak zamanınızı ve emeğinizi paylaşarak toplumsal faydaya katkı sağlayabilirsiniz.',
+        'volunteer_btn'       => 'Online gönüllülük formu',
+        'social_title'        => 'Sosyal medyada bizi takip edin',
+        'social_empty'        => 'Sosyal medya bağlantıları yönetim panelinde eklenince burada görünecektir.',
+        'close'               => 'Paneli kapat',
+        'website_label'       => 'Web sitesi',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Form başarı mesajları
     |--------------------------------------------------------------------------
     */
