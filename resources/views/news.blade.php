@@ -1,13 +1,13 @@
 <x-layouts.app>
-    <x-page-hero title="Haberler ve Duyurular" />
+    <x-page-hero :title="__('app.page.news_page_title')" />
 
     <section class="mx-auto max-w-7xl px-4 pt-10 md:px-6 md:pt-12">
         <div class="rounded-3xl bg-cyan-50/50 p-6 md:p-8">
             <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-700 ring-1 ring-cyan-100">
-                • Son Haberler
+                • {{ __('app.page.news_badge') }}
             </span>
             <p class="mt-3 max-w-4xl text-base leading-relaxed text-slate-600 md:text-lg">
-                Derneğimizin saha faaliyetlerinden güncel gelişmeleri, duyuruları ve bilgilendirmeleri bu alandan takip edebilirsiniz.
+                {{ __('app.page.news_intro') }}
             </p>
         </div>
     </section>
@@ -27,14 +27,14 @@
                         type="text"
                         name="q"
                         value="{{ $filters['q'] }}"
-                        placeholder="Haber veya duyuru ara..."
+                        placeholder="{{ __('app.page.news_search') }}"
                         class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100"
                     >
                 </div>
 
                 {{-- Sıralama --}}
                 <div class="flex gap-2">
-                    @foreach (['newest' => 'En Yeni', 'oldest' => 'En Eski'] as $val => $label)
+                    @foreach (['newest' => __('app.page.news_sort_newest'), 'oldest' => __('app.page.news_sort_oldest')] as $val => $label)
                         <button
                             type="submit"
                             name="sort"
@@ -56,14 +56,14 @@
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
-                        Temizle
+                        {{ __('app.page.activities_clear') }}
                     </a>
                 @endif
             </div>
 
             {{-- Sonuç sayısı --}}
             <p class="mt-3 text-sm text-slate-500">
-                <span class="font-semibold text-cyan-700">{{ $newsItems->total() }}</span> haber listeleniyor
+                <span class="font-semibold text-cyan-700">{{ $newsItems->total() }}</span> {{ __('app.page.news_count') }}
             </p>
         </form>
 
@@ -89,7 +89,7 @@
                             {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
                         </p>
                         <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">
-                            Haber Detayı
+                            {{ __('app.page.news_detail') }}
                         </a>
                     </div>
                 </article>
@@ -98,8 +98,8 @@
                     <svg class="mx-auto mb-4 h-14 w-14 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p class="text-lg font-semibold text-slate-500">Aradığınız kritere uygun haber bulunamadı.</p>
-                    <a href="{{ route('news.index') }}" class="mt-4 inline-flex items-center rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">Tüm Haberleri Gör</a>
+                    <p class="text-lg font-semibold text-slate-500">{{ __('app.page.news_empty') }}</p>
+                    <a href="{{ route('news.index') }}" class="mt-4 inline-flex items-center rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">{{ __('app.page.news_view_all') }}</a>
                 </div>
             @endforelse
         </div>

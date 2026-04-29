@@ -4,10 +4,10 @@
     <section class="mx-auto max-w-7xl px-4 pt-10 md:px-6 md:pt-12">
         <div class="rounded-3xl bg-cyan-50/50 p-6 md:p-8">
             <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-700 ring-1 ring-cyan-100">
-                • Haber Detayı
+                • {{ __('app.page.news_detail') }}
             </span>
             <p class="mt-3 text-sm font-medium text-slate-500">
-                Yayın Tarihi: {{ optional($news->published_at)->format('d.m.Y H:i') ?: 'Belirtilmedi' }}
+                {{ __('app.page.news_published_at') }} {{ optional($news->published_at)->format('d.m.Y H:i') ?: __('app.page.news_not_specified') }}
             </p>
         </div>
     </section>
@@ -25,7 +25,7 @@
             <div class="mt-6">
                 <h2 class="text-3xl font-bold text-slate-900">{{ $news->title }}</h2>
                 <p class="mt-2 text-sm font-medium text-slate-500">
-                    Yayın Tarihi: {{ optional($news->published_at)->format('d.m.Y H:i') ?: 'Belirtilmedi' }}
+                    {{ __('app.page.news_published_at') }} {{ optional($news->published_at)->format('d.m.Y H:i') ?: __('app.page.news_not_specified') }}
                 </p>
                 @if(!empty($news->summary))
                     <p class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed text-slate-700 md:text-lg">
@@ -43,12 +43,12 @@
                 @endphp
                 @if($galleryImages->isNotEmpty() || $galleryVideos->isNotEmpty())
                     <div class="mt-8" x-data="{ previewOpen: false, previewType: null, previewSrc: '' }">
-                        <h2 class="text-xl font-bold text-slate-900">Haber Galerisi</h2>
+                        <h2 class="text-xl font-bold text-slate-900">{{ __('app.page.news_gallery') }}</h2>
                         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach($galleryImages as $image)
                                 <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
                                     <div class="w-full overflow-hidden rounded-lg bg-white p-2">
-                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} galeri görseli" class="mx-auto block h-auto max-h-[220px] w-full object-contain">
+                                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $news->title }} {{ __('app.page.news_gallery_image') }}" class="mx-auto block h-auto max-h-[220px] w-full object-contain">
                                     </div>
                                 </a>
                             @endforeach
@@ -60,7 +60,7 @@
                                 >
                                     <video controls class="h-auto max-h-[220px] w-full rounded-lg bg-black/90 object-contain">
                                         <source src="{{ asset('storage/' . $video) }}">
-                                        Tarayıcınız video etiketini desteklemiyor.
+                                        {{ __('app.page.video_not_supported') }}
                                     </video>
                                 </button>
                             @endforeach
@@ -78,7 +78,7 @@
                                     type="button"
                                     class="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
                                     @click="previewOpen = false; previewSrc = ''; previewType = null"
-                                    aria-label="Önizlemeyi kapat"
+                                    aria-label="{{ __('app.page.close_preview') }}"
                                 >✕</button>
 
                                 <template x-if="previewType === 'video' && previewSrc">
@@ -96,8 +96,8 @@
             <aside class="space-y-4">
                 <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-slate-900">Diğer Haberler</h3>
-                        <a href="{{ route('news.index') }}" class="text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">Tümünü Gör</a>
+                        <h3 class="text-lg font-semibold text-slate-900">{{ __('app.page.other_news') }}</h3>
+                        <a href="{{ route('news.index') }}" class="text-sm font-semibold text-cyan-700 transition hover:text-cyan-800">{{ __('app.page.news_view_all_short') }}</a>
                     </div>
                     <div class="mt-4 space-y-3">
                 @forelse($relatedNews as $item)
@@ -105,7 +105,7 @@
                         {{ $item->title }}
                     </a>
                 @empty
-                    <p class="text-sm text-slate-500">Henüz başka haber bulunmuyor.</p>
+                    <p class="text-sm text-slate-500">{{ __('app.page.no_other_news') }}</p>
                 @endforelse
                     </div>
                 </div>
