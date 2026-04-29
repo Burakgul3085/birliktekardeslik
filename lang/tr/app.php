@@ -73,6 +73,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Gönüllü Ol sayfası
+    |--------------------------------------------------------------------------
+    */
+    'volunteer' => [
+        'page_title'            => 'Gönüllü Ol',
+        'heading_line1'         => 'Faaliyetlerimize Gönüllü Katkı',
+        'heading_line2'         => 'Sağlamak İster misin?',
+        'desc'                  => 'Çalışmalarımızda bizimle birlikte yer almak ister misin? Bilgilerini aşağıdaki formdan ileterek gönüllü olmak için başvuru yapabilirsin.',
+        'soon'                  => 'En kısa sürede görüşmek üzere 👋',
+        'placeholder_name'      => 'Ad Soyad',
+        'placeholder_email'     => 'E-posta',
+        'placeholder_lastname'  => 'Soyad',
+        'placeholder_phone'     => 'Telefon',
+        'preference_default'    => 'Gönüllülük Alan Tercihi',
+        'placeholder_about'     => 'Kendinizi kısaca tanıtır mısınız, nasıl yardımcı olabilirsiniz?',
+        'kvkk_link'             => 'KVKK Aydınlatma Metni',
+        'kvkk_read'             => "'ni okudum, farkındayım.",
+        'volunteer_link'        => 'Gönüllü Başvuru Aydınlatma Metni',
+        'volunteer_read'        => "'ni okudum, farkındayım.",
+        'submit'                => 'Gönder',
+        'phone_label'           => 'Telefon',
+        'email_label'           => 'E-posta',
+        'address_label'         => 'Adres',
+        'kvkk_modal_title'      => 'KVKK Aydınlatma Metni',
+        'vol_modal_title'       => 'Gönüllü Başvuru Aydınlatma Metni',
+        'close'                 => 'Kapat',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | İletişim sayfası
     |--------------------------------------------------------------------------
     */

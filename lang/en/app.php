@@ -73,6 +73,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Volunteer page
+    |--------------------------------------------------------------------------
+    */
+    'volunteer' => [
+        'page_title'            => 'Volunteer',
+        'heading_line1'         => 'Would You Like to Volunteer',
+        'heading_line2'         => 'in Our Activities?',
+        'desc'                  => 'Would you like to join us in our work? Fill in the form below to apply for volunteering.',
+        'soon'                  => 'We look forward to hearing from you soon 👋',
+        'placeholder_name'      => 'First Name',
+        'placeholder_email'     => 'Email',
+        'placeholder_lastname'  => 'Last Name',
+        'placeholder_phone'     => 'Phone',
+        'preference_default'    => 'Volunteering Area Preference',
+        'placeholder_about'     => 'Could you briefly introduce yourself and explain how you can help?',
+        'kvkk_link'             => 'GDPR Disclosure Text',
+        'kvkk_read'             => 'I have read and acknowledge.',
+        'volunteer_link'        => 'Volunteer Application Disclosure',
+        'volunteer_read'        => 'I have read and acknowledge.',
+        'submit'                => 'Submit',
+        'phone_label'           => 'Phone',
+        'email_label'           => 'Email',
+        'address_label'         => 'Address',
+        'kvkk_modal_title'      => 'GDPR Disclosure Text',
+        'vol_modal_title'       => 'Volunteer Application Disclosure',
+        'close'                 => 'Close',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Contact page
     |--------------------------------------------------------------------------
     */
