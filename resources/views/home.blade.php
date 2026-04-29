@@ -269,9 +269,9 @@
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <span class="inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">
-                        • Son Haberler
+                        • {{ __('app.home.news_badge') }}
                     </span>
-                    <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">Haberler ve Duyurular</h2>
+                    <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">{{ __('app.home.news_title') }}</h2>
                 </div>
             </div>
         </div>
@@ -311,7 +311,7 @@
                                 {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
                             </p>
                             <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">
-                                Haber Detayı
+                                {{ __('app.home.news_detail') }}
                             </a>
                         </div>
                     </article>
@@ -339,7 +339,7 @@
                                 {{ \Illuminate\Support\Str::limit($news->summary ?: strip_tags((string) $news->content), 170) }}
                             </p>
                             <a href="{{ route('news.show', ['news' => $news->id]) }}" class="mt-5 inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">
-                                Haber Detayı
+                                {{ __('app.home.news_detail') }}
                             </a>
                         </div>
                     </article>
@@ -349,7 +349,7 @@
 
         <div class="mx-auto mt-5 flex max-w-7xl justify-center px-4 md:px-6">
             <a href="{{ route('news.index') }}" class="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-6 py-2.5 text-sm font-semibold text-cyan-700 transition hover:border-cyan-400 hover:bg-cyan-100 hover:text-cyan-900">
-                Tüm Haberleri Gör
+                {{ __('app.home.news_view_all') }}
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </a>
         </div>

@@ -167,6 +167,12 @@ return [
             'Sürdürülebilir beslenme odaklı saha projeleri',
         ],
 
+        /* Haberler ve Duyurular bölümü */
+        'news_badge'     => 'Son Haberler',
+        'news_title'     => 'Haberler ve Duyurular',
+        'news_detail'    => 'Haber Detayı',
+        'news_view_all'  => 'Tüm Haberleri Gör',
+
         /* 4'lü adım kartları */
         'step_1_title' => 'Umudu Büyüt',
         'step_1_text'  => 'Küçük bir destek, ihtiyaç sahipleri için büyük bir umuda dönüşür.',

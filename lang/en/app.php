@@ -167,6 +167,12 @@ return [
             'Sustainable nutrition-focused field projects',
         ],
 
+        /* News & Announcements section */
+        'news_badge'     => 'Latest News',
+        'news_title'     => 'News and Announcements',
+        'news_detail'    => 'News Detail',
+        'news_view_all'  => 'View All News',
+
         /* 4-step cards */
         'step_1_title' => 'Grow Hope',
         'step_1_text'  => 'A small contribution turns into great hope for those in need.',
