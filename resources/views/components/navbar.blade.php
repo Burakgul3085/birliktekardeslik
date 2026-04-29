@@ -9,8 +9,9 @@ window.switchLang = function(lang) {
     /* Türkçe'ye dön */
     if (lang === 'tr') {
         if (location.hostname === BKD_PROXY) {
-            /* Proxy'deyken history.back() aynı sekmede orijinale döner */
-            history.back();
+            /* Proxy domain'i terk etmeden _x_tr_tl=tr ile çevirisiz versiyon
+               — modal tetiklenmez çünkü aynı domain'de kalıyoruz */
+            location.href = location.pathname + '?_x_tr_sl=tr&_x_tr_tl=tr&_x_tr_hl=tr&_x_tr_pto=wapp';
         } else {
             location.reload();
         }
