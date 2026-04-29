@@ -131,10 +131,32 @@
         });
     </script>
 
-    <!-- Google Translate widget scripti — googleapis CDN -->
-    <script
-        src="https://translate.googleapis.com/translate_a/element.js?cb=googleTranslateElementInit"
-        onerror="console.warn('BKD: GT script yuklenemedi')">
+    <!-- Google Translate widget scripti — dinamik yükleme + durum göstergesi -->
+    <script>
+        (function() {
+            var wrap = document.getElementById('bkd-gt-wrap');
+
+            var s = document.createElement('script');
+            s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+
+            s.onload = function() {
+                if (wrap) { wrap.title = 'GT script yuklendi'; }
+            };
+
+            s.onerror = function() {
+                /* Script yüklenemedi — kullanıcıya görünür mesaj */
+                if (wrap) {
+                    wrap.style.opacity   = '1';
+                    wrap.style.pointerEvents = 'auto';
+                    wrap.style.padding   = '8px 12px';
+                    wrap.style.fontSize  = '12px';
+                    wrap.style.color     = '#b91c1c';
+                    wrap.innerHTML = '⚠ Çeviri servisi yüklenemedi.<br><small>Lütfen reklam engelleyiciyi kapatın.</small>';
+                }
+            };
+
+            document.head.appendChild(s);
+        })();
     </script>
 </body>
 </html>
