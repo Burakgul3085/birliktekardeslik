@@ -286,7 +286,7 @@ class HomeController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.');
+        return back()->with('success', __('app.messages.contact_success'));
     }
 
     public function submitVolunteer(Request $request): RedirectResponse
@@ -363,6 +363,6 @@ class HomeController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Gönüllülük başvurunuz başarıyla iletildi. En kısa sürede size dönüş yapacağız.');
+        return back()->with('success', __('app.messages.volunteer_success'));
     }
 }

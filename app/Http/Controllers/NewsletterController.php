@@ -45,7 +45,7 @@ class NewsletterController extends Controller
 
         $this->sendWelcomeEmail($subscriber);
 
-        return back()->with('newsletter_success', 'E-bülten kaydınız alındı. E-posta kutunuzu kontrol edin.');
+        return back()->with('newsletter_success', __('app.messages.newsletter_success'));
     }
 
     public function unsubscribe(string $token): RedirectResponse
@@ -59,7 +59,7 @@ class NewsletterController extends Controller
         $sub->is_active = false;
         $sub->save();
 
-        return redirect()->route('home')->with('newsletter_success', 'E-bülten aboneliğiniz sonlandırıldı. İlginiz için teşekkür ederiz.');
+        return redirect()->route('home')->with('newsletter_success', __('app.messages.newsletter_unsubscribe'));
     }
 
     private function sendWelcomeEmail(NewsletterSubscriber $subscriber): void

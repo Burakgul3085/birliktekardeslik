@@ -202,4 +202,16 @@ return [
         'focus_3_text'  => 'We carry out regular humanitarian aid activities focused on food and drinking water.',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form success messages
+    |--------------------------------------------------------------------------
+    */
+    'messages' => [
+        'newsletter_success'     => 'You have successfully subscribed to our newsletter. Please check your email.',
+        'newsletter_unsubscribe' => 'Your newsletter subscription has been cancelled. Thank you for your interest.',
+        'contact_success'        => 'Your message has been sent successfully. We will get back to you as soon as possible.',
+        'volunteer_success'      => 'Your volunteer application has been successfully submitted. We will get back to you as soon as possible.',
+    ],
+
 ];

@@ -202,4 +202,16 @@ return [
         'focus_3_text'  => 'Yemek ve içme suyu odağında düzenli insani yardım çalışmaları yürütüyoruz.',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form başarı mesajları
+    |--------------------------------------------------------------------------
+    */
+    'messages' => [
+        'newsletter_success'     => 'E-bülten kaydınız alındı. E-posta kutunuzu kontrol edin.',
+        'newsletter_unsubscribe' => 'E-bülten aboneliğiniz sonlandırıldı. İlginiz için teşekkür ederiz.',
+        'contact_success'        => 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.',
+        'volunteer_success'      => 'Gönüllülük başvurunuz başarıyla iletildi. En kısa sürede size dönüş yapacağız.',
+    ],
+
 ];
