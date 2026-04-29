@@ -135,6 +135,13 @@
 
         /* Widget başlatıldığında kaydedilen dili uygula */
         function googleTranslateElementInit() {
+            /* TANI: widget başladı mı? */
+            var dbg = document.createElement('div');
+            dbg.id = 'bkd-dbg';
+            dbg.style.cssText = 'position:fixed;bottom:10px;left:10px;background:#111;color:#0f0;padding:6px 10px;font:11px monospace;z-index:99999;border-radius:6px;max-width:320px';
+            dbg.textContent = '[BKD] GT widget baslatildi';
+            document.body.appendChild(dbg);
+
             new google.translate.TranslateElement({
                 pageLanguage: 'tr',
                 autoDisplay: false
@@ -142,9 +149,27 @@
 
             var savedLang = localStorage.getItem('bkd_lang');
             if (savedLang && savedLang !== 'tr') {
-                setTimeout(function() {
-                    doGTranslate('tr|' + savedLang);
-                }, 800);
+                var att = 0;
+                var t = setInterval(function() {
+                    att++;
+                    var allSel = document.getElementsByTagName('select');
+                    var sel = null;
+                    for (var i = 0; i < allSel.length; i++) {
+                        if (allSel[i].className.indexOf('goog-te-combo') !== -1) { sel = allSel[i]; break; }
+                    }
+                    dbg.textContent = '[BKD] deneme:' + att + ' sel:' + (sel ? 'VAR opts:' + sel.options.length : 'YOK');
+                    if (sel && sel.options.length > 0) {
+                        clearInterval(t);
+                        sel.value = savedLang;
+                        bkdFireEvent(sel, 'change');
+                        bkdFireEvent(sel, 'change');
+                        dbg.textContent = '[BKD] UYGULANDI: ' + savedLang;
+                    } else if (att > 40) {
+                        clearInterval(t);
+                        dbg.style.color = '#f00';
+                        dbg.textContent = '[BKD] BASARISIZ: select bulunamadi';
+                    }
+                }, 300);
             }
         }
     </script>
