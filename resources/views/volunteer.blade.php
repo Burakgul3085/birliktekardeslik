@@ -3,10 +3,13 @@
 
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6" x-data="{ policyModal: null }">
         @php
-            $defaultKvkk = "Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında gönüllü başvuru sürecinde toplanan kişisel verilerin işlenmesine ilişkin bilgilendirme amacı taşır.\n\nForm üzerinden paylaştığınız ad, soyad, e-posta, telefon ve başvuru içeriği; başvurunuzu değerlendirmek, sizinle iletişime geçmek, gönüllülük süreçlerini planlamak ve gerektiğinde yasal yükümlülükleri yerine getirmek amacıyla işlenir.\n\nKişisel verileriniz yalnızca yetkili dernek birimleri tarafından erişilebilir şekilde korunur, üçüncü kişilerle yalnızca hukuki zorunluluk veya açık rızanız bulunan hallerde paylaşılır.\n\nKVKK kapsamındaki erişim, düzeltme, silme, işleme itiraz ve benzeri taleplerinizi derneğimizin iletişim e-posta adresi üzerinden iletebilirsiniz.";
-            $defaultVolunteerClarification = "Gönüllü başvuru formunu doldurarak paylaştığınız bilgilerin doğru ve güncel olduğunu kabul etmiş olursunuz.\n\nBaşvurunuz, dernek faaliyet alanları ve ihtiyaçları doğrultusunda değerlendirilir. Uygun görülen adaylarla e-posta veya telefon üzerinden iletişime geçilir.\n\nGönüllülük başvurusu bir istihdam taahhüdü niteliği taşımaz; başvuru sonucu, faaliyet takvimi ve kontenjan durumuna göre değişiklik gösterebilir.\n\nBaşvuru sürecinde paylaştığınız içerik yalnızca gönüllülük değerlendirmesi amacıyla kullanılır ve dernek gizlilik politikası çerçevesinde saklanır.";
-            $kvkkText = $siteSettings->kvkk_text ?: $defaultKvkk;
-            $volunteerClarificationText = $siteSettings->volunteer_clarification_text ?: $defaultVolunteerClarification;
+            $isTr = app()->getLocale() === 'tr';
+            $kvkkText = $isTr
+                ? (trim((string) ($siteSettings->kvkk_text ?? '')) ?: __('app.legal.kvkk_content'))
+                : __('app.legal.kvkk_content');
+            $volunteerClarificationText = $isTr
+                ? (trim((string) ($siteSettings->volunteer_clarification_text ?? '')) ?: __('app.legal.clarification_content'))
+                : __('app.legal.clarification_content');
 
             $kvkkModalTitle = __('app.volunteer.kvkk_modal_title');
             $volModalTitle  = __('app.volunteer.vol_modal_title');
