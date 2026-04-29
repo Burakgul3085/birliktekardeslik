@@ -21,11 +21,7 @@
         gtag('config', 'G-R2X10WDTGW');
     </script>
 
-    <!-- Çeviri stilleri -->
     <style>
-        .goog-te-banner-frame { display: none !important; }
-        body { top: 0 !important; }
-        #google_translate_element { position:fixed; left:-9999px; top:0; opacity:0; pointer-events:none; }
         [dir="rtl"] { text-align: right; }
     </style>
 
@@ -67,9 +63,6 @@
     </script>
 </head>
 <body>
-    <!-- Google Translate elementi — CSS ile ekran dışında, DOM'da tam -->
-    <div id="google_translate_element"></div>
-
     <div
         id="page-transition"
         class="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/88 opacity-0 transition-opacity duration-300"
@@ -85,11 +78,15 @@
     <main class="min-h-[70vh]">{{ $slot }}</main>
     <x-footer :site-settings="$siteSettings" />
 
-    <!-- Google Translate + Dil Uygulama -->
+    <!-- UI: Dil bayrak/kod güncellemesi -->
     <script>
-        /* UI güncelle (bayrak, kod, aktif stil) */
         document.addEventListener('DOMContentLoaded', function() {
             var lang = localStorage.getItem('bkd_lang') || 'tr';
+            /* Proxy URL'deyse dili URL'den oku */
+            if (location.hostname.indexOf('translate.goog') !== -1) {
+                var m = location.search.match(/_x_tr_tl=([a-z]+)/);
+                if (m) lang = m[1];
+            }
             var info = BKD_LANGS[lang] || BKD_LANGS.tr;
             document.querySelectorAll('[data-lang-flag]').forEach(function(el){ el.src = info.img; el.alt = info.code; });
             document.querySelectorAll('[data-lang-code]').forEach(function(el){ el.textContent = info.code; });
@@ -101,78 +98,6 @@
             });
             document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
         });
-
-        /* Google Translate'in kendi event tetikleme yöntemi */
-        function bkdFireEvent(el, ev) {
-            try {
-                var e = document.createEvent('HTMLEvents');
-                e.initEvent(ev, true, true);
-                el.dispatchEvent(e);
-            } catch(err) {}
-        }
-
-        /* doGTranslate — Google Translate'in resmi programatik API'si
-           select bulunamazsa 500ms sonra tekrar dener */
-        function doGTranslate(pair) {
-            if (!pair) return;
-            var parts = pair.split('|');
-            var target = parts[1];
-            var sel = null;
-            var allSel = document.getElementsByTagName('select');
-            for (var i = 0; i < allSel.length; i++) {
-                if (allSel[i].className.indexOf('goog-te-combo') !== -1) {
-                    sel = allSel[i]; break;
-                }
-            }
-            if (!sel || sel.options.length === 0) {
-                setTimeout(function() { doGTranslate(pair); }, 500);
-                return;
-            }
-            sel.value = target;
-            bkdFireEvent(sel, 'change');
-            bkdFireEvent(sel, 'change'); /* Google iki kez ister */
-        }
-
-        /* Widget başlatıldığında kaydedilen dili uygula */
-        function googleTranslateElementInit() {
-            /* TANI: widget başladı mı? */
-            var dbg = document.createElement('div');
-            dbg.id = 'bkd-dbg';
-            dbg.style.cssText = 'position:fixed;bottom:10px;left:10px;background:#111;color:#0f0;padding:6px 10px;font:11px monospace;z-index:99999;border-radius:6px;max-width:320px';
-            dbg.textContent = '[BKD] GT widget baslatildi';
-            document.body.appendChild(dbg);
-
-            new google.translate.TranslateElement({
-                pageLanguage: 'tr',
-                autoDisplay: false
-            }, 'google_translate_element');
-
-            var savedLang = localStorage.getItem('bkd_lang');
-            if (savedLang && savedLang !== 'tr') {
-                var att = 0;
-                var t = setInterval(function() {
-                    att++;
-                    var allSel = document.getElementsByTagName('select');
-                    var sel = null;
-                    for (var i = 0; i < allSel.length; i++) {
-                        if (allSel[i].className.indexOf('goog-te-combo') !== -1) { sel = allSel[i]; break; }
-                    }
-                    dbg.textContent = '[BKD] deneme:' + att + ' sel:' + (sel ? 'VAR opts:' + sel.options.length : 'YOK');
-                    if (sel && sel.options.length > 0) {
-                        clearInterval(t);
-                        sel.value = savedLang;
-                        bkdFireEvent(sel, 'change');
-                        bkdFireEvent(sel, 'change');
-                        dbg.textContent = '[BKD] UYGULANDI: ' + savedLang;
-                    } else if (att > 40) {
-                        clearInterval(t);
-                        dbg.style.color = '#f00';
-                        dbg.textContent = '[BKD] BASARISIZ: select bulunamadi';
-                    }
-                }, 300);
-            }
-        }
     </script>
-    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

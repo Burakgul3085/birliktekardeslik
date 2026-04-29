@@ -3,19 +3,26 @@
 window.switchLang = function(lang) {
     if (!lang) return;
     localStorage.setItem('bkd_lang', lang);
-    var h = location.hostname;
+
+    var originDomain = 'birliktekardeslik.org';
+    var proxyDomain  = 'birliktekardeslik-org.translate.goog';
+
+    /* Şu an proxy'de miyiz? */
+    var onProxy = location.hostname === proxyDomain;
+
     if (lang === 'tr') {
-        var exp = 'expires=Thu, 01 Jan 1970 00:00:01 GMT';
-        document.cookie = 'googtrans=; ' + exp + '; path=/';
-        document.cookie = 'googtrans=; ' + exp + '; path=/; domain=' + h;
-        document.cookie = 'googtrans=; ' + exp + '; path=/; domain=.' + h;
-    } else {
-        var v = '/tr/' + lang;
-        document.cookie = 'googtrans=' + v + '; path=/';
-        document.cookie = 'googtrans=' + v + '; path=/; domain=' + h;
-        document.cookie = 'googtrans=' + v + '; path=/; domain=.' + h;
+        /* Orijinal siteye dön */
+        window.location.href = 'https://' + originDomain + location.pathname + location.search;
+        return;
     }
-    location.reload();
+
+    /* Zaten proxy'deyse sadece dil parametresini güncelle */
+    var path   = location.pathname;
+    var search = location.search.replace(/[?&]_x_tr_tl=[^&]*/g, '');
+    var sep    = search ? '&' : '?';
+    var params = '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
+
+    window.location.href = 'https://' + proxyDomain + path + search + sep + params;
 };
 </script>
 
