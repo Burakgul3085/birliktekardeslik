@@ -106,11 +106,11 @@
                 <div class="grid items-center gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
                     <div class="space-y-2">
                         <h2 class="max-w-[280px] text-[44px] font-bold leading-[1.08] tracking-tight text-slate-900">
-                            {{ $activitySection->title ?: 'Faaliyetlerimiz' }}
+                            {{ $isTr ? ($activitySection->title ?: __('app.home.activities_title')) : __('app.home.activities_title') }}
                         </h2>
                     </div>
                     <p class="max-w-3xl text-base leading-relaxed text-slate-600 md:text-lg">
-                        {{ $activitySection->description ?: 'Kriz bölgelerinde temiz su, gıda ve acil yardım desteğiyle ihtiyaç sahiplerine hızlı ve sürdürülebilir çözümler ulaştırıyoruz.' }}
+                        {{ $isTr ? ($activitySection->description ?: __('app.home.activities_desc')) : __('app.home.activities_desc') }}
                     </p>
                 </div>
             </div>
@@ -133,7 +133,7 @@
                 {{-- Orijinal set --}}
                 @foreach($projects as $project)
                     @php
-                        $statusLabel = $project->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
+                        $statusLabel = $project->status === 'tamamlandi' ? __('app.home.status_completed') : __('app.home.status_ongoing');
                         $statusClass = $project->status === 'tamamlandi'
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
@@ -161,8 +161,8 @@
                                 </p>
                             @endif
                             <div class="mt-5 flex items-center gap-3">
-                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">Bağış Yap</a>
-                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">Faaliyet Detayı</a>
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">{{ __('app.home.donate') }}</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900">{{ __('app.home.activity_detail') }}</a>
                             </div>
                         </div>
                     </article>
@@ -171,7 +171,7 @@
                 {{-- Kopyalanmış set (sonsuz döngü için) --}}
                 @foreach($projects as $project)
                     @php
-                        $statusLabel = $project->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
+                        $statusLabel = $project->status === 'tamamlandi' ? __('app.home.status_completed') : __('app.home.status_ongoing');
                         $statusClass = $project->status === 'tamamlandi'
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
@@ -199,8 +199,8 @@
                                 </p>
                             @endif
                             <div class="mt-5 flex items-center gap-3">
-                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700" tabindex="-1">Bağış Yap</a>
-                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">Faaliyet Detayı</a>
+                                <a href="{{ route('donations') }}" class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700" tabindex="-1">{{ __('app.home.donate') }}</a>
+                                <a href="{{ route('activities.show', ['slug' => $project->slug]) }}" class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900" tabindex="-1">{{ __('app.home.activity_detail') }}</a>
                             </div>
                         </div>
                     </article>
@@ -210,7 +210,7 @@
 
         <div class="mx-auto mt-5 flex max-w-7xl justify-center px-4 md:px-6">
             <a href="{{ route('pages.show', ['slug' => 'faaliyetler']) }}" class="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-6 py-2.5 text-sm font-semibold text-cyan-700 transition hover:border-cyan-400 hover:bg-cyan-100 hover:text-cyan-900">
-                Tüm Faaliyetleri Gör
+                {{ __('app.home.activities_view_all') }}
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </a>
         </div>

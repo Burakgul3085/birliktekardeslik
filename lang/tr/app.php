@@ -167,6 +167,15 @@ return [
             'Sürdürülebilir beslenme odaklı saha projeleri',
         ],
 
+        /* Faaliyetlerimiz bölümü */
+        'activities_title'     => 'Faaliyetlerimiz',
+        'activities_desc'      => 'Kriz bölgelerinde temiz su, gıda ve acil yardım desteğiyle ihtiyaç sahiplerine hızlı ve sürdürülebilir çözümler ulaştırıyoruz.',
+        'activities_view_all'  => 'Tüm Faaliyetleri Gör',
+        'status_ongoing'       => 'Devam Ediyor',
+        'status_completed'     => 'Tamamlandı',
+        'activity_detail'      => 'Faaliyet Detayı',
+        'donate'               => 'Bağış Yap',
+
         /* Odak kartları */
         'focus_1_title' => 'Acil Gıda Desteği',
         'focus_1_text'  => 'Açlıkla mücadelede ihtiyaç sahibi ailelere acil gıda ve temel ihtiyaç desteği sunuyoruz.',

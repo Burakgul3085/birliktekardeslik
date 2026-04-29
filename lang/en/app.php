@@ -167,6 +167,15 @@ return [
             'Sustainable nutrition-focused field projects',
         ],
 
+        /* Activities section */
+        'activities_title'     => 'Our Activities',
+        'activities_desc'      => 'We deliver fast and sustainable solutions to those in need with clean water, food and emergency aid support in crisis regions.',
+        'activities_view_all'  => 'View All Activities',
+        'status_ongoing'       => 'Ongoing',
+        'status_completed'     => 'Completed',
+        'activity_detail'      => 'Activity Details',
+        'donate'               => 'Donate',
+
         /* Focus cards */
         'focus_1_title' => 'Emergency Food Support',
         'focus_1_text'  => 'We provide emergency food and essential supplies to families in need in the fight against hunger.',
