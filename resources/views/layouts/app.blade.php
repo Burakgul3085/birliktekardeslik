@@ -132,10 +132,23 @@
             }
         };
 
-        /* ── Sayfa yüklenince UI güncelle ── */
+        /* ── Sayfa yüklenince UI güncelle + proxy'de onclick kaldır ── */
         document.addEventListener('DOMContentLoaded', function() {
             var lang = localStorage.getItem('bkd_lang') || 'tr';
             bkdUpdateUI(lang);
+
+            /* Proxy'deyken: onclick tamamen kaldır, href'i proxy URL'e ayarla
+               Böylece tıklama = saf HTML link, JS yok = modal yok */
+            var PROXY_HOST = 'birliktekardeslik-org.translate.goog';
+            if (location.hostname === PROXY_HOST) {
+                document.querySelectorAll('[data-lang-btn]').forEach(function(el) {
+                    var l = el.getAttribute('data-lang-btn');
+                    el.removeAttribute('onclick');
+                    el.href = location.pathname +
+                        '?_x_tr_sl=tr&_x_tr_tl=' + l +
+                        '&_x_tr_hl=tr&_x_tr_pto=wapp';
+                });
+            }
         });
     </script>
 
