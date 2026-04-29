@@ -32,8 +32,71 @@
     class="sticky top-0 z-40 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur"
 >
     <div class="border-b border-cyan-800/60 bg-cyan-900 text-cyan-50">
-        <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4 md:px-6">
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] md:gap-x-5 md:text-xs">
+        @php
+            $topBarSocialMap = [
+                'instagram_url' => 'instagram',
+                'youtube_url'   => 'youtube',
+                'tiktok_url'    => 'tiktok',
+                'facebook_url'  => 'facebook',
+                'x_url'         => 'x',
+                'linkedin_url'  => 'linkedin',
+                'whatsapp_url'  => 'whatsapp',
+                'telegram_url'  => 'telegram',
+                'website_url'   => 'website',
+            ];
+            $topBarAria = [
+                'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok', 'facebook' => 'Facebook',
+                'x' => 'X (Twitter)', 'linkedin' => 'LinkedIn', 'whatsapp' => 'WhatsApp', 'telegram' => 'Telegram', 'website' => 'Web sitesi',
+            ];
+        @endphp
+
+        <div class="mx-auto max-w-7xl px-3 py-2 md:hidden">
+            <div class="mb-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+                @if(!empty($siteSettings->email))
+                    <a href="mailto:{{ $siteSettings->email }}" class="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5">
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path d="M2.94 5.5A2 2 0 0 1 4.8 4h10.4a2 2 0 0 1 1.86 1.5L10 9.88 2.94 5.5Z" /><path d="M2.8 7.25V14a2 2 0 0 0 2 2h10.4a2 2 0 0 0 2-2V7.25l-6.69 4.15a1 1 0 0 1-1.02 0L2.8 7.25Z" /></svg>
+                        <span class="max-w-[180px] truncate">{{ $siteSettings->email }}</span>
+                    </a>
+                @endif
+                @if(!empty($siteSettings->address))
+                    <span class="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5">
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path fill-rule="evenodd" d="M10 2.5a5.5 5.5 0 0 0-5.5 5.5c0 4.3 4.65 8.76 5.03 9.12a.7.7 0 0 0 .94 0c.38-.36 5.03-4.82 5.03-9.12A5.5 5.5 0 0 0 10 2.5Zm0 7.25a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5Z" clip-rule="evenodd" /></svg>
+                        <span class="max-w-[140px] truncate">{{ $siteSettings->address }}</span>
+                    </span>
+                @endif
+                @if(!empty($siteSettings->phone))
+                    <a href="tel:{{ preg_replace('/\s+/', '', $siteSettings->phone) }}" class="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5">
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5"><path d="M2 3.75A1.75 1.75 0 0 1 3.75 2h2.31c.83 0 1.54.58 1.7 1.39l.39 1.98a1.75 1.75 0 0 1-.5 1.57l-1.1 1.1a13.13 13.13 0 0 0 5.4 5.4l1.1-1.1a1.75 1.75 0 0 1 1.57-.5l1.98.4A1.75 1.75 0 0 1 18 13.94v2.31A1.75 1.75 0 0 1 16.25 18h-.75C8.6 18 2 11.4 2 3.75Z" /></svg>
+                        <span>{{ $siteSettings->phone }}</span>
+                    </a>
+                @endif
+            </div>
+            <div class="flex items-center justify-between gap-2">
+                <div class="no-scrollbar flex items-center gap-0.5 overflow-x-auto pr-1">
+                    @foreach ($topBarSocialMap as $field => $platform)
+                        @if (! empty($siteSettings->$field))
+                            <a
+                                href="{{ $siteSettings->$field }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-cyan-100/90 transition hover:bg-white/10 hover:text-white"
+                                title="{{ $topBarAria[$platform] ?? $platform }}"
+                                aria-label="{{ $topBarAria[$platform] ?? $platform }}"
+                            >
+                                <x-social-brand-icon :platform="$platform" icon-class="h-3 w-3" />
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
+                <div class="flex shrink-0 items-center gap-1">
+                    <a href="{{ route('donations') }}" class="rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-medium text-cyan-50 transition hover:bg-white/25">{{ __('app.nav.donate') }}</a>
+                    <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-2.5 py-1 text-[11px] font-medium text-cyan-50 transition hover:bg-white/10">{{ __('app.nav.volunteer') }}</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mx-auto hidden max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs md:flex md:px-6">
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
                 @if(!empty($siteSettings->email))
                     <span class="inline-flex items-center gap-1.5">
                         <svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path d="M2.94 5.5A2 2 0 0 1 4.8 4h10.4a2 2 0 0 1 1.86 1.5L10 9.88 2.94 5.5Z" /><path d="M2.8 7.25V14a2 2 0 0 0 2 2h10.4a2 2 0 0 0 2-2V7.25l-6.69 4.15a1 1 0 0 1-1.02 0L2.8 7.25Z" /></svg>
@@ -53,41 +116,23 @@
                     </span>
                 @endif
             </div>
-
-            <div class="flex flex-wrap items-center justify-start gap-1 text-[11px] sm:gap-1.5 md:justify-end md:gap-2 md:text-xs">
-                @php
-                    $topBarSocialMap = [
-                        'instagram_url' => 'instagram',
-                        'youtube_url'   => 'youtube',
-                        'tiktok_url'    => 'tiktok',
-                        'facebook_url'  => 'facebook',
-                        'x_url'         => 'x',
-                        'linkedin_url'  => 'linkedin',
-                        'whatsapp_url'  => 'whatsapp',
-                        'telegram_url'  => 'telegram',
-                        'website_url'   => 'website',
-                    ];
-                    $topBarAria = [
-                        'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok', 'facebook' => 'Facebook',
-                        'x' => 'X (Twitter)', 'linkedin' => 'LinkedIn', 'whatsapp' => 'WhatsApp', 'telegram' => 'Telegram', 'website' => 'Web sitesi',
-                    ];
-                @endphp
+            <div class="flex flex-wrap items-center justify-end gap-2">
                 @foreach ($topBarSocialMap as $field => $platform)
                     @if (! empty($siteSettings->$field))
                         <a
                             href="{{ $siteSettings->$field }}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full text-cyan-100/90 transition hover:bg-white/10 hover:text-white md:h-7 md:w-7"
+                            class="inline-flex h-7 w-7 items-center justify-center rounded-full text-cyan-100/90 transition hover:bg-white/10 hover:text-white"
                             title="{{ $topBarAria[$platform] ?? $platform }}"
                             aria-label="{{ $topBarAria[$platform] ?? $platform }}"
                         >
-                            <x-social-brand-icon :platform="$platform" icon-class="h-3 w-3 md:h-3.5 md:w-3.5" />
+                            <x-social-brand-icon :platform="$platform" icon-class="h-3.5 w-3.5" />
                         </a>
                     @endif
                 @endforeach
-                <a href="{{ route('donations') }}" class="ml-1 rounded-full bg-white/15 px-2.5 py-1 font-medium text-cyan-50 transition hover:bg-white/25 sm:ml-2 md:px-3 md:py-1.5">{{ __('app.nav.donate') }}</a>
-                <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-2.5 py-1 font-medium text-cyan-50 transition hover:bg-white/10 md:px-3 md:py-1.5">{{ __('app.nav.volunteer') }}</a>
+                <a href="{{ route('donations') }}" class="ml-2 rounded-full bg-white/15 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/25">{{ __('app.nav.donate') }}</a>
+                <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/10">{{ __('app.nav.volunteer') }}</a>
             </div>
         </div>
     </div>
