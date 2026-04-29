@@ -98,6 +98,7 @@
                         ] as $lang)
                         <button
                             type="button"
+                            onclick="window.switchLang('{{ $lang['code'] }}')"
                             data-lang-btn="{{ $lang['code'] }}"
                             class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left text-sm text-slate-700 transition last:border-0 hover:bg-cyan-50 hover:text-cyan-700"
                         >
@@ -259,6 +260,7 @@
                         ] as $lang)
                         <button
                             type="button"
+                            onclick="window.switchLang('{{ $lang['code'] }}')"
                             data-lang-btn="{{ $lang['code'] }}"
                             class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50"
                         >
