@@ -17,10 +17,23 @@ window.switchLang = function(lang) {
         return;
     }
 
-    /* Önce Google Translate widget select'ini dene (15 × 300ms = 4.5sn) */
+    /* Proxy fallback fonksiyonu */
+    function bkdProxy() {
+        var qs  = location.search.replace(/[?&]_x_tr_[^&]*/g, '');
+        var sep = qs ? '&' : '?';
+        location.href = 'https://' + BKD_PROXY + location.pathname + qs + sep +
+            '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
+    }
+
+    /* Script zaten başarısız olduysa anında proxy'e git */
+    if (window.BKD_GT_FAILED) { bkdProxy(); return; }
+
+    /* Widget select'ini dene — max 2sn, başarısız olunca proxy */
     var tries = 0;
     var timer = setInterval(function() {
         tries++;
+        /* Aralıkta script başarısız oldu — anında proxy */
+        if (window.BKD_GT_FAILED) { clearInterval(timer); bkdProxy(); return; }
         var sel = document.querySelector('select.goog-te-combo');
         if (sel && sel.options.length > 1) {
             clearInterval(timer);
@@ -29,13 +42,9 @@ window.switchLang = function(lang) {
             ev.initEvent('change', true, true);
             sel.dispatchEvent(ev);
             sel.dispatchEvent(ev);
-        } else if (tries >= 15) {
+        } else if (tries >= 7) {
             clearInterval(timer);
-            /* Fallback: Google Translate proxy */
-            var qs  = location.search.replace(/[?&]_x_tr_[^&]*/g, '');
-            var sep = qs ? '&' : '?';
-            location.href = 'https://' + BKD_PROXY + location.pathname + qs + sep +
-                '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
+            bkdProxy();
         }
     }, 300);
 };

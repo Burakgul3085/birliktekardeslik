@@ -170,7 +170,7 @@
             /* Google Translate widget script — yüklenemezse proxy moduna geç */
             var s = document.createElement('script');
             s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-            s.onerror = function() { enableProxyMode(); };
+            s.onerror = function() { window.BKD_GT_FAILED = true; enableProxyMode(); };
             document.head.appendChild(s);
         })();
     </script>
