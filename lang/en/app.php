@@ -110,6 +110,13 @@ return [
         'placeholder_lastname'  => 'Last Name',
         'placeholder_phone'     => 'Phone',
         'preference_default'    => 'Volunteering Area Preference',
+        'preference_options'    => [
+            'Web Editor',
+            'Video Editor',
+            'Photoshop Task',
+            'Field Officer',
+            'General Volunteer',
+        ],
         'placeholder_about'     => 'Could you briefly introduce yourself and explain how you can help?',
         'kvkk_link'             => 'GDPR Disclosure Text',
         'kvkk_read'             => 'I have read and acknowledge.',

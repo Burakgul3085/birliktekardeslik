@@ -110,6 +110,13 @@ return [
         'placeholder_lastname'  => 'Soyad',
         'placeholder_phone'     => 'Telefon',
         'preference_default'    => 'Gönüllülük Alan Tercihi',
+        'preference_options'    => [
+            'Web Editörü',
+            'Video Editörü',
+            'Photoshop Görevisi',
+            'Saha Görevlisi',
+            'Genel Gönüllü',
+        ],
         'placeholder_about'     => 'Kendinizi kısaca tanıtır mısınız, nasıl yardımcı olabilirsiniz?',
         'kvkk_link'             => 'KVKK Aydınlatma Metni',
         'kvkk_read'             => "'ni okudum, farkındayım.",

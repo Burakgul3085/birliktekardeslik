@@ -202,10 +202,8 @@ class HomeController extends Controller
 
     public function volunteer(): View
     {
-        $settings = Setting::current();
-
         return view('volunteer', [
-            'volunteerPreferenceOptions' => $settings->volunteerPreferenceOptions(),
+            'volunteerPreferenceOptions' => $this->localizedVolunteerPreferenceOptions(),
         ]);
     }
 
@@ -308,7 +306,7 @@ class HomeController extends Controller
         ]);
 
         $settings = Setting::current();
-        $allowedPreferences = $settings->volunteerPreferenceOptions();
+        $allowedPreferences = $this->localizedVolunteerPreferenceOptions();
         if (! in_array($validated['preference'], $allowedPreferences, true)) {
             return back()
                 ->withInput()
@@ -364,5 +362,23 @@ class HomeController extends Controller
         }
 
         return back()->with('success', __('app.messages.volunteer_success'));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function localizedVolunteerPreferenceOptions(): array
+    {
+        $options = __('app.volunteer.preference_options');
+
+        if (is_array($options)) {
+            return collect($options)
+                ->map(static fn ($item): string => trim((string) $item))
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        return [];
     }
 }
