@@ -200,16 +200,50 @@
                 >Bağış Yap</a>
 
                 {{-- Dil Seçici --}}
-                <div class="relative" x-data="{ langOpen: false }" @click.outside="langOpen = false">
+                @php
+                    $langList = [
+                        ['code' => 'tr', 'flag' => 'https://flagcdn.com/w40/tr.png', 'label' => 'Türkçe'],
+                        ['code' => 'en', 'flag' => 'https://flagcdn.com/w40/gb.png', 'label' => 'English'],
+                        ['code' => 'ar', 'flag' => 'https://flagcdn.com/w40/sa.png', 'label' => 'العربية'],
+                        ['code' => 'ru', 'flag' => 'https://flagcdn.com/w40/ru.png', 'label' => 'Русский'],
+                    ];
+                    $langMap = json_encode(array_column($langList, null, 'code'));
+                @endphp
+                <div
+                    class="relative"
+                    x-data="{
+                        langOpen: false,
+                        langs: {{ $langMap }},
+                        current: 'tr',
+                        init() {
+                            var saved = localStorage.getItem('bkd_lang') || 'tr';
+                            this.current = this.langs[saved] ? saved : 'tr';
+                        },
+                        flag() { return (this.langs[this.current] || this.langs['tr']).flag; },
+                        code() { return (this.langs[this.current] || this.langs['tr']).code.toUpperCase(); },
+                        go(code) {
+                            this.current = code;
+                            localStorage.setItem('bkd_lang', code);
+                            this.langOpen = false;
+                            if (code === 'tr') {
+                                window.location.href = 'https://birliktekardeslik.org' + window.location.pathname;
+                            } else {
+                                var path = window.location.pathname;
+                                window.location.href = 'https://birliktekardeslik-org.translate.goog' + path
+                                    + '?_x_tr_sl=tr&_x_tr_tl=' + code + '&_x_tr_hl=tr&_x_tr_pto=wapp';
+                            }
+                        }
+                    }"
+                    @click.outside="langOpen = false"
+                >
                     <button
                         type="button"
                         @click="langOpen = !langOpen"
                         class="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50/90 px-2.5 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
                         aria-label="Dil seçici"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253M3 12c0-.778.099-1.533.284-2.253" />
-                        </svg>
+                        <img :src="flag()" :alt="code()" class="h-5 w-7 rounded object-cover shadow-sm">
+                        <span class="text-xs font-bold text-slate-600" x-text="code()"></span>
                         <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
                     </button>
 
@@ -224,15 +258,12 @@
                         x-transition:leave-end="opacity-0 scale-95"
                         class="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
                     >
-                        @foreach([
-                            ['code' => 'en', 'flag' => 'https://flagcdn.com/w40/gb.png', 'label' => 'English'],
-                            ['code' => 'ar', 'flag' => 'https://flagcdn.com/w40/sa.png', 'label' => 'العربية'],
-                            ['code' => 'ru', 'flag' => 'https://flagcdn.com/w40/ru.png', 'label' => 'Русский'],
-                        ] as $lang)
+                        @foreach($langList as $lang)
                         <button
                             type="button"
-                            data-lang="{{ $lang['code'] }}"
+                            @click="go('{{ $lang['code'] }}')"
                             class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50"
+                            :class="current === '{{ $lang['code'] }}' ? 'bg-cyan-50 font-bold' : ''"
                         >
                             <img src="{{ $lang['flag'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
                             <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
