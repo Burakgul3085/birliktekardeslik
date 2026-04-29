@@ -49,7 +49,7 @@
                     </ul>
                     <div class="mt-3 rounded-xl border border-amber-200 bg-white/70 px-4 py-2.5">
                         <p class="text-xs font-semibold text-amber-700">{{ __('app.donations.example_label') }}</p>
-                        <p class="mt-0.5 font-mono text-sm font-medium text-slate-800">{{ __('app.donations.example_text') }}</p>
+                        <p class="mt-0.5 font-mono text-sm font-medium text-slate-800" dir="ltr">{{ __('app.donations.example_text') }}</p>
                     </div>
                 </div>
             </div>
