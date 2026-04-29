@@ -148,16 +148,16 @@ window.switchLang = function(lang) {
                             ['code'=>'ar','img'=>'https://flagcdn.com/w40/sa.png','label'=>'العربية'],
                             ['code'=>'ru','img'=>'https://flagcdn.com/w40/ru.png','label'=>'Русский'],
                         ] as $lang)
-                        <button
-                            type="button"
-                            onclick="window.switchLang('{{ $lang['code'] }}')"
+                        <a
+                            href="javascript:void(0)"
+                            onclick="window.switchLang('{{ $lang['code'] }}'); return false;"
                             data-lang-btn="{{ $lang['code'] }}"
                             class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left text-sm text-slate-700 transition last:border-0 hover:bg-cyan-50 hover:text-cyan-700"
                         >
                             <img src="{{ $lang['img'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-4 w-6 rounded-sm object-cover shadow-sm">
                             <span class="font-semibold">{{ $lang['label'] }}</span>
                             <span class="ml-auto text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
-                        </button>
+                        </a>
                         @endforeach
                     </div>
                 </div>
@@ -310,16 +310,16 @@ window.switchLang = function(lang) {
                             ['code'=>'ar','img'=>'https://flagcdn.com/w40/sa.png','label'=>'العربية'],
                             ['code'=>'ru','img'=>'https://flagcdn.com/w40/ru.png','label'=>'Русский'],
                         ] as $lang)
-                        <button
-                            type="button"
-                            onclick="window.switchLang('{{ $lang['code'] }}')"
+                        <a
+                            href="javascript:void(0)"
+                            onclick="window.switchLang('{{ $lang['code'] }}'); return false;"
                             data-lang-btn="{{ $lang['code'] }}"
                             class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50"
                         >
                             <img src="{{ $lang['img'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
                             <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
                             <span class="text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
-                        </button>
+                        </a>
                         @endforeach
                     </div>
                 </div>
