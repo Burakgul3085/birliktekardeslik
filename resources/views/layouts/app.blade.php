@@ -47,25 +47,32 @@
         window.switchLang = function(lang) {
             localStorage.setItem('bkd_lang', lang);
             updateLangUI(lang);
+            document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
             if (lang === 'tr') {
-                /* Türkçe: orijinal siteye dön */
-                var orig = location.href
-                    .replace(/^https?:\/\/[^.]+\.translate\.goog/, 'https://birliktekardeslik.org')
-                    .replace(/[?&]_x_tr_[^&]*/g, '');
-                location.href = orig.replace(/[?&]$/, '') || 'https://birliktekardeslik.org/';
+                /* Cookie temizle ve yenile */
+                document.cookie = 'googtrans=;expires=Thu,01 Jan 1970 00:00:00 GMT;path=/';
+                document.cookie = 'googtrans=;expires=Thu,01 Jan 1970 00:00:00 GMT;path=/;domain=' + location.hostname;
+                location.reload();
                 return;
             }
 
-            /* Google Translate proxy — her zaman çalışır, eklenti/kısıt yok */
-            var currentUrl = location.href;
-            /* Zaten proxy üzerindeyse sadece dili değiştir */
-            if (currentUrl.indexOf('.translate.goog') !== -1) {
-                location.href = currentUrl.replace(/_x_tr_tl=[a-z]+/, '_x_tr_tl=' + lang);
-                return;
-            }
-            /* İlk kez proxy'ye yönlendir */
-            location.href = 'https://translate.google.com/translate?sl=tr&tl=' + lang + '&hl=tr&u=' + encodeURIComponent(currentUrl);
+            /* Select bul, yoksa 300ms aralıklarla 20 kez dene */
+            var tries = 0;
+            (function attempt() {
+                var sel = document.querySelector('select.goog-te-combo');
+                if (sel) {
+                    sel.value = lang;
+                    sel.dispatchEvent(new Event('change'));
+                } else if (tries++ < 20) {
+                    setTimeout(attempt, 300);
+                } else {
+                    /* Fallback: cookie + reload */
+                    document.cookie = 'googtrans=/tr/' + lang + ';path=/';
+                    document.cookie = 'googtrans=/tr/' + lang + ';path=/;domain=' + location.hostname;
+                    location.reload();
+                }
+            })();
         };
     </script>
 </head>
@@ -110,15 +117,14 @@
             var saved = localStorage.getItem('bkd_lang') || 'tr';
             updateLangUI(saved);
             document.documentElement.setAttribute('dir', saved === 'ar' ? 'rtl' : 'ltr');
+        });
 
-            /* Event listener'ları ekle */
-            document.querySelectorAll('[data-lang-btn]').forEach(function(btn) {
-                var lang = btn.getAttribute('data-lang-btn');
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    window.switchLang(lang);
-                });
-            });
+        /* Event delegation — document seviyesinde, Alpine'dan tamamen bağımsız */
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-lang-btn]');
+            if (!btn) return;
+            e.stopPropagation();
+            window.switchLang(btn.getAttribute('data-lang-btn'));
         });
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
