@@ -264,6 +264,9 @@ return [
         'role_secretary_general'=> 'Genel Sekreter',
         'role_treasurer'        => 'Sayman',
         'role_member'           => 'Üye',
+        /* Başkanın mesajı */
+        'president_message_title' => 'Başkanın Mesajı',
+        'president_message_body'  => "Değerli Kardeşlerimiz,\n\nBirlikte Kardeşlik Derneği olarak, dünyanın dört bir yanında ihtiyaç sahiplerine ulaşmak ve insanlığa hizmet etmek amacıyla yola çıktık. Afrika'nın en uzak köşelerinde bile kardeşlerimizin açlıkla, susuzlukla ve barınma sorunlarıyla mücadele ettiğini yakından görüyor; bu acıya seyirci kalmayı vicdanımıza sığdıramıyoruz.\n\nDerneğimiz; gıda dağıtımı, temel barınma desteği, kurban organizasyonları ve sadaka kurbanlarının ihtiyaç sahiplerine ulaştırılması gibi alanlarda kesintisiz çalışmalarını sürdürmektedir. Her dağıtılan gıda kolisi, her kurulan çatı, her kesilen kurban; yalnızca bir yardım değil, aynı zamanda iki insan kalbi arasında kurulan kardeşlik köprüsüdür.\n\nBu yolculuk, sizlerin desteği ve güveniyle anlam kazanmaktadır. Bağışlarınız, dualarınız ve gönüllülük ruhunuz; bizim en büyük gücümüzdür. Her katkı, uzak coğrafyalarda bir ailenin sofrasını, bir çocuğun gülümsemesini ve bir insanın yarına olan umudunu beslemektedir.\n\nKardeşliğin sınır tanımadığına inanıyoruz. Birlikte daha güçlü, birlikte daha merhametli, birlikte daha insanız.\n\nSaygı ve kardeşlik duygularımla,",
         /* Genel */
         'social_media_us'       => 'Sosyal Medyada Biz',
         'vision_title'          => 'Vizyon ve Misyonumuz',

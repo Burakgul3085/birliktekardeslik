@@ -9,6 +9,7 @@
             'yonetim' => __('app.page.management_title'),
             'resmi-bilgiler' => __('app.page.official_page_title'),
             'resmi-belgiler' => __('app.page.official_page_title'),
+            'baskanin-mesaji' => __('app.page.president_message_title'),
         ];
         $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
             ? $pageHeroTitleMap[$page->slug]
@@ -538,6 +539,9 @@
             $presidentImage = ! empty($meta['president_image']) ? \Illuminate\Support\Facades\Storage::url($meta['president_image']) : asset('images/default-logo.svg');
             $signatureTitle = $meta['signature_title'] ?? 'YKD | Yeryüzü Kalkınma Derneği Başkanı';
             $signatureName = $meta['signature_name'] ?? 'Yasir FETEN';
+            $presidentMessageHtml = ($isTr && ! empty($page->content))
+                ? (string) $page->content
+                : nl2br(e(__('app.page.president_message_body')));
             $socialMap = [
                 'instagram_url' => 'instagram',
                 'youtube_url' => 'youtube',
@@ -570,7 +574,7 @@
 
                     <div>
                         <div class="prose max-w-none prose-slate prose-p:leading-8">
-                            {!! $page->content ?: '<p>Bu sayfa içeriği admin panelden düzenlenecektir.</p>' !!}
+                            {!! $presidentMessageHtml !!}
                         </div>
 
                         <div class="mt-8">

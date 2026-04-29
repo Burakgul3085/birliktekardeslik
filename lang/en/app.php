@@ -264,6 +264,9 @@ return [
         'role_secretary_general'=> 'Secretary General',
         'role_treasurer'        => 'Treasurer',
         'role_member'           => 'Member',
+        /* President's message */
+        'president_message_title' => "President's Message",
+        'president_message_body'  => "Dear Brothers and Sisters,\n\nAs Birlikte Kardeslik Association, we set out with the aim of reaching those in need all around the world and serving humanity. Even in the farthest corners of Africa, we closely witness our brothers and sisters struggling with hunger, thirst, and shelter problems; we cannot, in good conscience, remain indifferent to this suffering.\n\nOur association continues its uninterrupted work in areas such as food distribution, basic shelter support, qurban organizations, and delivering charity qurban offerings to those in need. Every food parcel distributed, every roof built, every qurban performed is not only an act of aid, but also a bridge of brotherhood built between two human hearts.\n\nThis journey gains meaning through your support and trust. Your donations, prayers, and volunteer spirit are our greatest strength. Every contribution nourishes a family's table in distant geographies, a child's smile, and a person's hope for tomorrow.\n\nWe believe that brotherhood knows no borders. Together we are stronger, together we are more compassionate, together we are more human.\n\nWith respect and feelings of brotherhood,",
         /* General */
         'social_media_us'       => 'Follow Us on Social Media',
         'vision_title'          => 'Our Vision and Mission',
