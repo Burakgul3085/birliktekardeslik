@@ -131,30 +131,38 @@
         });
     </script>
 
-    <!-- Google Translate widget scripti — dinamik yükleme + durum göstergesi -->
+    <!-- Google Translate — widget veya proxy fallback -->
     <script>
         (function() {
-            var wrap = document.getElementById('bkd-gt-wrap');
+            var ORIGIN  = 'birliktekardeslik.org';
+            var PROXY   = 'birliktekardeslik-org.translate.goog';
 
+            /* Proxy modu: dil butonlarını proxy URL'ye yönlendir */
+            function enableProxyMode() {
+                window.switchLang = function(lang) {
+                    localStorage.setItem('bkd_lang', lang);
+                    if (typeof bkdUpdateUI === 'function') bkdUpdateUI(lang);
+                    if (lang === 'tr') {
+                        window.location.href = 'https://' + ORIGIN + location.pathname;
+                        return;
+                    }
+                    var path = location.pathname;
+                    var qs   = location.search.replace(/[?&]_x_tr_[^&]*/g,'');
+                    var sep  = qs ? '&' : '?';
+                    window.location.href = 'https://' + PROXY + path + qs + sep +
+                        '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
+                };
+            }
+
+            /* Proxy URL'deyse switchLang'ı proxy moduna al */
+            if (location.hostname === PROXY) {
+                enableProxyMode();
+            }
+
+            /* Google Translate widget script — yüklenemezse proxy moduna geç */
             var s = document.createElement('script');
             s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-
-            s.onload = function() {
-                if (wrap) { wrap.title = 'GT script yuklendi'; }
-            };
-
-            s.onerror = function() {
-                /* Script yüklenemedi — kullanıcıya görünür mesaj */
-                if (wrap) {
-                    wrap.style.opacity   = '1';
-                    wrap.style.pointerEvents = 'auto';
-                    wrap.style.padding   = '8px 12px';
-                    wrap.style.fontSize  = '12px';
-                    wrap.style.color     = '#b91c1c';
-                    wrap.innerHTML = '⚠ Çeviri servisi yüklenemedi.<br><small>Lütfen reklam engelleyiciyi kapatın.</small>';
-                }
-            };
-
+            s.onerror = function() { enableProxyMode(); };
             document.head.appendChild(s);
         })();
     </script>
