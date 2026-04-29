@@ -5,6 +5,7 @@
             'dernek-tuzugu' => __('app.page.doc_charter_title'),
             'faaliyet-belgesi' => __('app.page.doc_activity_title'),
             'kurumsal-evrak-arsivi' => __('app.page.doc_archive_title'),
+            'basin-kiti' => __('app.page.press_kit_title'),
         ];
         $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
             ? $pageHeroTitleMap[$page->slug]
@@ -753,12 +754,15 @@
                 ->values();
             $siteSettings = \App\Models\Setting::current();
             $defaultLogo = $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg');
+            $pressIntro = $isTr
+                ? ($page->content ?: __('app.page.press_intro'))
+                : __('app.page.press_intro');
         @endphp
 
         <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:py-14">
-            @if (! empty($page->content))
+            @if (! empty($pressIntro))
                 <div class="mx-auto mb-8 max-w-5xl rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center text-sm leading-7 text-slate-600 shadow-sm md:text-base">
-                    {!! $page->content !!}
+                    {!! $pressIntro !!}
                 </div>
             @endif
 
@@ -793,8 +797,8 @@
                 </div>
             @else
                 <article class="card-ui">
-                    <h2 class="text-2xl font-semibold text-slate-900">Basın Kiti</h2>
-                    <p class="mt-4 text-slate-600">Bu sayfa içeriği ve dosyaları admin panelde Basın Kiti Sayfası Alanları bölümünden düzenlenecektir.</p>
+                    <h2 class="text-2xl font-semibold text-slate-900">{{ __('app.page.press_empty_title') }}</h2>
+                    <p class="mt-4 text-slate-600">{{ __('app.page.press_empty_desc') }}</p>
                 </article>
             @endif
         </section>

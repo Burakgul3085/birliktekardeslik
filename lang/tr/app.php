@@ -232,8 +232,12 @@ return [
         'official_map_open'     => 'Haritayı Aç',
         'official_map_empty'    => 'Google Maps bağlantısı admin panelden eklendiğinde bu alanda harita görünecektir.',
         /* Basın kiti */
+        'press_kit_title'       => 'Basın Kiti',
+        'press_intro'           => 'Kurumsal kimliğimize ait logo, görsel ve basın materyallerine bu alandan hızlıca ulaşabilirsiniz.',
         'press_format'          => 'Dosya Formatı',
         'press_download'        => 'İndir',
+        'press_empty_title'     => 'Basın Kiti',
+        'press_empty_desc'      => 'Bu sayfa içeriği ve dosyaları admin panelde Basın Kiti Sayfası Alanları bölümünden düzenlenecektir.',
         /* Faaliyetler sayfası */
         'activities_search'     => 'Faaliyet ara...',
         'activities_all'        => 'Tümü',

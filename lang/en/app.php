@@ -232,8 +232,12 @@ return [
         'official_map_open'     => 'Open Map',
         'official_map_empty'    => 'The map will appear here once a Google Maps link is added from the admin panel.',
         /* Press kit */
+        'press_kit_title'       => 'Press Kit',
+        'press_intro'           => 'You can quickly access our corporate logo, visual assets, and press materials from this section.',
         'press_format'          => 'File Format',
         'press_download'        => 'Download',
+        'press_empty_title'     => 'Press Kit',
+        'press_empty_desc'      => 'This page content and files can be managed from the Press Kit Page Fields section in the admin panel.',
         /* Activities page */
         'activities_search'     => 'Search activities...',
         'activities_all'        => 'All',
