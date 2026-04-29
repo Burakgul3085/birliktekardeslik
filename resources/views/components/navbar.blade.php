@@ -1,16 +1,43 @@
 {{-- Dil geçiş fonksiyonu — butonlara en yakın yerde tanımla --}}
 <script>
+var BKD_PROXY = 'birliktekardeslik-org.translate.goog';
+
 window.switchLang = function(lang) {
     if (!lang) return;
     localStorage.setItem('bkd_lang', lang);
 
-    /* UI'ı hemen güncelle */
-    if (typeof bkdUpdateUI === 'function') bkdUpdateUI(lang);
-
-    /* Çeviriyi uygula */
-    if (typeof bkdApplyLang === 'function') {
-        bkdApplyLang(lang);
+    /* Türkçe'ye dön */
+    if (lang === 'tr') {
+        /* Proxy'deyse orijinale dön, değilse yenile */
+        if (location.hostname === BKD_PROXY) {
+            location.href = 'https://birliktekardeslik.org' + location.pathname;
+        } else {
+            location.reload();
+        }
+        return;
     }
+
+    /* Önce Google Translate widget select'ini dene (15 × 300ms = 4.5sn) */
+    var tries = 0;
+    var timer = setInterval(function() {
+        tries++;
+        var sel = document.querySelector('select.goog-te-combo');
+        if (sel && sel.options.length > 1) {
+            clearInterval(timer);
+            sel.value = lang;
+            var ev = document.createEvent('HTMLEvents');
+            ev.initEvent('change', true, true);
+            sel.dispatchEvent(ev);
+            sel.dispatchEvent(ev);
+        } else if (tries >= 15) {
+            clearInterval(timer);
+            /* Fallback: Google Translate proxy */
+            var qs  = location.search.replace(/[?&]_x_tr_[^&]*/g, '');
+            var sep = qs ? '&' : '?';
+            location.href = 'https://' + BKD_PROXY + location.pathname + qs + sep +
+                '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
+        }
+    }, 300);
 };
 </script>
 
