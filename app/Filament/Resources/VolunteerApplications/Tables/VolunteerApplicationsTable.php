@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Placeholder;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -38,7 +39,12 @@ class VolunteerApplicationsTable
                 TextColumn::make('email')->label('E-posta')->searchable()->copyable(),
                 TextColumn::make('phone')->label('Telefon')->searchable(),
                 TextColumn::make('preference')->label('Tercih')->badge(),
-                TextColumn::make('about')->label('Kendinden Bahset')->limit(70)->wrap()->searchable(),
+                TextColumn::make('about')
+                    ->label('Kendinden Bahset')
+                    ->limit(60)
+                    ->wrap()
+                    ->searchable()
+                    ->action('goruntule'),
                 IconColumn::make('is_replied')->label('Yanıtlandı')->boolean(),
             ])
             ->filters([
@@ -52,6 +58,52 @@ class VolunteerApplicationsTable
                     ->placeholder('Tümü'),
             ])
             ->recordActions([
+                Action::make('goruntule')
+                    ->label('Görüntüle')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->modalHeading(fn ($record) => $record->first_name . ' ' . $record->last_name . ' — Başvuru Detayı')
+                    ->modalWidth('2xl')
+                    ->form([
+                        TextInput::make('gonderici')
+                            ->label('Ad Soyad')
+                            ->disabled(),
+                        TextInput::make('email')
+                            ->label('E-posta')
+                            ->disabled(),
+                        TextInput::make('phone')
+                            ->label('Telefon')
+                            ->disabled(),
+                        TextInput::make('preference')
+                            ->label('Gönüllülük Tercihi')
+                            ->disabled(),
+                        TextInput::make('tarih')
+                            ->label('Başvuru Tarihi')
+                            ->disabled(),
+                        Textarea::make('about')
+                            ->label('Kendinden Bahset')
+                            ->rows(8)
+                            ->disabled()
+                            ->columnSpanFull(),
+                        Textarea::make('reply_message')
+                            ->label('Gönderilen Yanıt')
+                            ->rows(5)
+                            ->disabled()
+                            ->columnSpanFull()
+                            ->visible(fn ($record) => $record !== null && $record->is_replied),
+                    ])
+                    ->fillForm(fn ($record) => [
+                        'gonderici'     => trim($record->first_name . ' ' . $record->last_name),
+                        'email'         => $record->email,
+                        'phone'         => $record->phone,
+                        'preference'    => $record->preference,
+                        'tarih'         => $record->created_at?->format('d.m.Y H:i'),
+                        'about'         => $record->about,
+                        'reply_message' => $record->reply_message,
+                    ])
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Kapat'),
+
                 Action::make('yanitla')
                     ->label('Cevap Ver')
                     ->icon('heroicon-o-paper-airplane')
