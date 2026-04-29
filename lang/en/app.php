@@ -73,6 +73,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Contact page
+    |--------------------------------------------------------------------------
+    */
+    'contact' => [
+        'page_title'        => 'Contact',
+        'page_desc'         => 'You can reach us by entering your name, surname, email and message.',
+        'email_form_title'  => 'Contact via Email',
+        'official_channel'  => 'Official Channel',
+        'first_name'        => 'First Name',
+        'last_name'         => 'Last Name',
+        'email'             => 'Email',
+        'your_message'      => 'Your Message',
+        'send_message'      => 'Send Message',
+        'wa_form_title'     => 'Quick Message via WhatsApp',
+        'wa_desc'           => 'When you fill in the form and click send, your message will be forwarded to the association line via WhatsApp in a neat format.',
+        'wa_send'           => 'Send via WhatsApp',
+        'wa_greeting'       => 'Hello Birlikte Kardeşlik Association,',
+        'wa_name_label'     => 'Full Name',
+        'wa_email_label'    => 'Email',
+        'wa_msg_label'      => 'Message',
+        'wa_closing'        => 'Best regards.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Home — focus cards
     |--------------------------------------------------------------------------
     */

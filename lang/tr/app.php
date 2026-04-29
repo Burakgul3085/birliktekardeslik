@@ -73,6 +73,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | İletişim sayfası
+    |--------------------------------------------------------------------------
+    */
+    'contact' => [
+        'page_title'        => 'İletişim',
+        'page_desc'         => 'Ad, soyad, e-posta ve mesajınızı yazarak bize ulaşabilirsiniz.',
+        'email_form_title'  => 'E-posta ile İletişim',
+        'official_channel'  => 'Resmi Kanal',
+        'first_name'        => 'Ad',
+        'last_name'         => 'Soyad',
+        'email'             => 'E-posta',
+        'your_message'      => 'Mesajınız',
+        'send_message'      => 'Mesajı Gönder',
+        'wa_form_title'     => 'WhatsApp ile Hızlı Mesaj',
+        'wa_desc'           => 'Formu doldurup gönder dediğinizde mesajınız düzenli bir formatta WhatsApp üzerinden dernek hattına iletilir.',
+        'wa_send'           => 'WhatsApp ile Gönder',
+        'wa_greeting'       => 'Merhaba Birlikte Kardeşlik Derneği,',
+        'wa_name_label'     => 'Ad Soyad',
+        'wa_email_label'    => 'E-posta',
+        'wa_msg_label'      => 'Mesaj',
+        'wa_closing'        => 'İyi çalışmalar dilerim.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Ana sayfa — odak kartları
     |--------------------------------------------------------------------------
     */
