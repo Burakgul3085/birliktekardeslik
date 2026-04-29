@@ -43,7 +43,7 @@
                                             </div>
                                         @else
                                             <div class="grid h-[240px] place-items-center bg-slate-100 text-sm text-slate-500 sm:h-[260px] lg:h-[280px]">
-                                                Görsel eklenmedi
+                                                {{ __('app.page.no_image') }}
                                             </div>
                                         @endif
                                     </div>
@@ -157,7 +157,7 @@
                     <div class="group mt-8 rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50/75 via-white to-cyan-50/55 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_16px_34px_rgba(14,116,144,0.16)] md:p-6">
                         <div class="mb-3 flex items-center justify-center gap-2">
                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-xs font-bold text-white shadow-sm transition-transform duration-300 group-hover:scale-110">BK</span>
-                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Hakkımızda</h2>
+                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">{{ __('app.page.about_us') }}</h2>
                         </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
                             {!! $page->content ?: '<p>Birlikte Kardeşlik Derneği; yardımlaşma, dayanışma ve sosyal sorumluluk bilinciyle faaliyet gösteren bir sivil toplum oluşumudur.</p>' !!}
@@ -165,7 +165,7 @@
                     </div>
 
                     <div class="mt-8 border-t border-slate-100 pt-6">
-                        <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Sosyal Medyada Biz</p>
+                        <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('app.page.social_media_us') }}</p>
                         <div class="flex flex-wrap items-center justify-center gap-2">
                             @foreach ($socialMap as $field => $platform)
                                 @if (! empty($settings->$field))
@@ -217,15 +217,15 @@
         <section class="mx-auto max-w-5xl px-4 py-12 md:px-6 lg:py-16">
             <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_44px_rgba(15,23,42,0.10)]">
                 <div class="border-b border-cyan-100/70 bg-gradient-to-r from-cyan-50 via-sky-50 to-cyan-50 px-5 py-5 md:px-8">
-                    <h2 class="text-center text-2xl font-extrabold tracking-tight text-cyan-900 md:text-3xl">Vizyon ve Misyonumuz</h2>
-                    <p class="mt-2 text-center text-sm text-slate-600 md:text-base">İnsani yardım odağında değerlerimiz, hedeflerimiz ve yaklaşımımız</p>
+                    <h2 class="text-center text-2xl font-extrabold tracking-tight text-cyan-900 md:text-3xl">{{ __('app.page.vision_title') }}</h2>
+                    <p class="mt-2 text-center text-sm text-slate-600 md:text-base">{{ __('app.page.vision_subtitle') }}</p>
                 </div>
 
                 <div class="space-y-5 p-5 md:space-y-6 md:p-8">
                     <div class="group relative rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50/70 via-white to-cyan-50/50 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
                         <div class="mb-3 flex items-center justify-center gap-2">
                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-xs font-bold text-white shadow-sm">V</span>
-                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Vizyonumuz</h2>
+                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">{{ __('app.page.vision_our') }}</h2>
                         </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
                             {!! $visionText ?: '<p>Vizyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
@@ -235,7 +235,7 @@
                     <div class="group relative rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50/70 via-white to-cyan-50/50 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_16px_30px_rgba(14,116,144,0.14)] md:p-6">
                         <div class="mb-3 flex items-center justify-center gap-2">
                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-xs font-bold text-white shadow-sm">M</span>
-                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">Misyonumuz</h2>
+                            <h2 class="text-center text-xl font-bold text-cyan-900 transition-colors duration-300 group-hover:text-cyan-700 md:text-2xl">{{ __('app.page.mission_our') }}</h2>
                         </div>
                         <div class="prose mx-auto max-w-none text-center prose-slate prose-p:leading-8 prose-p:transition-colors prose-p:duration-300 group-hover:prose-p:text-cyan-900">
                             {!! $missionText ?: '<p>Misyon metni admin panelde Vizyon Misyon Sayfası Alanları bölümünden girilecektir.</p>' !!}
@@ -244,7 +244,7 @@
                 </div>
 
                 <div class="border-t border-slate-100 bg-slate-50/70 px-5 py-5 md:px-8">
-                    <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Sosyal Medyada Biz</p>
+                    <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('app.page.social_media_us') }}</p>
                     <div class="flex flex-wrap items-center justify-center gap-2">
                     @foreach ($socialMap as $field => $platform)
                         @if (! empty($settings->$field))
@@ -271,20 +271,20 @@
                 'dernek-tuzugu' => [
                     'legacy_file_key' => 'charter_file',
                     'legacy_title_key' => 'charter_title',
-                    'default_title' => 'Dernek Tüzüğü',
-                    'empty_text' => 'Dernek tüzüğü henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+                    'default_title' => __('app.page.doc_charter_title'),
+                    'empty_text' => __('app.page.doc_charter_empty'),
                 ],
                 'faaliyet-belgesi' => [
                     'legacy_file_key' => 'activity_doc_file',
                     'legacy_title_key' => 'activity_doc_title',
-                    'default_title' => 'Faaliyet Belgesi',
-                    'empty_text' => 'Faaliyet belgesi henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+                    'default_title' => __('app.page.doc_activity_title'),
+                    'empty_text' => __('app.page.doc_activity_empty'),
                 ],
                 'kurumsal-evrak-arsivi' => [
                     'legacy_file_key' => 'archive_doc_file',
                     'legacy_title_key' => 'archive_doc_title',
-                    'default_title' => 'Kurumsal Evrak Arşivi',
-                    'empty_text' => 'Kurumsal evrak arşivi dosyası henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+                    'default_title' => __('app.page.doc_archive_title'),
+                    'empty_text' => __('app.page.doc_archive_empty'),
                 ],
             ];
             $currentDoc = $documentConfig[$page->slug] ?? $documentConfig['dernek-tuzugu'];
@@ -328,7 +328,7 @@
                         @else
                             <div class="mt-4 rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm">
                                 <p class="text-sm leading-7 text-slate-600">
-                                    Bu dosya türü tarayıcı içinde önizlenemeyebilir. Belgeyi yeni sekmede açabilir veya indirebilirsiniz.
+                                    {{ __('app.page.doc_no_preview') }}
                                 </p>
                             </div>
                         @endif
@@ -340,14 +340,14 @@
                                 rel="noopener noreferrer"
                                 class="inline-flex items-center rounded-full bg-cyan-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-700"
                             >
-                                Belgeyi Yeni Sekmede Aç
+                                {{ __('app.page.doc_open_tab') }}
                             </a>
                             <a
                                 href="{{ $documentUrl }}"
                                 download
                                 class="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-5 py-2.5 text-sm font-semibold text-cyan-800 transition hover:border-cyan-300 hover:bg-cyan-100"
                             >
-                                Belgeyi İndir
+                                {{ __('app.page.doc_download') }}
                             </a>
                         </div>
                     </div>
@@ -403,14 +403,14 @@
                             type="text"
                             name="q"
                             value="{{ $fq }}"
-                            placeholder="Faaliyet ara..."
+                            placeholder="{{ __('app.page.activities_search') }}"
                             class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100"
                         >
                     </div>
 
                     {{-- Durum --}}
                     <div class="flex gap-2">
-                        @foreach (['' => 'Tümü', 'devam_ediyor' => 'Devam Ediyor', 'tamamlandi' => 'Tamamlandı'] as $val => $label)
+                        @foreach (['' => __('app.page.activities_all'), 'devam_ediyor' => __('app.page.activities_ongoing'), 'tamamlandi' => __('app.page.activities_done')] as $val => $label)
                             <button
                                 type="submit"
                                 name="status"
@@ -429,9 +429,9 @@
                         onchange="this.form.submit()"
                         class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100"
                     >
-                        <option value="default"     {{ $fsort === 'default'     ? 'selected' : '' }}>Varsayılan Sıra</option>
-                        <option value="amount_asc"  {{ $fsort === 'amount_asc'  ? 'selected' : '' }}>Bağış: Düşükten Yükseğe</option>
-                        <option value="amount_desc" {{ $fsort === 'amount_desc' ? 'selected' : '' }}>Bağış: Yüksekten Düşüğe</option>
+                        <option value="default"     {{ $fsort === 'default'     ? 'selected' : '' }}>{{ __('app.page.activities_sort_default') }}</option>
+                        <option value="amount_asc"  {{ $fsort === 'amount_asc'  ? 'selected' : '' }}>{{ __('app.page.activities_sort_asc') }}</option>
+                        <option value="amount_desc" {{ $fsort === 'amount_desc' ? 'selected' : '' }}>{{ __('app.page.activities_sort_desc') }}</option>
                     </select>
 
                     {{-- Filtreyi Temizle --}}
@@ -443,20 +443,20 @@
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
-                            Temizle
+                            {{ __('app.page.activities_clear') }}
                         </a>
                     @endif
                 </div>
 
                 <p class="mt-3 text-sm text-slate-500">
-                    <span class="font-semibold text-cyan-700">{{ $activities->count() }}</span> faaliyet listeleniyor
+                    <span class="font-semibold text-cyan-700">{{ $activities->count() }}</span> {{ __('app.page.activities_count') }}
                 </p>
             </form>
 
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($activities as $activity)
                     @php
-                        $statusLabel = $activity->status === 'tamamlandi' ? 'Tamamlandı' : 'Devam Ediyor';
+                        $statusLabel = $activity->status === 'tamamlandi' ? __('app.page.activities_done') : __('app.page.activities_ongoing');
                         $statusClass = $activity->status === 'tamamlandi'
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700';
@@ -492,13 +492,13 @@
                                     href="{{ route('donations') }}"
                                     class="inline-flex items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700"
                                 >
-                                    Bağış Yap
+                                    {{ __('app.page.donate_btn') }}
                                 </a>
                                 <a
                                     href="{{ route('activities.show', ['slug' => $activity->slug]) }}"
                                     class="inline-flex items-center text-sm font-semibold text-cyan-700 transition hover:text-cyan-900"
                                 >
-                                    Faaliyet Detayı
+                                    {{ __('app.page.activity_detail') }}
                                 </a>
                             </div>
                         </div>
@@ -508,8 +508,8 @@
                         <svg class="mx-auto mb-4 h-14 w-14 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <p class="text-lg font-semibold text-slate-500">Aradığınız kriterlere uygun faaliyet bulunamadı.</p>
-                        <a href="{{ $pageUrl }}" class="mt-4 inline-flex items-center rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">Tüm Faaliyetleri Gör</a>
+                        <p class="text-lg font-semibold text-slate-500">{{ __('app.page.activities_empty') }}</p>
+                        <a href="{{ $pageUrl }}" class="mt-4 inline-flex items-center rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700">{{ __('app.page.activities_view_all') }}</a>
                     </div>
                 @endforelse
             </div>
@@ -636,7 +636,7 @@
             <div class="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
                 <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-7">
                     <div class="mb-3 flex items-center justify-between">
-                        <h3 class="text-xl font-bold text-cyan-800">Dernek Kimliği</h3>
+                        <h3 class="text-xl font-bold text-cyan-800">{{ __('app.page.official_assoc_id') }}</h3>
                         <span class="text-2xl font-bold text-slate-200">01</span>
                     </div>
                     <p class="text-base leading-8 text-slate-600">
@@ -647,16 +647,16 @@
                 @foreach ($accounts as $index => $account)
                     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md md:p-7">
                         <div class="mb-3 flex items-center justify-between">
-                            <h3 class="text-xl font-bold text-cyan-800">{{ $account->currency }} Bağış Hesabı</h3>
+                            <h3 class="text-xl font-bold text-cyan-800">{{ $account->currency }} {{ __('app.page.official_donation') }}</h3>
                             <span class="text-2xl font-bold text-slate-200">{{ str_pad((string) ($index + 2), 2, '0', STR_PAD_LEFT) }}</span>
                         </div>
                         <div class="space-y-1.5 text-base text-slate-700">
-                            <p><span class="font-semibold">Banka:</span> {{ $account->bank_name }}</p>
-                            <p><span class="font-semibold">Hesap Adı:</span> {{ $account->recipient_name }}</p>
+                            <p><span class="font-semibold">{{ __('app.page.official_bank') }}</span> {{ $account->bank_name }}</p>
+                            <p><span class="font-semibold">{{ __('app.page.official_account_name') }}</span> {{ $account->recipient_name }}</p>
                             @if (filled($account->account_number))
-                                <p><span class="font-semibold">Hesap No:</span> {{ $account->account_number }}</p>
+                                <p><span class="font-semibold">{{ __('app.page.official_account_no') }}</span> {{ $account->account_number }}</p>
                             @endif
-                            <p class="break-all"><span class="font-semibold">IBAN:</span> {{ $account->iban }}</p>
+                            <p class="break-all"><span class="font-semibold">{{ __('app.page.official_iban') }}</span> {{ $account->iban }}</p>
                         </div>
                         @if (filled($account->qr_image))
                             <div class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
@@ -666,7 +666,7 @@
                         @if (filled($donationPageUrl))
                             <div class="mt-4">
                                 <a href="{{ $donationPageUrl }}" target="_blank" class="inline-flex items-center rounded-full bg-cyan-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-800">
-                                    Bağışa Git
+                                    {{ __('app.page.official_donate_btn') }}
                                 </a>
                             </div>
                         @endif
@@ -675,7 +675,7 @@
 
                 <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-7">
                     <div class="mb-3 flex items-center justify-between">
-                        <h3 class="text-xl font-bold text-cyan-800">Sosyal Medya Hesaplarımız</h3>
+                        <h3 class="text-xl font-bold text-cyan-800">{{ __('app.page.official_social') }}</h3>
                         <span class="text-2xl font-bold text-slate-200">{{ str_pad((string) ($accounts->count() + 2), 2, '0', STR_PAD_LEFT) }}</span>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -698,7 +698,7 @@
 
                 <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-7">
                     <div class="mb-3 flex items-center justify-between">
-                        <h3 class="text-xl font-bold text-cyan-800">Bizi Ziyaret Edin</h3>
+                        <h3 class="text-xl font-bold text-cyan-800">{{ __('app.page.official_visit') }}</h3>
                         <span class="text-2xl font-bold text-slate-200">{{ str_pad((string) ($accounts->count() + 3), 2, '0', STR_PAD_LEFT) }}</span>
                     </div>
                     @if (filled($normalizedMapsUrl))
@@ -715,7 +715,7 @@
                     @elseif ($mapsNeedsExternalOpen && filled($mapsDirectUrl))
                         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                             <p class="text-sm leading-7 text-slate-600">
-                                Kısa Google Maps bağlantıları gömülü haritada kısıtlanabilir. Haritayı yeni sekmede açabilirsiniz.
+                                {{ __('app.page.official_map_hint') }}
                             </p>
                             <a
                                 href="{{ $mapsDirectUrl }}"
@@ -723,11 +723,11 @@
                                 rel="noopener noreferrer"
                                 class="mt-3 inline-flex items-center rounded-full bg-cyan-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-cyan-800"
                             >
-                                Haritayı Aç
+                                {{ __('app.page.official_map_open') }}
                             </a>
                         </div>
                     @else
-                        <p class="text-sm leading-7 text-slate-600">Google Maps bağlantısı admin panelden eklendiğinde bu alanda harita görünecektir.</p>
+                        <p class="text-sm leading-7 text-slate-600">{{ __('app.page.official_map_empty') }}</p>
                     @endif
                 </article>
             </div>
@@ -761,7 +761,7 @@
                         @endphp
                         <article class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
                             <img src="{{ $logo }}" alt="{{ $item['title'] }}" class="mx-auto h-16 w-auto object-contain">
-                            <p class="mt-4 text-sm font-medium text-slate-500">Dosya Formatı</p>
+                            <p class="mt-4 text-sm font-medium text-slate-500">{{ __('app.page.press_format') }}</p>
                             <p class="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">"{{ $formatLabel }}"</p>
                             <div class="my-5 h-px bg-slate-200"></div>
                             <a
@@ -769,7 +769,7 @@
                                 download
                                 class="group inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-cyan-500 hover:bg-cyan-500 hover:text-white hover:shadow-[0_10px_20px_rgba(6,182,212,0.35)]"
                             >
-                                İndir
+                                {{ __('app.page.press_download') }}
                                 <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                     <path d="M10 2.5a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.25A.75.75 0 0 1 10 2.5Z"/>
                                     <path d="M3.5 14.25a.75.75 0 0 1 .75.75v.5a1.25 1.25 0 0 0 1.25 1.25h9a1.25 1.25 0 0 0 1.25-1.25V15a.75.75 0 0 1 1.5 0v.5A2.75 2.75 0 0 1 14.5 18.25h-9A2.75 2.75 0 0 1 2.75 15.5V15a.75.75 0 0 1 .75-.75Z"/>

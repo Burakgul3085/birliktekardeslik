@@ -204,6 +204,62 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Corporate pages (page.blade.php)
+    |--------------------------------------------------------------------------
+    */
+    'page' => [
+        /* Document viewer */
+        'doc_open_tab'          => 'Open Document in New Tab',
+        'doc_download'          => 'Download Document',
+        'doc_no_preview'        => 'This file type may not be previewable in the browser. You can open or download the document.',
+        'doc_charter_title'     => 'Association Charter',
+        'doc_charter_empty'     => 'The association charter has not been uploaded yet. You can upload a PDF, JPG, PNG, DOC or DOCX file from the admin panel.',
+        'doc_activity_title'    => 'Activity Document',
+        'doc_activity_empty'    => 'The activity document has not been uploaded yet. You can upload a PDF, JPG, PNG, DOC or DOCX file from the admin panel.',
+        'doc_archive_title'     => 'Corporate Document Archive',
+        'doc_archive_empty'     => 'The corporate document archive has not been uploaded yet. You can upload a PDF, JPG, PNG, DOC or DOCX file from the admin panel.',
+        /* Official information */
+        'official_assoc_id'     => 'Association Identity',
+        'official_donation'     => 'Donation Account',
+        'official_social'       => 'Our Social Media Accounts',
+        'official_visit'        => 'Visit Us',
+        'official_donate_btn'   => 'Go to Donation',
+        'official_bank'         => 'Bank:',
+        'official_account_name' => 'Account Name:',
+        'official_account_no'   => 'Account No:',
+        'official_iban'         => 'IBAN:',
+        'official_map_hint'     => 'Short Google Maps links may be restricted in embedded maps. You can open the map in a new tab.',
+        'official_map_open'     => 'Open Map',
+        'official_map_empty'    => 'The map will appear here once a Google Maps link is added from the admin panel.',
+        /* Press kit */
+        'press_format'          => 'File Format',
+        'press_download'        => 'Download',
+        /* Activities page */
+        'activities_search'     => 'Search activities...',
+        'activities_all'        => 'All',
+        'activities_ongoing'    => 'Ongoing',
+        'activities_done'       => 'Completed',
+        'activities_sort_default'=> 'Default Order',
+        'activities_sort_asc'   => 'Donation: Low to High',
+        'activities_sort_desc'  => 'Donation: High to Low',
+        'activities_clear'      => 'Clear',
+        'activities_count'      => 'activities listed',
+        'activities_empty'      => 'No activities found matching your criteria.',
+        'activities_view_all'   => 'View All Activities',
+        'donate_btn'            => 'Donate',
+        'activity_detail'       => 'Activity Detail',
+        /* General */
+        'social_media_us'       => 'Follow Us on Social Media',
+        'vision_title'          => 'Our Vision and Mission',
+        'vision_subtitle'       => 'Our values, goals and approach in humanitarian aid',
+        'vision_our'            => 'Our Vision',
+        'mission_our'           => 'Our Mission',
+        'about_us'              => 'About Us',
+        'no_image'              => 'No image added',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Media Gallery page
     |--------------------------------------------------------------------------
     */

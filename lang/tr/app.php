@@ -204,6 +204,62 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Kurumsal sayfalar (page.blade.php)
+    |--------------------------------------------------------------------------
+    */
+    'page' => [
+        /* Belge görüntüleyici */
+        'doc_open_tab'          => 'Belgeyi Yeni Sekmede Aç',
+        'doc_download'          => 'Belgeyi İndir',
+        'doc_no_preview'        => 'Bu dosya türü tarayıcı içinde önizlenemeyebilir. Belgeyi yeni sekmede açabilir veya indirebilirsiniz.',
+        'doc_charter_title'     => 'Dernek Tüzüğü',
+        'doc_charter_empty'     => 'Dernek tüzüğü henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+        'doc_activity_title'    => 'Faaliyet Belgesi',
+        'doc_activity_empty'    => 'Faaliyet belgesi henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+        'doc_archive_title'     => 'Kurumsal Evrak Arşivi',
+        'doc_archive_empty'     => 'Kurumsal evrak arşivi dosyası henüz yüklenmedi. Admin panelden PDF, JPG, PNG, DOC veya DOCX formatında belge yükleyebilirsiniz.',
+        /* Resmi bilgiler */
+        'official_assoc_id'     => 'Dernek Kimliği',
+        'official_donation'     => 'Bağış Hesabı',
+        'official_social'       => 'Sosyal Medya Hesaplarımız',
+        'official_visit'        => 'Bizi Ziyaret Edin',
+        'official_donate_btn'   => 'Bağışa Git',
+        'official_bank'         => 'Banka:',
+        'official_account_name' => 'Hesap Adı:',
+        'official_account_no'   => 'Hesap No:',
+        'official_iban'         => 'IBAN:',
+        'official_map_hint'     => 'Kısa Google Maps bağlantıları gömülü haritada kısıtlanabilir. Haritayı yeni sekmede açabilirsiniz.',
+        'official_map_open'     => 'Haritayı Aç',
+        'official_map_empty'    => 'Google Maps bağlantısı admin panelden eklendiğinde bu alanda harita görünecektir.',
+        /* Basın kiti */
+        'press_format'          => 'Dosya Formatı',
+        'press_download'        => 'İndir',
+        /* Faaliyetler sayfası */
+        'activities_search'     => 'Faaliyet ara...',
+        'activities_all'        => 'Tümü',
+        'activities_ongoing'    => 'Devam Ediyor',
+        'activities_done'       => 'Tamamlandı',
+        'activities_sort_default'=> 'Varsayılan Sıra',
+        'activities_sort_asc'   => 'Bağış: Düşükten Yükseğe',
+        'activities_sort_desc'  => 'Bağış: Yüksekten Düşüğe',
+        'activities_clear'      => 'Temizle',
+        'activities_count'      => 'faaliyet listeleniyor',
+        'activities_empty'      => 'Aradığınız kriterlere uygun faaliyet bulunamadı.',
+        'activities_view_all'   => 'Tüm Faaliyetleri Gör',
+        'donate_btn'            => 'Bağış Yap',
+        'activity_detail'       => 'Faaliyet Detayı',
+        /* Genel */
+        'social_media_us'       => 'Sosyal Medyada Biz',
+        'vision_title'          => 'Vizyon ve Misyonumuz',
+        'vision_subtitle'       => 'İnsani yardım odağında değerlerimiz, hedeflerimiz ve yaklaşımımız',
+        'vision_our'            => 'Vizyonumuz',
+        'mission_our'           => 'Misyonumuz',
+        'about_us'              => 'Hakkımızda',
+        'no_image'              => 'Görsel eklenmedi',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Medya Galerisi sayfası
     |--------------------------------------------------------------------------
     */
