@@ -2,29 +2,34 @@
     <x-home-hero-slider :slides="$heroSlidesPayload" />
 
     @php
+        $isTr = app()->getLocale() === 'tr';
         $focusCards = [
             [
-                'title' => $siteSettings->home_focus_1_title ?: __('app.home.focus_1_title'),
-                'text'  => $siteSettings->home_focus_1_text  ?: __('app.home.focus_1_text'),
+                'title' => $isTr ? ($siteSettings->home_focus_1_title ?: __('app.home.focus_1_title')) : __('app.home.focus_1_title'),
+                'text'  => $isTr ? ($siteSettings->home_focus_1_text  ?: __('app.home.focus_1_text'))  : __('app.home.focus_1_text'),
                 'icon'  => 'food',
             ],
             [
-                'title' => $siteSettings->home_focus_2_title ?: __('app.home.focus_2_title'),
-                'text'  => $siteSettings->home_focus_2_text  ?: __('app.home.focus_2_text'),
+                'title' => $isTr ? ($siteSettings->home_focus_2_title ?: __('app.home.focus_2_title')) : __('app.home.focus_2_title'),
+                'text'  => $isTr ? ($siteSettings->home_focus_2_text  ?: __('app.home.focus_2_text'))  : __('app.home.focus_2_text'),
                 'icon'  => 'water',
             ],
             [
-                'title' => $siteSettings->home_focus_3_title ?: __('app.home.focus_3_title'),
-                'text'  => $siteSettings->home_focus_3_text  ?: __('app.home.focus_3_text'),
+                'title' => $isTr ? ($siteSettings->home_focus_3_title ?: __('app.home.focus_3_title')) : __('app.home.focus_3_title'),
+                'text'  => $isTr ? ($siteSettings->home_focus_3_text  ?: __('app.home.focus_3_text'))  : __('app.home.focus_3_text'),
                 'icon'  => 'solidarity',
             ],
         ];
-        $aboutItems = collect(preg_split('/[\r\n,]+/', (string) ($siteSettings->home_about_items ?? '')))
-            ->map(fn (string $item): string => trim($item))
-            ->filter()
-            ->values()
-            ->all();
-        if (empty($aboutItems)) {
+        if ($isTr) {
+            $aboutItems = collect(preg_split('/[\r\n,]+/', (string) ($siteSettings->home_about_items ?? '')))
+                ->map(fn (string $item): string => trim($item))
+                ->filter()
+                ->values()
+                ->all();
+            if (empty($aboutItems)) {
+                $aboutItems = __('app.home.about_items');
+            }
+        } else {
             $aboutItems = __('app.home.about_items');
         }
         $aboutImage = $siteSettings->home_about_image ? asset('storage/' . $siteSettings->home_about_image) : asset('images/default-logo.svg');
@@ -68,13 +73,13 @@
                     • {{ $siteSettings->home_about_badge ?: 'Birlikte Kardeşlik Derneği' }}
                 </span>
                 <h2 class="mt-3 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">
-                    {{ $siteSettings->home_about_title ?: __('app.home.about_title') }}
+                    {{ $isTr ? ($siteSettings->home_about_title ?: __('app.home.about_title')) : __('app.home.about_title') }}
                 </h2>
                 <p class="mt-4 text-lg font-medium leading-relaxed text-slate-700">
-                    {{ $siteSettings->home_about_intro ?: __('app.home.about_intro') }}
+                    {{ $isTr ? ($siteSettings->home_about_intro ?: __('app.home.about_intro')) : __('app.home.about_intro') }}
                 </p>
                 <p class="mt-4 text-base leading-relaxed text-slate-600">
-                    {{ $siteSettings->home_about_body ?: __('app.home.about_body') }}
+                    {{ $isTr ? ($siteSettings->home_about_body ?: __('app.home.about_body')) : __('app.home.about_body') }}
                 </p>
 
                 <div class="mt-6 grid gap-2 sm:grid-cols-2">
@@ -87,7 +92,7 @@
                 </div>
 
                 <a href="{{ route('pages.show', ['slug' => 'hikayemiz']) }}" class="btn-primary mt-7">
-                    {{ $siteSettings->home_about_button_text ?: __('app.home.about_button') }}
+                    {{ $isTr ? ($siteSettings->home_about_button_text ?: __('app.home.about_button')) : __('app.home.about_button') }}
                 </a>
             </div>
         </div>
