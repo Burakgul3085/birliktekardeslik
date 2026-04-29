@@ -31,9 +31,9 @@
     }"
     class="sticky top-0 z-40 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur"
 >
-    <div class="hidden border-b border-cyan-800/60 bg-cyan-900 text-cyan-50 md:block">
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 md:px-6">
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs">
+    <div class="border-b border-cyan-800/60 bg-cyan-900 text-cyan-50">
+        <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4 md:px-6">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] md:gap-x-5 md:text-xs">
                 @if(!empty($siteSettings->email))
                     <span class="inline-flex items-center gap-1.5">
                         <svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path d="M2.94 5.5A2 2 0 0 1 4.8 4h10.4a2 2 0 0 1 1.86 1.5L10 9.88 2.94 5.5Z" /><path d="M2.8 7.25V14a2 2 0 0 0 2 2h10.4a2 2 0 0 0 2-2V7.25l-6.69 4.15a1 1 0 0 1-1.02 0L2.8 7.25Z" /></svg>
@@ -54,7 +54,7 @@
                 @endif
             </div>
 
-            <div class="flex flex-wrap items-center justify-end gap-1.5 text-xs sm:gap-2">
+            <div class="flex flex-wrap items-center justify-start gap-1 text-[11px] sm:gap-1.5 md:justify-end md:gap-2 md:text-xs">
                 @php
                     $topBarSocialMap = [
                         'instagram_url' => 'instagram',
@@ -78,16 +78,16 @@
                             href="{{ $siteSettings->$field }}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="inline-flex h-7 w-7 items-center justify-center rounded-full text-cyan-100/90 transition hover:bg-white/10 hover:text-white"
+                            class="inline-flex h-6 w-6 items-center justify-center rounded-full text-cyan-100/90 transition hover:bg-white/10 hover:text-white md:h-7 md:w-7"
                             title="{{ $topBarAria[$platform] ?? $platform }}"
                             aria-label="{{ $topBarAria[$platform] ?? $platform }}"
                         >
-                            <x-social-brand-icon :platform="$platform" icon-class="h-3.5 w-3.5" />
+                            <x-social-brand-icon :platform="$platform" icon-class="h-3 w-3 md:h-3.5 md:w-3.5" />
                         </a>
                     @endif
                 @endforeach
-                <a href="{{ route('donations') }}" class="ml-1 rounded-full bg-white/15 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/25 sm:ml-2">{{ __('app.nav.donate') }}</a>
-                <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/10">{{ __('app.nav.volunteer') }}</a>
+                <a href="{{ route('donations') }}" class="ml-1 rounded-full bg-white/15 px-2.5 py-1 font-medium text-cyan-50 transition hover:bg-white/25 sm:ml-2 md:px-3 md:py-1.5">{{ __('app.nav.donate') }}</a>
+                <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-2.5 py-1 font-medium text-cyan-50 transition hover:bg-white/10 md:px-3 md:py-1.5">{{ __('app.nav.volunteer') }}</a>
             </div>
         </div>
     </div>
