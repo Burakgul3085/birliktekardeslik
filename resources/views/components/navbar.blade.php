@@ -1,56 +1,3 @@
-{{-- Dil geçiş fonksiyonu — butonlara en yakın yerde tanımla --}}
-<script>
-var BKD_PROXY = 'birliktekardeslik-org.translate.goog';
-
-window.switchLang = function(lang) {
-    if (!lang) return;
-    localStorage.setItem('bkd_lang', lang);
-
-    /* Türkçe'ye dön */
-    if (lang === 'tr') {
-        if (location.hostname === BKD_PROXY) {
-            /* Proxy domain'i terk etmeden _x_tr_tl=tr ile çevirisiz versiyon
-               — modal tetiklenmez çünkü aynı domain'de kalıyoruz */
-            location.href = location.pathname + '?_x_tr_sl=tr&_x_tr_tl=tr&_x_tr_hl=tr&_x_tr_pto=wapp';
-        } else {
-            location.reload();
-        }
-        return;
-    }
-
-    /* Proxy fallback fonksiyonu */
-    function bkdProxy() {
-        var qs  = location.search.replace(/[?&]_x_tr_[^&]*/g, '');
-        var sep = qs ? '&' : '?';
-        location.href = 'https://' + BKD_PROXY + location.pathname + qs + sep +
-            '_x_tr_sl=tr&_x_tr_tl=' + lang + '&_x_tr_hl=tr&_x_tr_pto=wapp';
-    }
-
-    /* Script zaten başarısız olduysa anında proxy'e git */
-    if (window.BKD_GT_FAILED) { bkdProxy(); return; }
-
-    /* Widget select'ini dene — max 2sn, başarısız olunca proxy */
-    var tries = 0;
-    var timer = setInterval(function() {
-        tries++;
-        /* Aralıkta script başarısız oldu — anında proxy */
-        if (window.BKD_GT_FAILED) { clearInterval(timer); bkdProxy(); return; }
-        var sel = document.querySelector('select.goog-te-combo');
-        if (sel && sel.options.length > 1) {
-            clearInterval(timer);
-            sel.value = lang;
-            var ev = document.createEvent('HTMLEvents');
-            ev.initEvent('change', true, true);
-            sel.dispatchEvent(ev);
-            sel.dispatchEvent(ev);
-        } else if (tries >= 7) {
-            clearInterval(timer);
-            bkdProxy();
-        }
-    }, 300);
-};
-</script>
-
 <header
     x-data="{
         contactOpen: false,
@@ -126,42 +73,6 @@ window.switchLang = function(lang) {
                 @endforeach
                 <a href="{{ route('donations') }}" class="ml-1 rounded-full bg-white/15 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/25 sm:ml-2">Bağış Yap</a>
                 <a href="{{ route('volunteer') }}" class="rounded-full border border-cyan-100/50 px-3 py-1.5 font-medium text-cyan-50 transition hover:bg-white/10">Gönüllü Ol</a>
-
-                <!-- Dil Seçici (topbar) -->
-                <div class="relative ml-1" x-data="{ langOpen: false }" @click.outside="langOpen = false">
-                    <button
-                        @click="langOpen = !langOpen"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-cyan-50 transition hover:bg-white/20"
-                        aria-label="Dil seçici"
-                    >
-                        <img data-lang-flag src="https://flagcdn.com/w40/tr.png" alt="TR" class="h-4 w-5 rounded-sm object-cover">
-                        <span data-lang-code class="hidden font-bold sm:inline">TR</span>
-                        <svg class="h-3 w-3 opacity-70" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
-                    </button>
-                    <div
-                        x-show="langOpen"
-                        x-cloak
-                        class="absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
-                    >
-                        @foreach([
-                            ['code'=>'tr','img'=>'https://flagcdn.com/w40/tr.png','label'=>'Türkçe'],
-                            ['code'=>'en','img'=>'https://flagcdn.com/w40/gb.png','label'=>'English'],
-                            ['code'=>'ar','img'=>'https://flagcdn.com/w40/sa.png','label'=>'العربية'],
-                            ['code'=>'ru','img'=>'https://flagcdn.com/w40/ru.png','label'=>'Русский'],
-                        ] as $lang)
-                        <a
-                            href="javascript:void(0)"
-                            onclick="window.switchLang('{{ $lang['code'] }}'); return false;"
-                            data-lang-btn="{{ $lang['code'] }}"
-                            class="flex w-full items-center gap-2.5 border-b border-slate-100 px-3 py-2.5 text-left text-sm text-slate-700 transition last:border-0 hover:bg-cyan-50 hover:text-cyan-700"
-                        >
-                            <img src="{{ $lang['img'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-4 w-6 rounded-sm object-cover shadow-sm">
-                            <span class="font-semibold">{{ $lang['label'] }}</span>
-                            <span class="ml-auto text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -213,8 +124,7 @@ window.switchLang = function(lang) {
                     $hasChildren = $children->isNotEmpty();
                 @endphp
                 @if ($hasChildren)
-                    {{-- nav-has-dd: proxy'de Alpine çalışmazsa CSS hover ile dropdown açılır --}}
-                    <div class="nav-has-dd relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                    <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4"
@@ -226,12 +136,10 @@ window.switchLang = function(lang) {
                             </svg>
                         </button>
 
-                        {{-- pt-2: tetikleyici ile panel arasında tıklanabilir/kaydırılabilir köprü (mt boşluğunda mouseleave tetikleniyordu) --}}
-                        {{-- nav-dd-panel: proxy'de .nav-has-dd:hover .nav-dd-panel CSS kuralıyla görünür olur --}}
                         <div
                             x-show="open"
                             x-cloak
-                            class="nav-dd-panel absolute left-0 top-full z-50 min-w-[240px] pt-2"
+                            class="absolute left-0 top-full z-50 min-w-[240px] pt-2"
                         >
                             <div class="rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
                                 @foreach($children as $child)
@@ -290,42 +198,6 @@ window.switchLang = function(lang) {
                     href="{{ route('donations') }}"
                     class="inline-flex min-h-[2.5rem] items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700"
                 >Bağış Yap</a>
-
-                <!-- Desktop Dil Seçici -->
-                <div class="relative" x-data="{ langOpen: false }" @click.outside="langOpen = false">
-                    <button
-                        @click="langOpen = !langOpen"
-                        class="inline-flex h-10 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50/90 px-3 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
-                        aria-label="Dil seçici"
-                    >
-                        <img data-lang-flag src="https://flagcdn.com/w40/tr.png" alt="TR" class="h-4 w-6 rounded-sm object-cover shadow-sm">
-                        <span data-lang-code class="text-xs font-bold text-slate-600">TR</span>
-                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4"/></svg>
-                    </button>
-                    <div
-                        x-show="langOpen"
-                        x-cloak
-                        class="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
-                    >
-                        @foreach([
-                            ['code'=>'tr','img'=>'https://flagcdn.com/w40/tr.png','label'=>'Türkçe'],
-                            ['code'=>'en','img'=>'https://flagcdn.com/w40/gb.png','label'=>'English'],
-                            ['code'=>'ar','img'=>'https://flagcdn.com/w40/sa.png','label'=>'العربية'],
-                            ['code'=>'ru','img'=>'https://flagcdn.com/w40/ru.png','label'=>'Русский'],
-                        ] as $lang)
-                        <a
-                            href="javascript:void(0)"
-                            onclick="window.switchLang('{{ $lang['code'] }}'); return false;"
-                            data-lang-btn="{{ $lang['code'] }}"
-                            class="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-0 hover:bg-cyan-50"
-                        >
-                            <img src="{{ $lang['img'] }}" alt="{{ strtoupper($lang['code']) }}" class="h-5 w-7 rounded object-cover shadow-sm">
-                            <span class="flex-1 text-sm font-semibold text-slate-700">{{ $lang['label'] }}</span>
-                            <span class="text-xs font-bold text-slate-400">{{ strtoupper($lang['code']) }}</span>
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
             </div>
         </nav>
     </div>
