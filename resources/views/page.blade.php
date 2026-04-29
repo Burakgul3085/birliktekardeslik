@@ -1,5 +1,16 @@
 <x-layouts.app>
-    <x-page-hero :title="$page->title" />
+    @php
+        $isTr = app()->getLocale() === 'tr';
+        $pageHeroTitleMap = [
+            'dernek-tuzugu' => __('app.page.doc_charter_title'),
+            'faaliyet-belgesi' => __('app.page.doc_activity_title'),
+            'kurumsal-evrak-arsivi' => __('app.page.doc_archive_title'),
+        ];
+        $pageHeroTitle = (! $isTr && isset($pageHeroTitleMap[$page->slug]))
+            ? $pageHeroTitleMap[$page->slug]
+            : $page->title;
+    @endphp
+    <x-page-hero :title="$pageHeroTitle" />
 
     @if ($page->slug === 'hikayemiz')
         <section class="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:py-16">
@@ -290,7 +301,9 @@
             $currentDoc = $documentConfig[$page->slug] ?? $documentConfig['dernek-tuzugu'];
             $documentFile = $meta['document_file'] ?? ($meta[$currentDoc['legacy_file_key']] ?? null);
             $documentUrl = filled($documentFile) ? \Illuminate\Support\Facades\Storage::url($documentFile) : null;
-            $documentTitle = trim((string) ($meta['document_title'] ?? ($meta[$currentDoc['legacy_title_key']] ?? ''))) ?: $currentDoc['default_title'];
+            $documentTitle = $isTr
+                ? (trim((string) ($meta['document_title'] ?? ($meta[$currentDoc['legacy_title_key']] ?? ''))) ?: $currentDoc['default_title'])
+                : $currentDoc['default_title'];
             $documentExt = $documentFile ? strtolower(pathinfo((string) $documentFile, PATHINFO_EXTENSION)) : null;
             $isImagePreview = in_array($documentExt, ['jpg', 'jpeg', 'png'], true);
             $isPdfPreview = $documentExt === 'pdf';
