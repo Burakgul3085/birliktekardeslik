@@ -8,9 +8,9 @@ window.switchLang = function(lang) {
 
     /* Türkçe'ye dön */
     if (lang === 'tr') {
-        /* Proxy'deyse orijinale dön, değilse yenile */
         if (location.hostname === BKD_PROXY) {
-            location.href = 'https://birliktekardeslik.org' + location.pathname;
+            /* Proxy'deyken history.back() aynı sekmede orijinale döner */
+            history.back();
         } else {
             location.reload();
         }
