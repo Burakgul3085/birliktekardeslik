@@ -204,6 +204,34 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Medya Galerisi sayfası
+    |--------------------------------------------------------------------------
+    */
+    'gallery' => [
+        'page_title'      => 'Medya Galerisi',
+        'breadcrumb_home' => 'Ana Sayfa',
+        'subtitle'        => 'Faaliyetlerimize ait fotoğraf ve videolar — sahadan her an, her iz.',
+        'stat_photo'      => 'Fotoğraf',
+        'stat_video'      => 'Video',
+        'stat_activity'   => 'Faaliyet',
+        'filter_label'    => 'Faaliyet Filtrele',
+        'filter_all'      => 'Tümü',
+        'activity_page'   => 'Faaliyet Sayfası',
+        'photos_heading'  => 'Fotoğraflar',
+        'videos_heading'  => 'Videolar',
+        'photo_count'     => 'fotoğraf',
+        'video_count'     => 'video',
+        'fullscreen'      => 'Tam Ekran İzle',
+        'video_label'     => 'Video',
+        'empty_title'     => 'Henüz medya eklenmemiş',
+        'empty_desc'      => 'Bu faaliyet için fotoğraf veya video bulunmuyor.',
+        'empty_btn'       => 'Tüm Galeriyi Gör',
+        'video_no_support'=> 'Tarayıcınız video etiketini desteklemiyor.',
+        'modal_close_hint'=> 'Kapatmak için ESC tuşuna basın veya dışarıya tıklayın',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Bağış Yap sayfası
     |--------------------------------------------------------------------------
     */

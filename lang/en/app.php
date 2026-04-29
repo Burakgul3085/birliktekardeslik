@@ -204,6 +204,34 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Media Gallery page
+    |--------------------------------------------------------------------------
+    */
+    'gallery' => [
+        'page_title'      => 'Media Gallery',
+        'breadcrumb_home' => 'Home',
+        'subtitle'        => 'Photos and videos from our activities — every moment, every trace from the field.',
+        'stat_photo'      => 'Photos',
+        'stat_video'      => 'Videos',
+        'stat_activity'   => 'Activities',
+        'filter_label'    => 'Filter by Activity',
+        'filter_all'      => 'All',
+        'activity_page'   => 'Activity Page',
+        'photos_heading'  => 'Photos',
+        'videos_heading'  => 'Videos',
+        'photo_count'     => 'photo',
+        'video_count'     => 'video',
+        'fullscreen'      => 'Watch Fullscreen',
+        'video_label'     => 'Video',
+        'empty_title'     => 'No media added yet',
+        'empty_desc'      => 'There are no photos or videos for this activity.',
+        'empty_btn'       => 'View All Gallery',
+        'video_no_support'=> 'Your browser does not support the video tag.',
+        'modal_close_hint'=> 'Press ESC or click outside to close',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Donations page
     |--------------------------------------------------------------------------
     */

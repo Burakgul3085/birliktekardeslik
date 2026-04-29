@@ -12,9 +12,9 @@
         <div style="max-width:1280px;margin:0 auto;padding:56px 24px 52px;">
             {{-- Breadcrumb --}}
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-                <a href="{{ route('home') }}" style="color:rgba(255,255,255,0.7);font-size:13px;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Ana Sayfa</a>
+                <a href="{{ route('home') }}" style="color:rgba(255,255,255,0.7);font-size:13px;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">{{ __('app.gallery.breadcrumb_home') }}</a>
                 <svg style="width:14px;height:14px;color:rgba(255,255,255,0.4);" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7l6 6-6 6"/></svg>
-                <span style="color:rgba(255,255,255,0.95);font-size:13px;">Medya Galerisi</span>
+                <span style="color:rgba(255,255,255,0.95);font-size:13px;">{{ __('app.gallery.page_title') }}</span>
             </div>
 
             {{-- Başlık --}}
@@ -25,10 +25,10 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                     </svg>
                 </div>
-                <h1 style="font-size:2.2rem;font-weight:800;color:#fff;margin:0;letter-spacing:-0.5px;line-height:1.15;">Medya Galerisi</h1>
+                <h1 style="font-size:2.2rem;font-weight:800;color:#fff;margin:0;letter-spacing:-0.5px;line-height:1.15;">{{ __('app.gallery.page_title') }}</h1>
             </div>
             <p style="color:rgba(255,255,255,0.78);font-size:1.05rem;max-width:560px;margin:0;line-height:1.65;">
-                Faaliyetlerimize ait fotoğraf ve videolar — sahadan her an, her iz.
+                {{ __('app.gallery.subtitle') }}
             </p>
 
             {{-- İstatistik rozetleri --}}
@@ -39,15 +39,15 @@
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;">
                 <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:#fff;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;backdrop-filter:blur(4px);">
                     <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
-                    {{ $totalImages }} Fotoğraf
+                    {{ $totalImages }} {{ __('app.gallery.stat_photo') }}
                 </span>
                 <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:#fff;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;backdrop-filter:blur(4px);">
                     <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
-                    {{ $totalVideos }} Video
+                    {{ $totalVideos }} {{ __('app.gallery.stat_video') }}
                 </span>
                 <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:#fff;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;backdrop-filter:blur(4px);">
                     <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25A2.25 2.25 0 0113.5 8.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
-                    {{ $allProjects->count() }} Faaliyet
+                    {{ $allProjects->count() }} {{ __('app.gallery.stat_activity') }}
                 </span>
             </div>
         </div>
@@ -62,12 +62,12 @@
             {{-- Filtre şeridi --}}
             @if($allProjects->isNotEmpty())
             <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px 20px;margin-bottom:32px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-                <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px 0;">Faaliyet Filtrele</p>
+                <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px 0;">{{ __('app.gallery.filter_label') }}</p>
                 <div style="display:flex;flex-wrap:wrap;gap:8px;">
                     <a href="{{ route('gallery') }}"
                        style="display:inline-block;padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;
                               {{ $activeSlug === '' ? 'background:#0891b2;color:#fff;box-shadow:0 2px 8px rgba(8,145,178,0.35);' : 'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;' }}"
-                    >Tümü</a>
+                    >{{ __('app.gallery.filter_all') }}</a>
                     @foreach($allProjects as $proj)
                     <a href="{{ route('gallery', ['activity' => $proj->slug]) }}"
                        style="display:inline-block;padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;
@@ -87,9 +87,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                     </svg>
                 </div>
-                <p style="font-size:1.1rem;font-weight:700;color:#334155;margin:0 0 8px;">Henüz medya eklenmemiş</p>
-                <p style="font-size:14px;color:#94a3b8;margin:0 0 20px;">Bu faaliyet için fotoğraf veya video bulunmuyor.</p>
-                <a href="{{ route('gallery') }}" style="display:inline-block;background:#0891b2;color:#fff;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;text-decoration:none;">Tüm Galeriyi Gör</a>
+                <p style="font-size:1.1rem;font-weight:700;color:#334155;margin:0 0 8px;">{{ __('app.gallery.empty_title') }}</p>
+                <p style="font-size:14px;color:#94a3b8;margin:0 0 20px;">{{ __('app.gallery.empty_desc') }}</p>
+                <a href="{{ route('gallery') }}" style="display:inline-block;background:#0891b2;color:#fff;font-size:14px;font-weight:700;padding:10px 24px;border-radius:999px;text-decoration:none;">{{ __('app.gallery.empty_btn') }}</a>
             </div>
 
             @else
@@ -117,13 +117,13 @@
                                     @if(count($images) > 0)
                                     <span style="font-size:12px;color:#0891b2;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
                                         <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
-                                        {{ count($images) }} fotoğraf
+                                        {{ count($images) }} {{ __('app.gallery.photo_count') }}
                                     </span>
                                     @endif
                                     @if(count($videos) > 0)
                                     <span style="font-size:12px;color:#0d9488;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
                                         <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
-                                        {{ count($videos) }} video
+                                        {{ count($videos) }} {{ __('app.gallery.video_count') }}
                                     </span>
                                     @endif
                                 </div>
@@ -132,7 +132,7 @@
                                style="flex-shrink:0;font-size:12px;font-weight:600;color:#0891b2;text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid #bae6fd;border-radius:999px;transition:all .2s;"
                                onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='transparent'"
                             >
-                                Faaliyet Sayfası
+                                {{ __('app.gallery.activity_page') }}
                                 <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7l6 6-6 6"/></svg>
                             </a>
                         </div>
@@ -140,7 +140,7 @@
                         {{-- Fotoğraf grid --}}
                         @if(count($images) > 0)
                         <div style="margin-bottom:{{ count($videos) > 0 ? '24px' : '0' }};">
-                            <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">Fotoğraflar</p>
+                            <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">{{ __('app.gallery.photos_heading') }}</p>
                             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
                                 @foreach($images as $index => $image)
                                 <a href="{{ asset('storage/' . $image) }}"
@@ -152,7 +152,7 @@
                                    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)'"
                                 >
                                     <img src="{{ asset('storage/' . $image) }}"
-                                         alt="{{ $project->title }} Fotoğraf {{ $index + 1 }}"
+                                         alt="{{ $project->title }} {{ __('app.gallery.photo_count') }} {{ $index + 1 }}"
                                          style="width:100%;height:100%;object-fit:cover;display:block;"
                                          loading="lazy">
                                     <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%);opacity:0;transition:opacity .2s;"
@@ -170,11 +170,12 @@
                         {{-- Video grid --}}
                         @if(count($videos) > 0)
                         <div>
-                            <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">Videolar</p>
+                            <p style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">{{ __('app.gallery.videos_heading') }}</p>
                             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
                                 @foreach($videos as $index => $video)
+                                @php $videoLabel = $project->title . ' — ' . __('app.gallery.video_label') . ' ' . ($index + 1); @endphp
                                 <div
-                                    onclick="openVideoModal('{{ asset('storage/' . $video) }}', '{{ addslashes($project->title) }} — Video {{ $index + 1 }}')"
+                                    onclick="openVideoModal('{{ asset('storage/' . $video) }}', '{{ addslashes($videoLabel) }}')"
                                     style="border-radius:14px;overflow:hidden;background:#0f172a;box-shadow:0 2px 12px rgba(0,0,0,0.12);cursor:pointer;transition:transform .2s,box-shadow .2s;"
                                     onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.22)'"
                                     onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.12)'"
@@ -192,13 +193,13 @@
                                                     <path d="M8 5.14v14l11-7-11-7z"/>
                                                 </svg>
                                             </div>
-                                            <span style="color:rgba(255,255,255,0.85);font-size:11px;font-weight:600;margin-top:10px;letter-spacing:.04em;">Tam Ekran İzle</span>
+                                            <span style="color:rgba(255,255,255,0.85);font-size:11px;font-weight:600;margin-top:10px;letter-spacing:.04em;">{{ __('app.gallery.fullscreen') }}</span>
                                         </div>
                                     </div>
                                     <div style="padding:10px 14px;background:#1e293b;">
                                         <p style="font-size:12px;font-weight:600;color:#cbd5e1;margin:0;display:flex;align-items:center;gap:6px;">
                                             <svg style="width:12px;height:12px;color:#38bdf8;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
-                                            {{ $project->title }} &mdash; Video {{ $index + 1 }}
+                                            {{ $videoLabel }}
                                         </p>
                                     </div>
                                 </div>
@@ -230,10 +231,10 @@
             {{-- Video --}}
             <div style="border-radius:16px;overflow:hidden;background:#000;box-shadow:0 24px 60px rgba(0,0,0,0.6);">
                 <video id="modalVideo" controls autoplay style="width:100%;max-height:75vh;display:block;outline:none;">
-                    Tarayıcınız video etiketini desteklemiyor.
+                    {{ __('app.gallery.video_no_support') }}
                 </video>
             </div>
-            <p style="color:rgba(255,255,255,0.35);font-size:11px;text-align:center;margin:12px 0 0;">Kapatmak için ESC tuşuna basın veya dışarıya tıklayın</p>
+            <p style="color:rgba(255,255,255,0.35);font-size:11px;text-align:center;margin:12px 0 0;">{{ __('app.gallery.modal_close_hint') }}</p>
         </div>
     </div>
 
