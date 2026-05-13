@@ -1,135 +1,125 @@
-# Birlikte Kardeşlik Derneği Web Platformu
+## Özet
 
-Bu proje, dernek web sitesi ve yönetim panelini tek bir çatı altında toplayan, tamamen dinamik ve admin panelden yönetilebilir bir Laravel 11 uygulamasıdır.
+Bu proje, Laravel 11 ve FilamentPHP 5.6 kullanılarak geliştirilmiş kapsamlı bir web uygulamasıdır. Dernekler, vakıflar ve sivil toplum kuruluşları gibi organizasyonların ihtiyaçlarına yönelik olarak tasarlanmıştır. Yönetim paneli üzerinden kolayca içerik yönetimi, bağış kampanyaları, haberler ve duyurular, banka hesapları, gönüllü başvuruları gibi birçok özelliği yönetmek mümkündür. Çok dilli desteği ile geniş bir kitleye hitap edebilmektedir. QR kod oluşturma ve e-posta bildirimleri gibi ek işlevsellikler de sunmaktadır.
 
-## Teknoloji Yığını
+## Özellikler
 
-- `Laravel 11`
-- `Filament` (yönetim paneli)
-- `Tailwind CSS` + `Alpine.js`
-- `MySQL` (yerel ve canlı ortam desteği)
-- `PHPMailer` (SMTP üzerinden e-posta gönderimi)
+*   **Kapsamlı Yönetim Paneli:** FilamentPHP tabanlı, kullanıcı dostu ve zengin özelliklere sahip yönetim paneli.
+*   **İçerik Yönetimi:** Haberler, projeler, sayfalar ve menü öğeleri gibi dinamik içerikleri kolayca oluşturma, düzenleme ve yönetme.
+*   **Bağış ve Proje Yönetimi:** Bağış kampanyaları oluşturma, projelere ilişkin bilgileri yönetme ve ilerlemeyi takip etme.
+*   **Banka Hesapları Yönetimi:** Organizasyonun banka hesap bilgilerini ekleme ve yönetme.
+*   **Gönüllü Başvuruları:** Gönüllü olmak isteyen kişilerin başvurularını toplama ve yönetme.
+*   **İletişim Mesajları:** Web sitesi üzerinden gelen iletişim formları aracılığıyla gönderilen mesajları takip etme.
+*   **Site Ayarları:** Genel site ayarları, sosyal medya bağlantıları, iletişim bilgileri ve kurumsal kimlik bilgilerini yapılandırma.
+*   **Çoklu Dil Desteği:** Türkçe, İngilizce, Arapça ve Rusça gibi birden fazla dil seçeneği ile uluslararası kullanıma uygunluk.
+*   **SEO Dostu Yapı:** Sayfalar ve haberler için meta başlık, açıklama gibi SEO ayarları.
+*   **QR Kod Entegrasyonu:** Bağış ve ilgili alanlarda QR kod oluşturma yeteneği.
+*   **E-posta Bildirimleri:** PHPMailer ile entegre e-posta gönderim sistemi.
+*   **Kullanıcı ve Rol Yönetimi:** Yönetim paneli kullanıcılarını ve yetkilerini yönetme.
+*   **Medya Yöneticisi:** Görsel ve diğer medya dosyalarını yükleme ve yönetme.
 
-## Öne Çıkan Özellikler
+## Gereksinimler
 
-- Genel ayarların (site başlığı, logo, favicon, iletişim, sosyal medya vb.) panelden yönetimi
-- Dinamik menü, hero slider, sayfalar, projeler, haberler ve banka hesapları
-- Bağış sayfası ve IBAN kopyalama akışı
-- İletişim formu:
-  - Veritabanına kayıt
-  - Yönetim paneline düşme
-  - Yöneticiye bildirim e-postası
-  - Başvuru sahibine otomatik bilgilendirme e-postası
-- Gönüllü ol formu:
-  - Dinamik tercih listesi (admin panelden yönetilir)
-  - Veritabanına kayıt ve panelde görüntüleme
-  - Yönetici cevabı ile adaya e-posta gönderimi
-- Admin aktivite logları:
-  - Giriş/çıkış, gezinme, model değişiklikleri
-  - Filtreleme ve dışa aktarma
-- Rol bazlı yetkilendirme:
-  - `super_admin`
-  - `editor`
-  - `viewer`
-- Türkçeleştirilmiş yönetim paneli ve kullanıcı arayüzü
+Bu projeyi yerel ortamınızda çalıştırmak için aşağıdaki gereksinimlere ihtiyacınız vardır:
+
+*   PHP 8.2 veya üzeri
+*   Composer
+*   MySQL veya PostgreSQL gibi bir veritabanı
+*   Node.js ve NPM/Yarn (ön yüz bağımlılıkları için)
+*   Web sunucusu (Apache, Nginx veya Laravel Herd/Valet gibi)
 
 ## Kurulum
 
-### 1) Depoyu klonla
+Projeyi yerel ortamınızda kurmak ve çalıştırmak için aşağıdaki adımları izleyin:
 
-```bash
-git clone https://github.com/Burakgul3085/birliktekardeslik.git
-cd birliktekardeslik
-```
+1.  **Depoyu Klonlayın:**
 
-### 2) Bağımlılıkları yükle
+    ```bash
+    git clone https://github.com/Burakgul3085/birliktekardeslik.git
+    cd birliktekardeslik
+    ```
 
-```bash
-composer install
-npm install
-```
+2.  **Composer Bağımlılıklarını Yükleyin:**
 
-### 3) Ortam dosyası ve uygulama anahtarı
+    ```bash
+    composer install
+    ```
 
-```bash
-cp .env.example .env
-php artisan key:generate
-```
+3.  **Ortam Dosyasını Ayarlayın:**
 
-### 4) Veritabanı ayarları
+    `.env.example` dosyasını `cp .env.example .env` komutuyla kopyalayın ve veritabanı kimlik bilgilerinizi, e-posta ayarlarınızı ve diğer çevresel değişkenleri düzenleyin. Özellikle `APP_URL` ve veritabanı bağlantı bilgilerini yapılandırmanız gerekmektedir.
 
-`.env` içinde MySQL bilgilerini düzenleyin:
+4.  **Uygulama Anahtarını Oluşturun:**
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=birliktekardeslik
-DB_USERNAME=root
-DB_PASSWORD=root
-DB_CHARSET=utf8mb4
-DB_COLLATION=utf8mb4_unicode_ci
-```
+    ```bash
+    php artisan key:generate
+    ```
 
-### 5) Migration ve depolama linki
+5.  **Veritabanını Oluşturun ve Göçleri Çalıştırın:**
 
-```bash
-php artisan migrate
-php artisan storage:link
-```
+    `.env` dosyasında veritabanı bağlantınızı yapılandırdıktan sonra veritabanı göçlerini çalıştırın:
 
-### 6) Frontend derleme
+    ```bash
+    php artisan migrate
+    ```
 
-```bash
-npm run dev
-```
+6.  **(İsteğe Bağlı) Demo Verilerini Ekleyin:**
 
-### 7) Uygulamayı çalıştırma
+    Eğer demo verileriyle başlamak isterseniz, seed dosyalarını çalıştırabilirsiniz:
 
-```bash
-php artisan serve
-```
+    ```bash
+    php artisan db:seed
+    # veya belirli bir seeder için
+    php artisan db:seed --class=DemoContentSeeder
+    php artisan db:seed --class=HeaderMenuSeeder
+    ```
+
+7.  **Ön Yüz Varlıklarını Yükleyin ve Derleyin:**
+
+    ```bash
+    npm install
+    npm run dev
+    # veya üretim için
+    npm run build
+    ```
+
+8.  **Depolama Bağlantısını Oluşturun:**
+
+    ```bash
+    php artisan storage:link
+    ```
+
+9.  **Uygulamayı Çalıştırın:**
+
+    ```bash
+    php artisan serve
+    ```
+
+    Uygulama genellikle `http://127.0.0.1:8000` adresinde çalışacaktır. Yönetim paneline erişmek için `APP_URL/admin` adresini kullanabilirsiniz. İlk yönetici kullanıcı bilgilerini `database/seeders/DatabaseSeeder.php` veya `database/seeders/DemoContentSeeder.php` dosyalarında bulabilirsiniz (varsa) ya da manuel olarak bir kullanıcı oluşturmanız gerekebilir. (`php artisan make:filament-user` komutu ile yeni bir yönetici kullanıcısı oluşturabilirsiniz.)
 
 ## Yönetim Paneli
 
-- URL: `http://127.0.0.1:8000/admin`
-- İlk admin kullanıcı için:
+Projenin ana yönetimi, FilamentPHP tabanlı yönetim paneli aracılığıyla gerçekleştirilir. Yönetim paneline `APP_URL/admin` adresinden erişebilirsiniz. Giriş yaptıktan sonra aşağıdaki ana bölümleri kullanarak sitenizi yönetebilirsiniz:
 
-```bash
-php artisan make:filament-user
-```
+*   **Gösterge Paneli:** Genel site istatistikleri ve özet bilgiler.
+*   **Haberler:** Duyurular ve güncel haberleri ekleme, düzenleme ve silme.
+*   **Projeler:** Devam eden veya tamamlanmış projeleri yönetme, detaylar, görseller ve bağış hedefleri belirleme.
+*   **Sayfalar:** Statik sayfaları (Hakkımızda, İletişim vb.) oluşturma ve içeriklerini düzenleme.
+*   **Menü Öğeleri:** Web sitesi navigasyon menülerini oluşturma ve yönetme.
+*   **Banka Hesapları:** Bağışlar için kullanılan banka hesap bilgilerini ekleme ve güncelleme.
+*   **Gönüllü Başvuruları:** Gönüllü adaylarının başvurularını inceleme ve yönetme.
+*   **İletişim Mesajları:** Kullanıcılar tarafından gönderilen iletişim formlarını görüntüleme.
+*   **Ayarlar:** Genel site ayarları, sosyal medya bağlantıları, logo, iletişim bilgileri, SEO ayarları ve daha fazlasını yapılandırma.
+*   **Kullanıcı Yönetimi:** Yönetim paneli kullanıcılarını ve yetkilerini yönetme.
 
-## E-posta (PHPMailer) Ayarları
+## Çoklu Dil Desteği
 
-`.env` dosyasında aşağıdaki alanları doldurun:
+Proje, birden fazla dil desteği sunmaktadır. `lang` dizini altında bulunan dil dosyaları (`ar`, `en`, `ru`, `tr` gibi) aracılığıyla site içeriğini farklı dillere çevirebilirsiniz. Yönetim paneli üzerinden de bazı içeriklerin çevirileri yapılabilmektedir (proje ve haberler için i18n alanları görüldü).
 
-```env
-PHPMAILER_HOST=smtp.gmail.com
-PHPMAILER_PORT=587
-PHPMAILER_ENCRYPTION=tls
-PHPMAILER_USERNAME=ornek@gmail.com
-PHPMAILER_PASSWORD=uygulama_sifresi
-PHPMAILER_FROM_ADDRESS=ornek@gmail.com
-PHPMAILER_FROM_NAME="Birlikte Kardeşlik Derneği"
-```
+## Katkıda Bulunma
 
-> Not: Gmail için uygulama şifresi kullanılması önerilir.
-
-## Dinamik Olarak Panelden Yönetilen Başlıca Alanlar
-
-- Üst bar iletişim bilgileri (telefon, e-posta, adres)
-- Sosyal medya bağlantıları (Instagram, YouTube, TikTok, Facebook, X)
-- Mail şablonlarındaki kurumsal bilgiler ve logo
-- Gönüllülük alan tercihleri
-- KVKK ve gönüllü aydınlatma metinleri
-- Banka hesapları ve bağış sayfası verileri
-
-## Test
-
-```bash
-php artisan test
-```
+Projenin gelişimine katkıda bulunmak isterseniz, lütfen bir Pull Request (Çekme İsteği) göndermekten çekinmeyin. Her türlü katkı memnuniyetle karşılanır.
 
 ## Lisans
 
-Bu proje `MIT` lisansı ile lisanslanmıştır.
+Bu proje MIT Lisansı altında lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasına bakabilirsiniz (proje içinde `LICENSE` dosyası yoksa, bu bilgi doğrulanmalıdır).
