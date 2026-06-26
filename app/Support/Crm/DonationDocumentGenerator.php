@@ -45,7 +45,8 @@ class DonationDocumentGenerator
         $verifyUrl = route('crm.document.verify', $verificationCode);
 
         $viewData = $this->buildViewData($donation, $verificationCode, $verifyUrl, $template);
-        $html = view($template->blade_view, $viewData)->render();
+        $viewName = $template->usesOverlay() ? 'crm.documents.overlay' : $template->blade_view;
+        $html = view($viewName, $viewData)->render();
 
         $pdfBinary = $this->renderPdf($html, $template);
         $relativePath = 'crm/documents/' . $donation->id . '/' . $type . '-' . $verificationCode . '.pdf';
@@ -64,6 +65,7 @@ class DonationDocumentGenerator
                 'donor_name' => $donation->donor?->full_name,
                 'amount' => (string) $donation->amount,
                 'currency' => $donation->currency,
+                'template_id' => $template->id,
             ],
         ]);
     }
@@ -90,9 +92,11 @@ class DonationDocumentGenerator
     {
         $settings = Setting::current();
         $donor = $donation->donor;
+        $templateSettings = $template->resolvedSettings();
+        $orientation = $templateSettings['orientation'] ?? 'portrait';
+        [$pageWidth, $pageHeight] = $this->pageDimensions($orientation);
 
         $logoPath = $settings->logo ? public_path('storage/' . $settings->logo) : public_path('images/default-logo.svg');
-        $logoDataUri = $this->fileToDataUri($logoPath);
 
         return [
             'settings' => $settings,
@@ -101,11 +105,15 @@ class DonationDocumentGenerator
             'template' => $template,
             'verificationCode' => $verificationCode,
             'verifyUrl' => $verifyUrl,
-            'qrDataUri' => $this->qrDataUri($verifyUrl),
-            'logoDataUri' => $logoDataUri,
+            'qrDataUri' => $this->qrDataUri($verifyUrl, (int) ($templateSettings['qr']['size'] ?? 180)),
+            'logoDataUri' => $this->fileToDataUri($logoPath),
             'backgroundDataUri' => $template->background_image
                 ? $this->fileToDataUri(public_path('storage/' . $template->background_image))
                 : null,
+            'fields' => $templateSettings['fields'] ?? [],
+            'qr' => $templateSettings['qr'] ?? ['enabled' => true],
+            'pageWidth' => $pageWidth,
+            'pageHeight' => $pageHeight,
             'placeholders' => [
                 'ad' => $donor?->first_name ?? '',
                 'soyad' => $donor?->last_name ?? '',
@@ -122,10 +130,18 @@ class DonationDocumentGenerator
         ];
     }
 
-    private function qrDataUri(string $url): string
+    /**
+     * @return array{0: int, 1: int}
+     */
+    private function pageDimensions(string $orientation): array
+    {
+        return $orientation === 'landscape' ? [842, 595] : [595, 842];
+    }
+
+    private function qrDataUri(string $url, int $size = 180): string
     {
         $writer = new PngWriter();
-        $qrCode = new QrCode(data: $url, size: 180, margin: 6);
+        $qrCode = new QrCode(data: $url, size: $size, margin: 4);
         $result = $writer->write($qrCode);
 
         return 'data:image/png;base64,' . base64_encode($result->getString());
@@ -152,7 +168,10 @@ class DonationDocumentGenerator
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
 
-        $orientation = $template->type === DocumentTemplate::TYPE_THANKS_POSTER ? 'landscape' : 'portrait';
+        $templateSettings = $template->resolvedSettings();
+        $orientation = $templateSettings['orientation']
+            ?? ($template->type === DocumentTemplate::TYPE_THANKS_POSTER ? 'landscape' : 'portrait');
+
         $dompdf->setPaper('A4', $orientation);
         $dompdf->render();
 

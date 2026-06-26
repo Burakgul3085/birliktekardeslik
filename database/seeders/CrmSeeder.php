@@ -6,6 +6,7 @@ use App\Models\CrmUser;
 use App\Models\DocumentTemplate;
 use App\Models\DonationType;
 use App\Models\PaymentMethod;
+use App\Support\Crm\DocumentTemplateDefaults;
 use Illuminate\Database\Seeder;
 
 class CrmSeeder extends Seeder
@@ -76,6 +77,7 @@ class CrmSeeder extends Seeder
                     'is_default' => true,
                     'is_active' => true,
                     'sort_order' => $template['sort_order'],
+                    'settings' => DocumentTemplateDefaults::settingsForType($template['type']),
                 ],
             );
         }

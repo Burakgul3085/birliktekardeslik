@@ -48,4 +48,14 @@ class DocumentTemplate extends Model
     {
         return self::TYPES[$this->type] ?? $this->type;
     }
+
+    public function usesOverlay(): bool
+    {
+        return filled($this->background_image);
+    }
+
+    public function resolvedSettings(): array
+    {
+        return \App\Support\Crm\DocumentTemplateDefaults::mergeSettings($this->settings, $this->type);
+    }
 }
