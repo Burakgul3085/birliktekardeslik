@@ -5,6 +5,7 @@ namespace App\Filament\Crm\Resources\Donations;
 use App\Filament\Crm\Resources\Donations\Pages\CreateDonation;
 use App\Filament\Crm\Resources\Donations\Pages\EditDonation;
 use App\Filament\Crm\Resources\Donations\Pages\ListDonations;
+use App\Filament\Crm\Resources\Donations\RelationManagers\DocumentsRelationManager;
 use App\Filament\Crm\Resources\Donations\Schemas\DonationForm;
 use App\Filament\Crm\Resources\Donations\Tables\DonationsTable;
 use App\Models\CrmUser;
@@ -68,7 +69,9 @@ class DonationResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            DocumentsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

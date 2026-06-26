@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CrmDocumentController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\AdminOtpController;
 use App\Http\Controllers\AdminForgotPasswordController;
@@ -34,6 +35,12 @@ Route::post('/ebulten/kayit', [NewsletterController::class, 'subscribe'])
     ->name('newsletter.subscribe');
 Route::get('/ebulten/iptal/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 Route::get('/sayfa/{slug}', [HomeController::class, 'page'])->name('pages.show');
+
+Route::get('/belge-dogrula/{code}', [CrmDocumentController::class, 'verify'])->name('crm.document.verify');
+
+Route::middleware('auth:crm')->group(function (): void {
+    Route::get('/crm/belgeler/{document}/indir', [CrmDocumentController::class, 'download'])->name('crm.documents.download');
+});
 
 Route::prefix('bkd-panel')->name('admin.otp.')->group(function (): void {
     Route::get('/dogrulama', [AdminOtpController::class, 'show'])->name('form');

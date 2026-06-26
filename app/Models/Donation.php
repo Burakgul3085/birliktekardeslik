@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Donation extends Model
 {
@@ -50,5 +51,10 @@ class Donation extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(CrmUser::class, 'created_by');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(DonationDocument::class);
     }
 }
