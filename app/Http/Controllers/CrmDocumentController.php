@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DonationDocument;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CrmDocumentController extends Controller
 {
@@ -22,7 +22,7 @@ class CrmDocumentController extends Controller
         ]);
     }
 
-    public function download(DonationDocument $document): Response
+    public function download(DonationDocument $document): StreamedResponse
     {
         abort_unless(auth('crm')->check(), 403);
 
@@ -30,10 +30,6 @@ class CrmDocumentController extends Controller
 
         $filename = $document->type . '-' . $document->verification_code . '.pdf';
 
-        return response()->download(
-            Storage::disk('public')->path($document->pdf_path),
-            $filename,
-            ['Content-Type' => 'application/pdf'],
-        );
+        return Storage::disk('public')->download($document->pdf_path, $filename);
     }
 }

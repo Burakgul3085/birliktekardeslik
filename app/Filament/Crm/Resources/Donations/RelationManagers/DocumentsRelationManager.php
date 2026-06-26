@@ -3,12 +3,14 @@
 namespace App\Filament\Crm\Resources\Donations\RelationManagers;
 
 use App\Models\DocumentTemplate;
+use App\Models\DonationDocument;
 use App\Support\Crm\DonationDocumentGenerator;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentsRelationManager extends RelationManager
 {
@@ -58,8 +60,21 @@ class DocumentsRelationManager extends RelationManager
                 Action::make('download')
                     ->label('PDF İndir')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn ($record): string => route('crm.documents.download', $record))
-                    ->openUrlInNewTab(),
+                    ->action(function (DonationDocument $record) {
+                        if (! Storage::disk('public')->exists($record->pdf_path)) {
+                            Notification::make()
+                                ->title('PDF dosyası bulunamadı')
+                                ->body('Belgeyi yeniden oluşturmayı deneyin.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $filename = $record->type . '-' . $record->verification_code . '.pdf';
+
+                        return Storage::disk('public')->download($record->pdf_path, $filename);
+                    }),
                 Action::make('verify')
                     ->label('Doğrulama')
                     ->icon('heroicon-o-qr-code')

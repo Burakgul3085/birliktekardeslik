@@ -39,7 +39,7 @@ Route::get('/sayfa/{slug}', [HomeController::class, 'page'])->name('pages.show')
 Route::get('/belge-dogrula/{code}', [CrmDocumentController::class, 'verify'])->name('crm.document.verify');
 
 Route::middleware('auth:crm')->group(function (): void {
-    Route::get('/crm/belgeler/{document}/indir', [CrmDocumentController::class, 'download'])->name('crm.documents.download');
+    Route::get('/belge-indir/{document}', [CrmDocumentController::class, 'download'])->name('crm.documents.download');
 });
 
 Route::prefix('bkd-panel')->name('admin.otp.')->group(function (): void {
