@@ -6,7 +6,6 @@ use App\Models\CrmUser;
 use App\Models\DocumentTemplate;
 use App\Models\DonationType;
 use App\Models\PaymentMethod;
-use App\Support\Crm\DocumentTemplateDefaults;
 use Illuminate\Database\Seeder;
 
 class CrmSeeder extends Seeder
@@ -63,23 +62,41 @@ class CrmSeeder extends Seeder
         }
 
         $templates = [
-            ['name' => 'Standart Makbuz', 'type' => DocumentTemplate::TYPE_RECEIPT, 'blade_view' => 'crm.documents.receipt', 'sort_order' => 1],
-            ['name' => 'Teşekkür Belgesi', 'type' => DocumentTemplate::TYPE_THANKS_LETTER, 'blade_view' => 'crm.documents.thanks-letter', 'sort_order' => 2],
-            ['name' => 'Teşekkür Afişi', 'type' => DocumentTemplate::TYPE_THANKS_POSTER, 'blade_view' => 'crm.documents.thanks-poster', 'sort_order' => 3],
-            ['name' => 'Bağış Sertifikası', 'type' => DocumentTemplate::TYPE_CERTIFICATE, 'blade_view' => 'crm.documents.certificate', 'sort_order' => 4],
+            [
+                'name' => 'Standart Makbuz',
+                'type' => DocumentTemplate::TYPE_RECEIPT,
+                'blade_view' => 'crm.documents.receipt',
+                'sort_order' => 1,
+            ],
+            [
+                'name' => 'Bağış Afişi',
+                'type' => DocumentTemplate::TYPE_DONATION_POSTER,
+                'blade_view' => 'crm.documents.donation-poster',
+                'sort_order' => 2,
+            ],
+            [
+                'name' => 'Teşekkür Afişi',
+                'type' => DocumentTemplate::TYPE_THANKS_POSTER,
+                'blade_view' => 'crm.documents.thanks-poster-overlay',
+                'sort_order' => 3,
+            ],
         ];
 
         foreach ($templates as $template) {
             DocumentTemplate::query()->updateOrCreate(
-                ['type' => $template['type'], 'blade_view' => $template['blade_view']],
+                ['type' => $template['type']],
                 [
                     'name' => $template['name'],
+                    'blade_view' => $template['blade_view'],
                     'is_default' => true,
                     'is_active' => true,
                     'sort_order' => $template['sort_order'],
-                    'settings' => DocumentTemplateDefaults::settingsForType($template['type']),
                 ],
             );
         }
+
+        DocumentTemplate::query()
+            ->whereIn('type', [DocumentTemplate::TYPE_THANKS_LETTER, DocumentTemplate::TYPE_CERTIFICATE])
+            ->update(['is_active' => false, 'is_default' => false]);
     }
 }

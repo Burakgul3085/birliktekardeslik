@@ -15,9 +15,18 @@ use Illuminate\Support\Str;
 
 class DonationDocumentGenerator
 {
-    public function generate(Donation $donation, string $type, bool $regenerate = false): DonationDocument
+    public function generate(Donation $donation, string $type, bool $regenerate = false, ?string $description = null): DonationDocument
     {
         $donation->loadMissing(['donor', 'donationType', 'paymentMethod', 'project']);
+
+        if ($description !== null) {
+            $donation->update(['description' => $description]);
+            $donation->refresh();
+        }
+
+        if ($type === DocumentTemplate::TYPE_DONATION_POSTER && blank($donation->description)) {
+            throw new \RuntimeException('Bağış afişi için bağış açıklaması gereklidir.');
+        }
 
         $template = DocumentTemplate::query()
             ->where('type', $type)
@@ -28,6 +37,12 @@ class DonationDocumentGenerator
 
         if (! $template) {
             throw new \RuntimeException('Bu belge türü için aktif şablon bulunamadı.');
+        }
+
+        if ($template->requiresBackground() && ! $template->usesOverlay()) {
+            throw new \RuntimeException(
+                DocumentTemplate::ACTIVE_TYPES[$type] . ' için şablon görseli yüklenmemiş. Belge Şablonları bölümünden boş afiş görselini yükleyin.'
+            );
         }
 
         if (! $regenerate) {
@@ -45,7 +60,7 @@ class DonationDocumentGenerator
         $verifyUrl = route('crm.document.verify', $verificationCode);
 
         $viewData = $this->buildViewData($donation, $verificationCode, $verifyUrl, $template);
-        $viewName = $template->usesOverlay() ? 'crm.documents.overlay' : $template->blade_view;
+        $viewName = $this->resolveViewName($template);
         $html = view($viewName, $viewData)->render();
 
         $pdfBinary = $this->renderPdf($html, $template);
@@ -70,16 +85,20 @@ class DonationDocumentGenerator
         ]);
     }
 
-    public function generateAll(Donation $donation, bool $regenerate = false): array
+    /**
+     * @return array<string, DonationDocument>
+     */
+    public function generateAll(Donation $donation, bool $regenerate = false, ?string $description = null): array
     {
         $documents = [];
 
-        foreach (array_keys(DocumentTemplate::TYPES) as $type) {
-            try {
-                $documents[$type] = $this->generate($donation, $type, $regenerate);
-            } catch (\Throwable) {
-                // Şablon yoksa atla
-            }
+        foreach (DocumentTemplate::GENERATABLE_TYPES as $type) {
+            $documents[$type] = $this->generate(
+                $donation,
+                $type,
+                $regenerate,
+                $type === DocumentTemplate::TYPE_DONATION_POSTER ? $description : null,
+            );
         }
 
         return $documents;
@@ -91,43 +110,65 @@ class DonationDocumentGenerator
     private function buildViewData(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): array
     {
         $settings = Setting::current();
-        $donor = $donation->donor;
-        $templateSettings = $template->resolvedSettings();
-        $orientation = $templateSettings['orientation'] ?? 'portrait';
+        $orientation = $template->resolvedOrientation();
         [$pageWidth, $pageHeight] = $this->pageDimensions($orientation);
 
         $logoPath = $settings->logo ? public_path('storage/' . $settings->logo) : public_path('images/default-logo.svg');
+        $backgroundDataUri = $template->background_image
+            ? $this->fileToDataUri(public_path('storage/' . $template->background_image))
+            : null;
 
-        return [
+        $base = [
             'settings' => $settings,
             'donation' => $donation,
-            'donor' => $donor,
+            'donor' => $donation->donor,
             'template' => $template,
             'verificationCode' => $verificationCode,
             'verifyUrl' => $verifyUrl,
-            'qrDataUri' => $this->qrDataUri($verifyUrl, (int) ($templateSettings['qr']['size'] ?? 180)),
-            'logoDataUri' => $this->fileToDataUri($logoPath),
-            'backgroundDataUri' => $template->background_image
-                ? $this->fileToDataUri(public_path('storage/' . $template->background_image))
-                : null,
-            'fields' => $templateSettings['fields'] ?? [],
-            'qr' => $templateSettings['qr'] ?? ['enabled' => true],
+            'backgroundDataUri' => $backgroundDataUri,
             'pageWidth' => $pageWidth,
             'pageHeight' => $pageHeight,
-            'placeholders' => [
-                'ad' => $donor?->first_name ?? '',
-                'soyad' => $donor?->last_name ?? '',
-                'ad_soyad' => $donor?->full_name ?? '',
-                'telefon' => $donor?->phone ?? '',
-                'bagis_no' => $donation->donation_number,
-                'makbuz_no' => $donation->receipt_number ?? $donation->donation_number,
-                'bagis_turu' => $donation->donationType?->name ?? '',
-                'bagis_tutari' => number_format((float) $donation->amount, 2, ',', '.'),
-                'para_birimi' => $donation->currency,
-                'tarih' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
-                'aciklama' => $donation->description ?? '',
-            ],
+            'logoDataUri' => $this->fileToDataUri($logoPath),
+            'qrDataUri' => $this->qrDataUri($verifyUrl),
         ];
+
+        return match ($template->type) {
+            DocumentTemplate::TYPE_DONATION_POSTER => array_merge($base, [
+                'posterName' => PosterContentBuilder::displayName($donation, uppercase: true),
+                'posterDescription' => $donation->description,
+                'donationType' => $donation->donationType?->name ?? '',
+                'donationDate' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
+            ]),
+            DocumentTemplate::TYPE_THANKS_POSTER => array_merge($base, [
+                'salutation' => PosterContentBuilder::salutation($donation),
+                'thankYouMessage' => PosterContentBuilder::thankYouMessage($donation),
+            ]),
+            default => array_merge($base, [
+                'placeholders' => [
+                    'ad' => $donation->donor?->first_name ?? '',
+                    'soyad' => $donation->donor?->last_name ?? '',
+                    'ad_soyad' => $donation->donor?->full_name ?? '',
+                    'telefon' => $donation->donor?->phone ?? '',
+                    'bagis_no' => $donation->donation_number,
+                    'makbuz_no' => $donation->receipt_number ?? $donation->donation_number,
+                    'bagis_turu' => $donation->donationType?->name ?? '',
+                    'bagis_tutari' => number_format((float) $donation->amount, 2, ',', '.'),
+                    'para_birimi' => $donation->currency,
+                    'tarih' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
+                    'aciklama' => $donation->description ?? '',
+                ],
+            ]),
+        };
+    }
+
+    private function resolveViewName(DocumentTemplate $template): string
+    {
+        return match ($template->type) {
+            DocumentTemplate::TYPE_RECEIPT => $template->blade_view,
+            DocumentTemplate::TYPE_DONATION_POSTER => 'crm.documents.donation-poster',
+            DocumentTemplate::TYPE_THANKS_POSTER => 'crm.documents.thanks-poster-overlay',
+            default => $template->blade_view,
+        };
     }
 
     /**
@@ -167,12 +208,7 @@ class DonationDocumentGenerator
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
-
-        $templateSettings = $template->resolvedSettings();
-        $orientation = $templateSettings['orientation']
-            ?? ($template->type === DocumentTemplate::TYPE_THANKS_POSTER ? 'landscape' : 'portrait');
-
-        $dompdf->setPaper('A4', $orientation);
+        $dompdf->setPaper('A4', $template->resolvedOrientation());
         $dompdf->render();
 
         return (string) $dompdf->output();

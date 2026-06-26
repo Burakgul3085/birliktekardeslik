@@ -9,17 +9,32 @@ class DocumentTemplate extends Model
 {
     public const TYPE_RECEIPT = 'receipt';
 
-    public const TYPE_THANKS_LETTER = 'thanks_letter';
+    public const TYPE_DONATION_POSTER = 'donation_poster';
 
     public const TYPE_THANKS_POSTER = 'thanks_poster';
 
+    /** @deprecated Artık üretilmiyor */
+    public const TYPE_THANKS_LETTER = 'thanks_letter';
+
+    /** @deprecated Artık üretilmiyor */
     public const TYPE_CERTIFICATE = 'certificate';
 
-    public const TYPES = [
+    public const ACTIVE_TYPES = [
         self::TYPE_RECEIPT => 'Makbuz',
-        self::TYPE_THANKS_LETTER => 'Teşekkür Belgesi',
+        self::TYPE_DONATION_POSTER => 'Bağış Afişi',
         self::TYPE_THANKS_POSTER => 'Teşekkür Afişi',
+    ];
+
+    public const TYPES = [
+        ...self::ACTIVE_TYPES,
+        self::TYPE_THANKS_LETTER => 'Teşekkür Belgesi',
         self::TYPE_CERTIFICATE => 'Sertifika',
+    ];
+
+    public const GENERATABLE_TYPES = [
+        self::TYPE_RECEIPT,
+        self::TYPE_DONATION_POSTER,
+        self::TYPE_THANKS_POSTER,
     ];
 
     protected $fillable = [
@@ -54,8 +69,16 @@ class DocumentTemplate extends Model
         return filled($this->background_image);
     }
 
-    public function resolvedSettings(): array
+    public function requiresBackground(): bool
     {
-        return \App\Support\Crm\DocumentTemplateDefaults::mergeSettings($this->settings, $this->type);
+        return in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true);
+    }
+
+    public function resolvedOrientation(): string
+    {
+        return match ($this->type) {
+            self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER => 'portrait',
+            default => $this->settings['orientation'] ?? 'portrait',
+        };
     }
 }
