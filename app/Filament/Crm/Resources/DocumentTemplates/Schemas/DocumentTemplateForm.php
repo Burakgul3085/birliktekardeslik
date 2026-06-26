@@ -34,7 +34,7 @@ class DocumentTemplateForm
                     ]),
                 ]),
             Section::make('Şablon Görseli')
-                ->description('Boş afiş veya belge görselinizi yükleyin. Bağış bilgileri sistem tarafından otomatik olarak bu görselin üzerine yazdırılır.')
+                ->description('Boş afiş veya belge görselinizi yükleyin. Kaydettikten sonra "Düzenleyici" ile metin alanlarının konumunu ayarlayın.')
                 ->schema([
                     FileUpload::make('background_image')
                         ->label('Boş şablon (PNG/JPG)')
@@ -43,7 +43,7 @@ class DocumentTemplateForm
                         ->image()
                         ->imageEditor()
                         ->required(fn (?DocumentTemplate $record): bool => $record?->requiresBackground() ?? false)
-                        ->helperText('Makbuz için isteğe bağlıdır. Bağış ve teşekkür afişleri için zorunludur. Öneri: dikey A4 — 2480×3508 px.'),
+                        ->helperText('PNG önerilir. Orijinal tasarım piksel piksel korunur; sistem sadece üzerine yazı yazar.'),
                 ]),
         ]);
     }

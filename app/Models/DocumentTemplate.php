@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Crm\TemplateEngine\TemplateFieldDefaults;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -80,5 +81,82 @@ class DocumentTemplate extends Model
             self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER => 'portrait',
             default => $this->settings['orientation'] ?? 'portrait',
         };
+    }
+
+    public function usesImageEngine(): bool
+    {
+        return in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)
+            && filled($this->background_image);
+    }
+
+    /**
+     * @return array{width: int, height: int}
+     */
+    public function canvasSize(): array
+    {
+        $canvas = $this->settings['canvas'] ?? null;
+
+        if (is_array($canvas) && ! empty($canvas['width']) && ! empty($canvas['height'])) {
+            return [
+                'width' => (int) $canvas['width'],
+                'height' => (int) $canvas['height'],
+            ];
+        }
+
+        if ($this->background_image) {
+            $path = storage_path('app/public/' . $this->background_image);
+            if (is_file($path)) {
+                $size = getimagesize($path);
+                if ($size !== false) {
+                    return ['width' => $size[0], 'height' => $size[1]];
+                }
+            }
+        }
+
+        return ['width' => 2480, 'height' => 3508];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function resolvedTemplateFields(): array
+    {
+        $saved = $this->settings['fields'] ?? [];
+
+        if (! empty($saved)) {
+            return $saved;
+        }
+
+        ['width' => $width, 'height' => $height] = $this->canvasSize();
+
+        return TemplateFieldDefaults::forType($this->type, $width, $height);
+    }
+
+    public function syncCanvasFromBackground(): void
+    {
+        if (! $this->background_image) {
+            return;
+        }
+
+        $path = storage_path('app/public/' . $this->background_image);
+
+        if (! is_file($path)) {
+            return;
+        }
+
+        $size = getimagesize($path);
+
+        if ($size === false) {
+            return;
+        }
+
+        $settings = $this->settings ?? [];
+        $settings['canvas'] = ['width' => $size[0], 'height' => $size[1]];
+
+        if (empty($settings['fields']) && in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)) {
+            $settings['fields'] = TemplateFieldDefaults::forType($this->type, $size[0], $size[1]);
+        }
+
+        $this->settings = $settings;
     }
 }

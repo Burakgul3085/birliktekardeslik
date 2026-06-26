@@ -6,6 +6,9 @@ use App\Models\DocumentTemplate;
 use App\Models\Donation;
 use App\Models\DonationDocument;
 use App\Models\Setting;
+use App\Support\Crm\TemplateEngine\TemplateImageEngine;
+use App\Support\Crm\TemplateEngine\TemplatePdfExporter;
+use App\Support\Crm\TemplateEngine\TemplateValueResolver;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Endroid\QrCode\QrCode;
@@ -15,6 +18,11 @@ use Illuminate\Support\Str;
 
 class DonationDocumentGenerator
 {
+    public function __construct(
+        private readonly TemplateImageEngine $imageEngine = new TemplateImageEngine(),
+        private readonly TemplatePdfExporter $pdfExporter = new TemplatePdfExporter(),
+    ) {}
+
     public function generate(Donation $donation, string $type, bool $regenerate = false, ?string $description = null): DonationDocument
     {
         $donation->loadMissing(['donor', 'donationType', 'paymentMethod', 'project']);
@@ -59,11 +67,10 @@ class DonationDocumentGenerator
         $verificationCode = Str::upper(Str::random(12));
         $verifyUrl = route('crm.document.verify', $verificationCode);
 
-        $viewData = $this->buildViewData($donation, $verificationCode, $verifyUrl, $template);
-        $viewName = $this->resolveViewName($template);
-        $html = view($viewName, $viewData)->render();
+        $pdfBinary = $template->usesImageEngine()
+            ? $this->renderTemplateImagePdf($template, $donation, $verifyUrl)
+            : $this->renderBladePdf($donation, $verificationCode, $verifyUrl, $template);
 
-        $pdfBinary = $this->renderPdf($html, $template);
         $relativePath = 'crm/documents/' . $donation->id . '/' . $type . '-' . $verificationCode . '.pdf';
 
         Storage::disk('public')->put($relativePath, $pdfBinary);
@@ -81,6 +88,7 @@ class DonationDocumentGenerator
                 'amount' => (string) $donation->amount,
                 'currency' => $donation->currency,
                 'template_id' => $template->id,
+                'engine' => $template->usesImageEngine() ? 'template_image' : 'blade',
             ],
         ]);
     }
@@ -104,76 +112,63 @@ class DonationDocumentGenerator
         return $documents;
     }
 
+    private function renderTemplateImagePdf(DocumentTemplate $template, Donation $donation, string $verifyUrl): string
+    {
+        if (empty($template->settings['fields'])) {
+            $template->syncCanvasFromBackground();
+            $template->saveQuietly();
+        }
+
+        $values = TemplateValueResolver::forDonation($donation, $template->type, $verifyUrl);
+        $pngBinary = $this->imageEngine->render($template, $values);
+
+        return $this->pdfExporter->fromPng($pngBinary);
+    }
+
+    private function renderBladePdf(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): string
+    {
+        $viewData = $this->buildReceiptViewData($donation, $verificationCode, $verifyUrl, $template);
+        $html = view($template->blade_view, $viewData)->render();
+
+        return $this->renderDompdf($html, $template);
+    }
+
     /**
      * @return array<string, mixed>
      */
-    private function buildViewData(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): array
+    private function buildReceiptViewData(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): array
     {
         $settings = Setting::current();
         $orientation = $template->resolvedOrientation();
         [$pageWidth, $pageHeight] = $this->pageDimensions($orientation);
 
         $logoPath = $settings->logo ? public_path('storage/' . $settings->logo) : public_path('images/default-logo.svg');
-        $backgroundDataUri = $template->background_image
-            ? $this->fileToDataUri(public_path('storage/' . $template->background_image))
-            : null;
 
-        $base = [
+        return [
             'settings' => $settings,
             'donation' => $donation,
             'donor' => $donation->donor,
             'template' => $template,
             'verificationCode' => $verificationCode,
             'verifyUrl' => $verifyUrl,
-            'backgroundDataUri' => $backgroundDataUri,
             'pageWidth' => $pageWidth,
             'pageHeight' => $pageHeight,
             'logoDataUri' => $this->fileToDataUri($logoPath),
             'qrDataUri' => $this->qrDataUri($verifyUrl),
+            'placeholders' => [
+                'ad' => $donation->donor?->first_name ?? '',
+                'soyad' => $donation->donor?->last_name ?? '',
+                'ad_soyad' => $donation->donor?->full_name ?? '',
+                'telefon' => $donation->donor?->phone ?? '',
+                'bagis_no' => $donation->donation_number,
+                'makbuz_no' => $donation->receipt_number ?? $donation->donation_number,
+                'bagis_turu' => $donation->donationType?->name ?? '',
+                'bagis_tutari' => number_format((float) $donation->amount, 2, ',', '.'),
+                'para_birimi' => $donation->currency,
+                'tarih' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
+                'aciklama' => $donation->description ?? '',
+            ],
         ];
-
-        return match ($template->type) {
-            DocumentTemplate::TYPE_DONATION_POSTER => array_merge($base, [
-                'posterName' => PosterContentBuilder::displayName($donation, uppercase: true),
-                'posterDescription' => mb_strtoupper(trim($donation->description ?? ''), 'UTF-8'),
-                'donationType' => $donation->donationType?->name ?? '',
-                'donationDate' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
-                'nameFontSize' => PosterLayout::donationNameFontSize(
-                    PosterContentBuilder::displayName($donation, uppercase: true)
-                ),
-                'descriptionFontSize' => PosterLayout::donationDescriptionFontSize($donation->description ?? ''),
-            ]),
-            DocumentTemplate::TYPE_THANKS_POSTER => array_merge($base, [
-                'salutation' => PosterContentBuilder::salutation($donation),
-                'thankYouBody' => PosterContentBuilder::thankYouBody($donation),
-                'bodyFontSize' => PosterLayout::thanksBodyFontSize(PosterContentBuilder::thankYouBody($donation)),
-            ]),
-            default => array_merge($base, [
-                'placeholders' => [
-                    'ad' => $donation->donor?->first_name ?? '',
-                    'soyad' => $donation->donor?->last_name ?? '',
-                    'ad_soyad' => $donation->donor?->full_name ?? '',
-                    'telefon' => $donation->donor?->phone ?? '',
-                    'bagis_no' => $donation->donation_number,
-                    'makbuz_no' => $donation->receipt_number ?? $donation->donation_number,
-                    'bagis_turu' => $donation->donationType?->name ?? '',
-                    'bagis_tutari' => number_format((float) $donation->amount, 2, ',', '.'),
-                    'para_birimi' => $donation->currency,
-                    'tarih' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
-                    'aciklama' => $donation->description ?? '',
-                ],
-            ]),
-        };
-    }
-
-    private function resolveViewName(DocumentTemplate $template): string
-    {
-        return match ($template->type) {
-            DocumentTemplate::TYPE_RECEIPT => $template->blade_view,
-            DocumentTemplate::TYPE_DONATION_POSTER => 'crm.documents.donation-poster',
-            DocumentTemplate::TYPE_THANKS_POSTER => 'crm.documents.thanks-poster-overlay',
-            default => $template->blade_view,
-        };
     }
 
     /**
@@ -204,7 +199,7 @@ class DonationDocumentGenerator
         return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($path));
     }
 
-    private function renderPdf(string $html, DocumentTemplate $template): string
+    private function renderDompdf(string $html, DocumentTemplate $template): string
     {
         $options = new Options();
         $options->set('isRemoteEnabled', true);
