@@ -10,8 +10,8 @@ class TemplateFieldNormalizer
      */
     public static function normalize(array $field): array
     {
-        $type = (string) ($field['type'] ?? 'text');
-        $key = (string) ($field['key'] ?? 'ad_soyad');
+        $type = (string) ($field['type'] ?? $field['field_type'] ?? 'text');
+        $key = (string) ($field['key'] ?? $field['field_key'] ?? 'ad_soyad');
 
         $base = [
             'id' => (string) ($field['id'] ?? 'field_' . $key),
@@ -23,22 +23,27 @@ class TemplateFieldNormalizer
             'width' => max(1, (int) ($field['width'] ?? 100)),
             'height' => max(1, (int) ($field['height'] ?? 50)),
             'align' => (string) ($field['align'] ?? 'center'),
-            'valign' => (string) ($field['valign'] ?? 'middle'),
+            'vertical_align' => (string) ($field['vertical_align'] ?? $field['valign'] ?? 'middle'),
         ];
 
         if ($type === 'qr') {
             return $base;
         }
 
+        $isSingleLine = in_array($key, ['ad_soyad', 'bagis_turu', 'tarih', 'bagis_no'], true);
+
         return array_merge($base, [
             'font_family' => (string) ($field['font_family'] ?? 'DejaVuSans'),
             'font_size' => max(8, (int) ($field['font_size'] ?? 32)),
             'color' => (string) ($field['color'] ?? '#1B3A6B'),
             'line_height' => (float) ($field['line_height'] ?? 1.4),
-            'letter_spacing' => (int) ($field['letter_spacing'] ?? 0),
-            'max_lines' => max(1, (int) ($field['max_lines'] ?? 5)),
-            'auto_shrink' => array_key_exists('auto_shrink', $field) ? (bool) $field['auto_shrink'] : true,
-            'word_wrap' => array_key_exists('word_wrap', $field) ? (bool) $field['word_wrap'] : true,
+            'max_lines' => max(1, (int) ($field['max_lines'] ?? ($isSingleLine ? 1 : 5))),
+            'auto_resize' => array_key_exists('auto_resize', $field)
+                ? (bool) $field['auto_resize']
+                : (bool) ($field['auto_shrink'] ?? true),
+            'word_wrap' => array_key_exists('word_wrap', $field)
+                ? (bool) $field['word_wrap']
+                : ! $isSingleLine,
         ]);
     }
 

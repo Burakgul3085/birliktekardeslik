@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Support\Crm\TemplateEngine\TemplateFieldDefaults;
-use App\Support\Crm\TemplateEngine\TemplateFieldNormalizer;
+use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -44,6 +44,8 @@ class DocumentTemplate extends Model
         'type',
         'blade_view',
         'background_image',
+        'canvas_width',
+        'canvas_height',
         'settings',
         'is_default',
         'is_active',
@@ -61,9 +63,26 @@ class DocumentTemplate extends Model
         return $this->hasMany(DonationDocument::class);
     }
 
+    public function fields(): HasMany
+    {
+        return $this->hasMany(DocumentTemplateField::class)->orderBy('sort_order');
+    }
+
     public function getTypeLabelAttribute(): string
     {
         return self::TYPES[$this->type] ?? $this->type;
+    }
+
+    public function usesTemplateEngine(): bool
+    {
+        return in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)
+            && filled($this->background_image);
+    }
+
+    /** @deprecated */
+    public function usesImageEngine(): bool
+    {
+        return $this->usesTemplateEngine();
     }
 
     public function usesOverlay(): bool
@@ -84,23 +103,15 @@ class DocumentTemplate extends Model
         };
     }
 
-    public function usesImageEngine(): bool
-    {
-        return in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)
-            && filled($this->background_image);
-    }
-
     /**
      * @return array{width: int, height: int}
      */
     public function canvasSize(): array
     {
-        $canvas = $this->settings['canvas'] ?? null;
-
-        if (is_array($canvas) && ! empty($canvas['width']) && ! empty($canvas['height'])) {
+        if ($this->canvas_width && $this->canvas_height) {
             return [
-                'width' => (int) $canvas['width'],
-                'height' => (int) $canvas['height'],
+                'width' => (int) $this->canvas_width,
+                'height' => (int) $this->canvas_height,
             ];
         }
 
@@ -117,29 +128,7 @@ class DocumentTemplate extends Model
         return ['width' => 2480, 'height' => 3508];
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    public function resolvedTemplateFields(): array
-    {
-        ['width' => $width, 'height' => $height] = $this->canvasSize();
-        $settings = $this->settings ?? [];
-        $saved = $settings['fields'] ?? [];
-        $version = (int) ($settings['fields_version'] ?? 0);
-
-        if (empty($saved) || $version < TemplateFieldDefaults::FIELDS_VERSION) {
-            return TemplateFieldDefaults::forType($this->type, $width, $height);
-        }
-
-        return TemplateFieldNormalizer::normalizeAll(
-            array_map(
-                fn (array $field): array => TemplateFieldDefaults::applyCanvasSize($field, $width, $height),
-                $saved,
-            ),
-        );
-    }
-
-    public function syncCanvasFromBackground(bool $forceResetFields = false): void
+    public function syncCanvasDimensions(): void
     {
         if (! $this->background_image) {
             return;
@@ -157,18 +146,22 @@ class DocumentTemplate extends Model
             return;
         }
 
-        $settings = $this->settings ?? [];
-        $settings['canvas'] = ['width' => $size[0], 'height' => $size[1]];
+        $this->canvas_width = $size[0];
+        $this->canvas_height = $size[1];
+    }
 
-        $shouldInitFields = $forceResetFields
-            || empty($settings['fields'])
-            || (int) ($settings['fields_version'] ?? 0) < TemplateFieldDefaults::FIELDS_VERSION;
+    /** @deprecated */
+    public function syncCanvasFromBackground(bool $forceResetFields = false): void
+    {
+        $this->syncCanvasDimensions();
+        $this->saveQuietly();
 
-        if ($shouldInitFields && in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)) {
-            $settings['fields'] = TemplateFieldDefaults::forType($this->type, $size[0], $size[1]);
-            $settings['fields_version'] = TemplateFieldDefaults::FIELDS_VERSION;
-        }
+        app(TemplateFieldSynchronizer::class)->ensureFields($this, $forceResetFields);
+    }
 
-        $this->settings = $settings;
+    /** @deprecated */
+    public function resolvedTemplateFields(): array
+    {
+        return $this->fields->map(fn (DocumentTemplateField $field) => $field->toRenderDefinition())->all();
     }
 }

@@ -4,7 +4,7 @@ namespace App\Support\Crm\TemplateEngine;
 
 use GdImage;
 
-class TextBoxRenderer
+class TextFieldRenderer
 {
     /**
      * @param  array<string, mixed>  $field
@@ -23,11 +23,12 @@ class TextBoxRenderer
 
         $fontPath = FontRegistry::path((string) ($field['font_family'] ?? 'DejaVuSans'));
         $fontSize = (int) ($field['font_size'] ?? 32);
-        $minFontSize = 10;
-        $autoShrink = (bool) ($field['auto_shrink'] ?? true);
+        $minFontSize = 8;
+        $autoResize = (bool) ($field['auto_resize'] ?? $field['auto_shrink'] ?? true);
         $wordWrap = (bool) ($field['word_wrap'] ?? true);
         $maxLines = max(1, (int) ($field['max_lines'] ?? 5));
         $lineHeight = (float) ($field['line_height'] ?? 1.4);
+        $verticalAlign = (string) ($field['vertical_align'] ?? $field['valign'] ?? 'middle');
         $color = $this->allocateColor($image, (string) ($field['color'] ?? '#000000'));
 
         while ($fontSize >= $minFontSize) {
@@ -36,7 +37,7 @@ class TextBoxRenderer
                 : [preg_replace('/\s+/u', ' ', $text) ?? $text];
 
             if (count($lines) > $maxLines) {
-                if ($autoShrink) {
+                if ($autoResize) {
                     $fontSize--;
 
                     continue;
@@ -46,7 +47,7 @@ class TextBoxRenderer
             }
 
             if (! $wordWrap && ! $this->fitsWidth($lines[0], $fontPath, $fontSize, (int) $field['width'])) {
-                if ($autoShrink) {
+                if ($autoResize) {
                     $fontSize--;
 
                     continue;
@@ -55,13 +56,13 @@ class TextBoxRenderer
 
             $metrics = $this->blockMetrics($lines, $fontPath, $fontSize, $lineHeight);
 
-            if ($metrics['height'] > (int) $field['height'] && $autoShrink) {
+            if ($metrics['height'] > (int) $field['height'] && $autoResize) {
                 $fontSize--;
 
                 continue;
             }
 
-            $this->drawBlock($image, $field, $lines, $fontPath, $fontSize, $lineHeight, $color, $metrics);
+            $this->drawBlock($image, $field, $lines, $fontPath, $fontSize, $lineHeight, $color, $metrics, $verticalAlign);
 
             return;
         }
@@ -152,10 +153,11 @@ class TextBoxRenderer
         float $lineHeight,
         int $color,
         array $metrics,
+        string $verticalAlign,
     ): void {
         $lineHeightPx = $metrics['line_height'];
         $blockHeight = $metrics['height'];
-        $yStart = match ($field['valign'] ?? 'middle') {
+        $yStart = match ($verticalAlign) {
             'top' => (int) $field['y'] + $metrics['ascent'],
             'bottom' => (int) $field['y'] + (int) $field['height'] - $blockHeight + $metrics['ascent'],
             default => (int) $field['y'] + (int) (((int) $field['height'] - $blockHeight) / 2) + $metrics['ascent'],

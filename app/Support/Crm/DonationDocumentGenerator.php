@@ -6,8 +6,8 @@ use App\Models\DocumentTemplate;
 use App\Models\Donation;
 use App\Models\DonationDocument;
 use App\Models\Setting;
-use App\Support\Crm\TemplateEngine\TemplateImageEngine;
-use App\Support\Crm\TemplateEngine\TemplatePdfExporter;
+use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
+use App\Support\Crm\TemplateEngine\TemplateRenderEngine;
 use App\Support\Crm\TemplateEngine\TemplateValueResolver;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -19,8 +19,8 @@ use Illuminate\Support\Str;
 class DonationDocumentGenerator
 {
     public function __construct(
-        private readonly TemplateImageEngine $imageEngine = new TemplateImageEngine(),
-        private readonly TemplatePdfExporter $pdfExporter = new TemplatePdfExporter(),
+        private readonly TemplateRenderEngine $templateEngine = new TemplateRenderEngine(),
+        private readonly TemplateFieldSynchronizer $fieldSynchronizer = new TemplateFieldSynchronizer(),
     ) {}
 
     public function generate(Donation $donation, string $type, bool $regenerate = false, ?string $description = null): DonationDocument
@@ -37,6 +37,7 @@ class DonationDocumentGenerator
         }
 
         $template = DocumentTemplate::query()
+            ->with('fields')
             ->where('type', $type)
             ->where('is_active', true)
             ->orderByDesc('is_default')
@@ -67,12 +68,18 @@ class DonationDocumentGenerator
         $verificationCode = Str::upper(Str::random(12));
         $verifyUrl = route('crm.document.verify', $verificationCode);
 
-        $pdfBinary = $template->usesImageEngine()
-            ? $this->renderTemplateImagePdf($template, $donation, $verifyUrl)
-            : $this->renderBladePdf($donation, $verificationCode, $verifyUrl, $template);
+        if ($template->usesTemplateEngine()) {
+            $rendered = $this->renderTemplateEngine($template, $donation, $verifyUrl, $verificationCode);
+            $pdfBinary = $rendered['pdf'];
+            $pngRelativePath = $rendered['png_path'];
+            $engine = 'template_engine';
+        } else {
+            $pdfBinary = $this->renderReceiptPdf($donation, $verificationCode, $verifyUrl, $template);
+            $pngRelativePath = null;
+            $engine = 'receipt_blade';
+        }
 
         $relativePath = 'crm/documents/' . $donation->id . '/' . $type . '-' . $verificationCode . '.pdf';
-
         Storage::disk('public')->put($relativePath, $pdfBinary);
 
         return DonationDocument::query()->create([
@@ -88,7 +95,8 @@ class DonationDocumentGenerator
                 'amount' => (string) $donation->amount,
                 'currency' => $donation->currency,
                 'template_id' => $template->id,
-                'engine' => $template->usesImageEngine() ? 'template_image' : 'blade',
+                'engine' => $engine,
+                'png_path' => $pngRelativePath,
             ],
         ]);
     }
@@ -112,18 +120,29 @@ class DonationDocumentGenerator
         return $documents;
     }
 
-    private function renderTemplateImagePdf(DocumentTemplate $template, Donation $donation, string $verifyUrl): string
+    /**
+     * @return array{pdf: string, png_path: string}
+     */
+    private function renderTemplateEngine(DocumentTemplate $template, Donation $donation, string $verifyUrl, string $verificationCode): array
     {
-        $template->syncCanvasFromBackground();
+        $template->syncCanvasDimensions();
         $template->saveQuietly();
+        $this->fieldSynchronizer->ensureFields($template);
+        $template->load('fields');
 
         $values = TemplateValueResolver::forDonation($donation, $template->type, $verifyUrl);
-        $pngBinary = $this->imageEngine->render($template, $values);
+        $result = $this->templateEngine->render($template, $values);
 
-        return $this->pdfExporter->fromPng($pngBinary);
+        $pngRelativePath = 'crm/documents/' . $donation->id . '/' . $template->type . '-' . $verificationCode . '.png';
+        Storage::disk('public')->put($pngRelativePath, $result['png']);
+
+        return [
+            'pdf' => $result['pdf'],
+            'png_path' => $pngRelativePath,
+        ];
     }
 
-    private function renderBladePdf(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): string
+    private function renderReceiptPdf(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): string
     {
         $viewData = $this->buildReceiptViewData($donation, $verificationCode, $verifyUrl, $template);
         $html = view($template->blade_view, $viewData)->render();

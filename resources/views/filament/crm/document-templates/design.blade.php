@@ -103,13 +103,13 @@
                                     </label>
                                     <label class="space-y-1">
                                         <span class="text-xs text-gray-500">Dikey</span>
-                                        <select wire:model.live="fields.{{ $index }}.valign" class="fi-select block w-full rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-900">
+                                        <select wire:model.live="fields.{{ $index }}.vertical_align" class="fi-select block w-full rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-900">
                                             <option value="top">Üst</option><option value="middle">Orta</option><option value="bottom">Alt</option>
                                         </select>
                                     </label>
                                     <label class="space-y-1"><span class="text-xs text-gray-500">Satır yüksekliği</span><input type="number" step="0.05" wire:model.blur="fields.{{ $index }}.line_height" class="fi-input block w-full rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-900" /></label>
                                     <label class="space-y-1"><span class="text-xs text-gray-500">Maks. satır</span><input type="number" wire:model.blur="fields.{{ $index }}.max_lines" class="fi-input block w-full rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-900" /></label>
-                                    <label class="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" wire:model.live="fields.{{ $index }}.auto_shrink" class="rounded border-gray-300" /> Otomatik küçült</label>
+                                    <label class="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" wire:model.live="fields.{{ $index }}.auto_resize" class="rounded border-gray-300" /> Otomatik küçült</label>
                                     <label class="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" wire:model.live="fields.{{ $index }}.word_wrap" class="rounded border-gray-300" /> Satır kaydır</label>
                                 </div>
                             @endif

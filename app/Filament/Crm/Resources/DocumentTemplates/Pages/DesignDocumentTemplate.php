@@ -7,6 +7,7 @@ use App\Models\DocumentTemplate;
 use App\Support\Crm\TemplateEngine\FontRegistry;
 use App\Support\Crm\TemplateEngine\TemplateFieldDefaults;
 use App\Support\Crm\TemplateEngine\TemplateFieldNormalizer;
+use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -50,11 +51,14 @@ class DesignDocumentTemplate extends Page
             return;
         }
 
-        $this->record->syncCanvasFromBackground();
+        $this->record->syncCanvasDimensions();
         $this->record->saveQuietly();
 
+        app(TemplateFieldSynchronizer::class)->ensureFields($this->record);
+        $this->record->load('fields');
+
         ['width' => $this->canvasWidth, 'height' => $this->canvasHeight] = $this->record->canvasSize();
-        $this->fields = $this->record->resolvedTemplateFields();
+        $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
         $this->backgroundUrl = asset('storage/' . $this->record->background_image);
 
         if ($this->fields !== []) {
@@ -85,18 +89,18 @@ class DesignDocumentTemplate extends Page
 
     public function save(): void
     {
-        $settings = $this->record->settings ?? [];
-        $settings['canvas'] = [
-            'width' => $this->canvasWidth,
-            'height' => $this->canvasHeight,
-        ];
-        $settings['fields'] = TemplateFieldNormalizer::normalizeAll(array_values($this->fields));
-        $settings['fields_version'] = TemplateFieldDefaults::FIELDS_VERSION;
+        app(TemplateFieldSynchronizer::class)->persistFieldArrays(
+            $this->record,
+            TemplateFieldNormalizer::normalizeAll(array_values($this->fields)),
+        );
 
-        $this->record->update(['settings' => $settings]);
+        $this->record->syncCanvasDimensions();
+        $this->record->saveQuietly();
+        $this->record->load('fields');
+        $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
 
         Notification::make()
-            ->title('Şablon alanları kaydedildi')
+            ->title('Şablon alanları veritabanına kaydedildi')
             ->success()
             ->send();
     }
@@ -105,8 +109,9 @@ class DesignDocumentTemplate extends Page
     {
         $label = TemplateFieldDefaults::FIELD_LABELS[$key] ?? $key;
         $type = $key === 'qr_code' ? 'qr' : 'text';
+        $isSingleLine = in_array($key, ['ad_soyad', 'bagis_turu', 'tarih', 'bagis_no'], true);
 
-        $field = [
+        $field = TemplateFieldNormalizer::normalize([
             'id' => 'field_' . $key . '_' . Str::random(4),
             'key' => $key,
             'label' => $label,
@@ -115,20 +120,17 @@ class DesignDocumentTemplate extends Page
             'y' => (int) round($this->canvasHeight * 0.4),
             'width' => (int) round($this->canvasWidth * 0.7),
             'height' => $type === 'qr' ? 200 : 120,
-            'align' => 'center',
-            'valign' => 'middle',
             'font_family' => 'DejaVuSerif-Bold',
             'font_size' => 40,
             'color' => '#1B3A6B',
             'line_height' => 1.5,
-            'letter_spacing' => 0,
-            'max_lines' => $type === 'qr' ? 1 : 5,
-            'auto_shrink' => true,
-            'word_wrap' => $key !== 'ad_soyad' && $key !== 'bagis_turu' && $key !== 'tarih',
-        ];
+            'max_lines' => $isSingleLine ? 1 : 8,
+            'auto_resize' => true,
+            'word_wrap' => ! $isSingleLine,
+        ]);
 
-        $this->fields[] = TemplateFieldNormalizer::normalize($field);
-        $this->selectedFieldId = $this->fields[array_key_last($this->fields)]['id'];
+        $this->fields[] = $field;
+        $this->selectedFieldId = $field['id'];
     }
 
     public function removeField(string $fieldId): void
@@ -145,10 +147,9 @@ class DesignDocumentTemplate extends Page
 
     public function resetDefaults(): void
     {
-        $this->record->syncCanvasFromBackground(forceResetFields: true);
-        $this->record->saveQuietly();
-
-        $this->fields = $this->record->resolvedTemplateFields();
+        app(TemplateFieldSynchronizer::class)->seedDefaults($this->record);
+        $this->record->load('fields');
+        $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
         $this->selectedFieldId = $this->fields[0]['id'] ?? null;
 
         Notification::make()

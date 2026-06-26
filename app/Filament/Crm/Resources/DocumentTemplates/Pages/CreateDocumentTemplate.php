@@ -14,12 +14,9 @@ class CreateDocumentTemplate extends CreateRecord
     {
         $type = $data['type'] ?? DocumentTemplate::TYPE_DONATION_POSTER;
 
-        $data['blade_view'] = match ($type) {
-            DocumentTemplate::TYPE_RECEIPT => 'crm.documents.receipt',
-            DocumentTemplate::TYPE_DONATION_POSTER => 'crm.documents.donation-poster',
-            DocumentTemplate::TYPE_THANKS_POSTER => 'crm.documents.thanks-poster-overlay',
-            default => 'crm.documents.receipt',
-        };
+        $data['blade_view'] = $type === DocumentTemplate::TYPE_RECEIPT
+            ? 'crm.documents.receipt'
+            : 'template_engine';
 
         $data['sort_order'] = (int) DocumentTemplate::query()->where('type', $type)->max('sort_order') + 1;
 

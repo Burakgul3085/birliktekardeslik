@@ -3,6 +3,7 @@
 namespace App\Filament\Crm\Resources\DocumentTemplates\Pages;
 
 use App\Filament\Crm\Resources\DocumentTemplates\DocumentTemplateResource;
+use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
@@ -24,7 +25,9 @@ class EditDocumentTemplate extends EditRecord
 
     protected function afterSave(): void
     {
-        $this->record->syncCanvasFromBackground();
+        $this->record->syncCanvasDimensions();
         $this->record->saveQuietly();
+
+        app(TemplateFieldSynchronizer::class)->ensureFields($this->record);
     }
 }

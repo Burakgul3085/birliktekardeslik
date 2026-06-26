@@ -67,7 +67,7 @@ class TemplateFieldDefaults
                 'color' => '#1B3A6B',
                 'max_lines' => 1,
                 'word_wrap' => false,
-                'auto_shrink' => true,
+                'auto_resize' => true,
             ]),
             self::textField('tesekkur_paragrafi', 'Teşekkür Paragrafı', 0.135, 0.405, 0.73, 0.205, [
                 'font_family' => 'DejaVuSerif',
@@ -76,7 +76,7 @@ class TemplateFieldDefaults
                 'line_height' => 1.65,
                 'max_lines' => 14,
                 'word_wrap' => true,
-                'auto_shrink' => true,
+                'auto_resize' => true,
             ]),
         ];
     }
@@ -93,7 +93,7 @@ class TemplateFieldDefaults
                 'color' => '#111827',
                 'max_lines' => 1,
                 'word_wrap' => false,
-                'auto_shrink' => true,
+                'auto_resize' => true,
             ]),
             self::textField('bagis_aciklamasi', 'Bağış Açıklaması', 0.133, 0.335, 0.734, 0.175, [
                 'font_family' => 'DejaVuSans-Bold',
@@ -102,7 +102,7 @@ class TemplateFieldDefaults
                 'line_height' => 1.45,
                 'max_lines' => 10,
                 'word_wrap' => true,
-                'auto_shrink' => true,
+                'auto_resize' => true,
             ]),
             self::textField('bagis_turu', 'Bağış Türü', 0.125, 0.528, 0.75, 0.032, [
                 'font_family' => 'DejaVuSans-Bold',
@@ -110,7 +110,7 @@ class TemplateFieldDefaults
                 'color' => '#B91C1C',
                 'max_lines' => 1,
                 'word_wrap' => false,
-                'auto_shrink' => true,
+                'auto_resize' => true,
             ]),
             self::textField('tarih', 'Tarih', 0.125, 0.568, 0.75, 0.028, [
                 'font_family' => 'DejaVuSans-Bold',
@@ -118,7 +118,7 @@ class TemplateFieldDefaults
                 'color' => '#B91C1C',
                 'max_lines' => 1,
                 'word_wrap' => false,
-                'auto_shrink' => true,
+                'auto_resize' => true,
             ]),
         ];
     }
@@ -146,14 +146,14 @@ class TemplateFieldDefaults
             'width_ratio' => $widthRatio,
             'height_ratio' => $heightRatio,
             'align' => 'center',
-            'valign' => 'middle',
+            'vertical_align' => 'middle',
             'font_family' => 'DejaVuSans',
             'font_size' => 32,
             'color' => '#1B3A6B',
             'line_height' => 1.4,
             'letter_spacing' => 0,
             'max_lines' => 5,
-            'auto_shrink' => true,
+            'auto_resize' => true,
             'word_wrap' => true,
         ], $overrides);
     }
