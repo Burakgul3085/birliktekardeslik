@@ -40,6 +40,13 @@ class DonorInfolist
                             ->formatStateUsing(fn (?string $state): string => $state ? \Carbon\Carbon::parse($state)->format('d.m.Y H:i') : '-'),
                     ]),
                 ]),
+            Section::make('Desteklenen Projeler')
+                ->schema([
+                    TextEntry::make('supported_projects_summary')
+                        ->label('Projeler')
+                        ->placeholder('Henüz proje bağışı yok')
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 }

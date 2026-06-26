@@ -51,4 +51,22 @@ class Donor extends Model
 
         return $date ? (string) $date : null;
     }
+
+    public function getSupportedProjectsSummaryAttribute(): string
+    {
+        $lines = $this->donations()
+            ->whereNotNull('project_id')
+            ->with('project')
+            ->get()
+            ->groupBy('project_id')
+            ->map(function ($donations): string {
+                $title = $donations->first()->project?->title ?? 'Bilinmeyen proje';
+                $total = number_format((float) $donations->sum('amount'), 2, ',', '.');
+
+                return $title . ' — ' . $total . ' TRY (' . $donations->count() . ' bağış)';
+            })
+            ->values();
+
+        return $lines->isEmpty() ? 'Henüz proje bağışı yok' : $lines->implode("\n");
+    }
 }

@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Crm\Auth\Login;
-use App\Filament\Crm\Widgets\CrmOverviewStats;
 use App\Models\Setting;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -65,7 +64,6 @@ class CrmPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Crm/Widgets'), for: 'App\Filament\Crm\Widgets')
             ->widgets([
                 AccountWidget::class,
-                CrmOverviewStats::class,
             ])
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
