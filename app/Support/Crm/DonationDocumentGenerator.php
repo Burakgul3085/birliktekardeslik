@@ -141,7 +141,7 @@ class DonationDocumentGenerator
             ]),
             DocumentTemplate::TYPE_THANKS_POSTER => array_merge($base, [
                 'salutation' => PosterContentBuilder::salutation($donation),
-                'thankYouMessage' => PosterContentBuilder::thankYouMessage($donation),
+                'thankYouBody' => PosterContentBuilder::thankYouBody($donation),
             ]),
             default => array_merge($base, [
                 'placeholders' => [
@@ -206,9 +206,12 @@ class DonationDocumentGenerator
         $options->set('isHtml5ParserEnabled', true);
         $options->set('defaultFont', 'DejaVu Sans');
 
+        $orientation = $template->resolvedOrientation();
+        [$pageWidth, $pageHeight] = $this->pageDimensions($orientation);
+
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', $template->resolvedOrientation());
+        $dompdf->setPaper([0, 0, $pageWidth, $pageHeight], $orientation);
         $dompdf->render();
 
         return (string) $dompdf->output();

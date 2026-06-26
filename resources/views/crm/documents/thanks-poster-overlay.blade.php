@@ -3,60 +3,60 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { margin: 0; size: A4 portrait; }
-        * { box-sizing: border-box; }
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: {{ $pageWidth }}pt;
-            height: {{ $pageHeight }}pt;
-            font-family: DejaVu Sans, serif;
-        }
+        @page { margin: 0; padding: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { margin: 0; padding: 0; }
         .page {
             position: relative;
             width: {{ $pageWidth }}pt;
             height: {{ $pageHeight }}pt;
             overflow: hidden;
-            @if($backgroundDataUri)
-            background-image: url('{{ $backgroundDataUri }}');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            @endif
+            page-break-after: avoid;
+            page-break-inside: avoid;
         }
-        .salutation {
+        .page-bg {
             position: absolute;
-            left: 50%;
-            top: 36%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            text-align: center;
-            font-size: 15px;
+            top: 0;
+            left: 0;
+            width: {{ $pageWidth }}pt;
+            height: {{ $pageHeight }}pt;
+            z-index: 0;
+        }
+        .layer { position: absolute; z-index: 1; text-align: center; }
+        /* "Sayın Ad Soyad" — TEŞEKKÜRLER altındaki isim satırı */
+        .salutation {
+            left: 8%;
+            width: 84%;
+            top: 312pt;
+            font-family: DejaVu Serif, serif;
+            font-size: 17pt;
             font-weight: bold;
             color: #1B3A6B;
             line-height: 1.3;
         }
+        /* Teşekkür metni — ortadaki kutu alanı */
         .thank-you-body {
-            position: absolute;
-            left: 50%;
-            top: 52%;
-            transform: translate(-50%, -50%);
+            left: 14%;
             width: 72%;
-            text-align: center;
-            font-size: 12px;
+            top: 392pt;
+            font-family: DejaVu Serif, serif;
+            font-size: 11pt;
+            font-weight: normal;
             color: #1B3A6B;
             line-height: 1.75;
-            white-space: pre-wrap;
         }
     </style>
 </head>
 <body>
     <div class="page">
-        @if(filled($salutation))
-            <div class="salutation">{{ $salutation }}</div>
+        @if($backgroundDataUri)
+            <img src="{{ $backgroundDataUri }}" class="page-bg" alt="">
         @endif
-        @if(filled($thankYouMessage))
-            <div class="thank-you-body">{{ $thankYouMessage }}</div>
+        @if(filled($salutation))
+            <div class="layer salutation">{{ $salutation }}</div>
+        @endif
+        @if(filled($thankYouBody))
+            <div class="layer thank-you-body">{{ $thankYouBody }}</div>
         @endif
     </div>
 </body>

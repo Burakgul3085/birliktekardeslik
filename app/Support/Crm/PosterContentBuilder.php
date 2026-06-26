@@ -13,15 +13,21 @@ class PosterContentBuilder
         return $uppercase ? mb_strtoupper($name, 'UTF-8') : $name;
     }
 
-    public static function thankYouMessage(Donation $donation): string
+    public static function thankYouBody(Donation $donation): string
     {
-        $name = self::displayName($donation);
         $date = $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y');
         $type = $donation->donationType?->name ?: 'bağış';
         $amount = number_format((float) $donation->amount, 2, ',', '.');
         $currency = $donation->currency;
 
-        return "Sayın {$name}, {$date} tarihinde {$type} bağış türünden {$amount} {$currency} bağış yaptığınız için teşekkür ederiz.";
+        return "{$date} tarihinde {$type} bağış türünden {$amount} {$currency} bağış yaptığınız için teşekkür ederiz.";
+    }
+
+    public static function thankYouMessage(Donation $donation): string
+    {
+        $name = self::displayName($donation);
+
+        return self::salutation($donation) . ' ' . self::thankYouBody($donation);
     }
 
     public static function salutation(Donation $donation): string
