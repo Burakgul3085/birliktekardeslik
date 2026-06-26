@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Filament\Crm\Resources\Donations\Tables;
+
+use App\Models\DonationType;
+use App\Models\Donor;
+use App\Models\PaymentMethod;
+use App\Support\Crm\DonationDateFilter;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+class DonationsTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->defaultSort('donated_at', 'desc')
+            ->columns([
+                TextColumn::make('donation_number')
+                    ->label('Bağış No')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('receipt_number')
+                    ->label('Makbuz No')
+                    ->searchable()
+                    ->placeholder('-'),
+                TextColumn::make('donor.full_name')
+                    ->label('Bağışçı')
+                    ->searchable(['donors.first_name', 'donors.last_name'])
+                    ->sortable(),
+                TextColumn::make('donor.phone')
+                    ->label('Telefon')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->toggleable(),
+                TextColumn::make('donor.city')
+                    ->label('Şehir')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('donationType.name')
+                    ->label('Tür')
+                    ->placeholder('-')
+                    ->sortable(),
+                TextColumn::make('paymentMethod.name')
+                    ->label('Ödeme')
+                    ->placeholder('-')
+                    ->sortable(),
+                TextColumn::make('amount')
+                    ->label('Tutar')
+                    ->money(fn ($record) => $record->currency ?? 'TRY')
+                    ->sortable(),
+                TextColumn::make('donated_at')
+                    ->label('Tarih')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable(),
+                TextColumn::make('creator.name')
+                    ->label('Kaydeden')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                Filter::make('donated_at')
+                    ->label('Tarih')
+                    ->form([
+                        Select::make('preset')
+                            ->label('Hızlı seçim')
+                            ->options(DonationDateFilter::presets()),
+                        DatePicker::make('from')->label('Başlangıç'),
+                        DatePicker::make('until')->label('Bitiş'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return DonationDateFilter::apply(
+                            $query,
+                            $data['preset'] ?? null,
+                            $data['from'] ?? null,
+                            $data['until'] ?? null,
+                        );
+                    }),
+                SelectFilter::make('donation_type_id')
+                    ->label('Bağış Türü')
+                    ->options(fn (): array => DonationType::query()->orderBy('sort_order')->pluck('name', 'id')->all()),
+                SelectFilter::make('payment_method_id')
+                    ->label('Ödeme Türü')
+                    ->options(fn (): array => PaymentMethod::query()->orderBy('sort_order')->pluck('name', 'id')->all()),
+                SelectFilter::make('donor_id')
+                    ->label('Bağışçı')
+                    ->searchable()
+                    ->getSearchResultsUsing(function (string $search): array {
+                        return Donor::query()
+                            ->where(function (Builder $query) use ($search): void {
+                                $query->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhere('phone', 'like', "%{$search}%")
+                                    ->orWhere('email', 'like', "%{$search}%");
+                            })
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(fn (Donor $donor): array => [$donor->id => $donor->full_name])
+                            ->all();
+                    })
+                    ->getOptionLabelUsing(fn ($value): ?string => Donor::query()->find($value)?->full_name),
+                Filter::make('donor_contact')
+                    ->label('Bağışçı İletişim')
+                    ->form([
+                        TextInput::make('phone')->label('Telefon'),
+                        TextInput::make('city')->label('Şehir'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['phone'] ?? null, fn (Builder $q, $phone) => $q->whereHas(
+                                'donor',
+                                fn (Builder $donorQuery) => $donorQuery->where('phone', 'like', "%{$phone}%"),
+                            ))
+                            ->when($data['city'] ?? null, fn (Builder $q, $city) => $q->whereHas(
+                                'donor',
+                                fn (Builder $donorQuery) => $donorQuery->where('city', 'like', "%{$city}%"),
+                            ));
+                    }),
+                Filter::make('numbers')
+                    ->label('Numaralar')
+                    ->form([
+                        TextInput::make('donation_number')->label('Bağış No'),
+                        TextInput::make('receipt_number')->label('Makbuz No'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['donation_number'] ?? null, fn (Builder $q, $no) => $q->where('donation_number', 'like', "%{$no}%"))
+                            ->when($data['receipt_number'] ?? null, fn (Builder $q, $no) => $q->where('receipt_number', 'like', "%{$no}%"));
+                    }),
+                Filter::make('amount_range')
+                    ->label('Tutar Aralığı')
+                    ->form([
+                        TextInput::make('min')->label('Min')->numeric(),
+                        TextInput::make('max')->label('Max')->numeric(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['min'] ?? null, fn (Builder $q, $min) => $q->where('amount', '>=', $min))
+                            ->when($data['max'] ?? null, fn (Builder $q, $max) => $q->where('amount', '<=', $max));
+                    }),
+            ])
+            ->recordActions([
+                EditAction::make()->label('Düzenle'),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()->label('Seçilenleri sil'),
+                ]),
+            ]);
+    }
+}
