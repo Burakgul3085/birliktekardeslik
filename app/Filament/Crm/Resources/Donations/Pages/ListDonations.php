@@ -2,12 +2,13 @@
 
 namespace App\Filament\Crm\Resources\Donations\Pages;
 
-use App\Filament\Crm\Exports\DonationExporter;
 use App\Filament\Crm\Resources\Donations\DonationResource;
+use App\Support\Crm\DonationSpreadsheetExporter;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
-use Filament\Actions\ExportAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Icons\Heroicon;
 
 class ListDonations extends ListRecords
 {
@@ -16,12 +17,24 @@ class ListDonations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            ExportAction::make()
+            Action::make('exportExcel')
                 ->label('Excel Dışa Aktar')
-                ->exporter(DonationExporter::class)
-                ->authGuard('crm')
-                ->formats([ExportFormat::Xlsx])
-                ->columnMapping(false),
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->action(function () {
+                    $query = $this->getTableQueryForExport();
+
+                    if (! $query->exists()) {
+                        Notification::make()
+                            ->title('Dışa aktarılacak bağış bulunamadı')
+                            ->warning()
+                            ->send();
+
+                        return;
+                    }
+
+                    return DonationSpreadsheetExporter::download($query);
+                }),
             CreateAction::make()->label('Yeni bağış'),
         ];
     }

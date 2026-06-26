@@ -2,21 +2,26 @@
 
 namespace App\Filament\Crm\Resources\Donations\Tables;
 
+use App\Models\Donation;
 use App\Models\DonationType;
 use App\Models\Donor;
 use App\Models\PaymentMethod;
 use App\Support\Crm\DonationDateFilter;
+use App\Support\Crm\DonationSpreadsheetExporter;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class DonationsTable
 {
@@ -154,6 +159,24 @@ class DonationsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('exportExcel')
+                        ->label('Seçilenleri Excel\'e aktar')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function (Collection $records) {
+                            if ($records->isEmpty()) {
+                                Notification::make()
+                                    ->title('Lütfen en az bir bağış seçin')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            return DonationSpreadsheetExporter::download(
+                                Donation::query()->whereIn('id', $records->pluck('id')),
+                                'bagislar-secili-' . now()->format('Y-m-d_His') . '.xlsx',
+                            );
+                        }),
                     DeleteBulkAction::make()->label('Seçilenleri sil'),
                 ]),
             ]);
