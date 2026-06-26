@@ -6,6 +6,9 @@ use App\Models\DocumentTemplate;
 use App\Models\DonationDocument;
 use App\Support\Crm\DonationDocumentGenerator;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -17,6 +20,11 @@ class DocumentsRelationManager extends RelationManager
     protected static string $relationship = 'documents';
 
     protected static ?string $title = 'Belgeler';
+
+    private function canManageDocuments(): bool
+    {
+        return auth('crm')->user()?->canWriteDonations() ?? false;
+    }
 
     public function table(Table $table): Table
     {
@@ -80,6 +88,24 @@ class DocumentsRelationManager extends RelationManager
                     ->icon('heroicon-o-qr-code')
                     ->url(fn ($record): string => $record->verification_url)
                     ->openUrlInNewTab(),
+                DeleteAction::make()
+                    ->label('Sil')
+                    ->visible(fn (): bool => $this->canManageDocuments())
+                    ->requiresConfirmation()
+                    ->modalHeading('Belgeyi sil')
+                    ->modalDescription('Bu belge ve PDF dosyası kalıcı olarak silinecek. Emin misiniz?')
+                    ->successNotificationTitle('Belge silindi'),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->label('Seçilen belgeleri sil')
+                        ->visible(fn (): bool => $this->canManageDocuments())
+                        ->requiresConfirmation()
+                        ->modalHeading('Seçilen belgeleri sil')
+                        ->modalDescription('Seçili belgeler ve PDF dosyaları kalıcı olarak silinecek.')
+                        ->successNotificationTitle('Belgeler silindi'),
+                ]),
             ]);
     }
 
