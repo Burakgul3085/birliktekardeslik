@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\VolunteerApplication;
 use App\Observers\AuditableObserver;
 use App\Support\AdminActivity;
+use Filament\Actions\Exports\Models\Export;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Event;
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Export::polymorphicUserRelationship(true);
+
         Project::observe(AuditableObserver::class);
         News::observe(AuditableObserver::class);
         BankAccount::observe(AuditableObserver::class);
