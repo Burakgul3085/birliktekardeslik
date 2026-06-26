@@ -135,13 +135,18 @@ class DonationDocumentGenerator
         return match ($template->type) {
             DocumentTemplate::TYPE_DONATION_POSTER => array_merge($base, [
                 'posterName' => PosterContentBuilder::displayName($donation, uppercase: true),
-                'posterDescription' => $donation->description,
+                'posterDescription' => mb_strtoupper(trim($donation->description ?? ''), 'UTF-8'),
                 'donationType' => $donation->donationType?->name ?? '',
                 'donationDate' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
+                'nameFontSize' => PosterLayout::donationNameFontSize(
+                    PosterContentBuilder::displayName($donation, uppercase: true)
+                ),
+                'descriptionFontSize' => PosterLayout::donationDescriptionFontSize($donation->description ?? ''),
             ]),
             DocumentTemplate::TYPE_THANKS_POSTER => array_merge($base, [
                 'salutation' => PosterContentBuilder::salutation($donation),
                 'thankYouBody' => PosterContentBuilder::thankYouBody($donation),
+                'bodyFontSize' => PosterLayout::thanksBodyFontSize(PosterContentBuilder::thankYouBody($donation)),
             ]),
             default => array_merge($base, [
                 'placeholders' => [
