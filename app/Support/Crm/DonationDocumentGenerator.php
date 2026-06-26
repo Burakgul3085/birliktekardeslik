@@ -114,10 +114,8 @@ class DonationDocumentGenerator
 
     private function renderTemplateImagePdf(DocumentTemplate $template, Donation $donation, string $verifyUrl): string
     {
-        if (empty($template->settings['fields'])) {
-            $template->syncCanvasFromBackground();
-            $template->saveQuietly();
-        }
+        $template->syncCanvasFromBackground();
+        $template->saveQuietly();
 
         $values = TemplateValueResolver::forDonation($donation, $template->type, $verifyUrl);
         $pngBinary = $this->imageEngine->render($template, $values);

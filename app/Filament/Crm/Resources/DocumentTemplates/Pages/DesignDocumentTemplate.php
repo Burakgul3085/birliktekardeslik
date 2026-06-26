@@ -6,6 +6,7 @@ use App\Filament\Crm\Resources\DocumentTemplates\DocumentTemplateResource;
 use App\Models\DocumentTemplate;
 use App\Support\Crm\TemplateEngine\FontRegistry;
 use App\Support\Crm\TemplateEngine\TemplateFieldDefaults;
+use App\Support\Crm\TemplateEngine\TemplateFieldNormalizer;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -89,7 +90,8 @@ class DesignDocumentTemplate extends Page
             'width' => $this->canvasWidth,
             'height' => $this->canvasHeight,
         ];
-        $settings['fields'] = array_values($this->fields);
+        $settings['fields'] = TemplateFieldNormalizer::normalizeAll(array_values($this->fields));
+        $settings['fields_version'] = TemplateFieldDefaults::FIELDS_VERSION;
 
         $this->record->update(['settings' => $settings]);
 
@@ -125,8 +127,8 @@ class DesignDocumentTemplate extends Page
             'word_wrap' => $key !== 'ad_soyad' && $key !== 'bagis_turu' && $key !== 'tarih',
         ];
 
-        $this->fields[] = $field;
-        $this->selectedFieldId = $field['id'];
+        $this->fields[] = TemplateFieldNormalizer::normalize($field);
+        $this->selectedFieldId = $this->fields[array_key_last($this->fields)]['id'];
     }
 
     public function removeField(string $fieldId): void
@@ -143,16 +145,14 @@ class DesignDocumentTemplate extends Page
 
     public function resetDefaults(): void
     {
-        $this->fields = TemplateFieldDefaults::forType(
-            $this->record->type,
-            $this->canvasWidth,
-            $this->canvasHeight,
-        );
+        $this->record->syncCanvasFromBackground(forceResetFields: true);
+        $this->record->saveQuietly();
+
+        $this->fields = $this->record->resolvedTemplateFields();
         $this->selectedFieldId = $this->fields[0]['id'] ?? null;
 
         Notification::make()
-            ->title('Varsayılan alanlar yüklendi')
-            ->body('Kaydet butonuna basarak kalıcı hale getirin.')
+            ->title('Varsayılan alanlar yüklendi ve kaydedildi')
             ->success()
             ->send();
     }

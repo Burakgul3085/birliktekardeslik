@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\Crm\TemplateEngine\TemplateFieldDefaults;
+use App\Support\Crm\TemplateEngine\TemplateFieldNormalizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -121,18 +122,24 @@ class DocumentTemplate extends Model
      */
     public function resolvedTemplateFields(): array
     {
-        $saved = $this->settings['fields'] ?? [];
+        ['width' => $width, 'height' => $height] = $this->canvasSize();
+        $settings = $this->settings ?? [];
+        $saved = $settings['fields'] ?? [];
+        $version = (int) ($settings['fields_version'] ?? 0);
 
-        if (! empty($saved)) {
-            return $saved;
+        if (empty($saved) || $version < TemplateFieldDefaults::FIELDS_VERSION) {
+            return TemplateFieldDefaults::forType($this->type, $width, $height);
         }
 
-        ['width' => $width, 'height' => $height] = $this->canvasSize();
-
-        return TemplateFieldDefaults::forType($this->type, $width, $height);
+        return TemplateFieldNormalizer::normalizeAll(
+            array_map(
+                fn (array $field): array => TemplateFieldDefaults::applyCanvasSize($field, $width, $height),
+                $saved,
+            ),
+        );
     }
 
-    public function syncCanvasFromBackground(): void
+    public function syncCanvasFromBackground(bool $forceResetFields = false): void
     {
         if (! $this->background_image) {
             return;
@@ -153,8 +160,13 @@ class DocumentTemplate extends Model
         $settings = $this->settings ?? [];
         $settings['canvas'] = ['width' => $size[0], 'height' => $size[1]];
 
-        if (empty($settings['fields']) && in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)) {
+        $shouldInitFields = $forceResetFields
+            || empty($settings['fields'])
+            || (int) ($settings['fields_version'] ?? 0) < TemplateFieldDefaults::FIELDS_VERSION;
+
+        if ($shouldInitFields && in_array($this->type, [self::TYPE_DONATION_POSTER, self::TYPE_THANKS_POSTER], true)) {
             $settings['fields'] = TemplateFieldDefaults::forType($this->type, $size[0], $size[1]);
+            $settings['fields_version'] = TemplateFieldDefaults::FIELDS_VERSION;
         }
 
         $this->settings = $settings;
