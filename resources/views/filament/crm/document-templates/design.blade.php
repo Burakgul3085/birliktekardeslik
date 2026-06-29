@@ -44,6 +44,14 @@
                     @endforeach
                 </div>
             </div>
+
+            @if ($previewDataUri)
+                <div class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Canlı Render Önizlemesi</h3>
+                    <p class="mb-3 text-xs text-gray-500">Bu görüntü PDF üretiminde kullanılan motor ile oluşturulmuştur.</p>
+                    <img src="{{ $previewDataUri }}" alt="Önizleme" class="mx-auto max-w-full rounded-lg border border-gray-200 shadow" />
+                </div>
+            @endif
         </div>
 
         <div class="space-y-4 xl:col-span-4">

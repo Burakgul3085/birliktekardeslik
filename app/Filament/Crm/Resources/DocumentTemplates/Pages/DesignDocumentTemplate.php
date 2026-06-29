@@ -3,11 +3,12 @@
 namespace App\Filament\Crm\Resources\DocumentTemplates\Pages;
 
 use App\Filament\Crm\Resources\DocumentTemplates\DocumentTemplateResource;
-use App\Models\DocumentTemplate;
-use App\Support\Crm\TemplateEngine\FontRegistry;
-use App\Support\Crm\TemplateEngine\TemplateFieldDefaults;
+use App\Support\Crm\TemplateEngine\TemplateCoordinateHelper;
+use App\Support\Crm\TemplateEngine\TemplateFieldCatalog;
 use App\Support\Crm\TemplateEngine\TemplateFieldNormalizer;
 use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
+use App\Support\Crm\TemplateEngine\TemplateRenderEngine;
+use App\Support\Crm\TemplateEngine\TemplateSampleValues;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -35,6 +36,8 @@ class DesignDocumentTemplate extends Page
     public ?string $selectedFieldId = null;
 
     public ?string $backgroundUrl = null;
+
+    public ?string $previewDataUri = null;
 
     public function mount(int|string $record): void
     {
@@ -76,7 +79,7 @@ class DesignDocumentTemplate extends Page
      */
     public function getFontOptions(): array
     {
-        return FontRegistry::options();
+        return \App\Support\Crm\TemplateEngine\FontRegistry::options();
     }
 
     /**
@@ -84,7 +87,7 @@ class DesignDocumentTemplate extends Page
      */
     public function getFieldKeyOptions(): array
     {
-        return TemplateFieldDefaults::FIELD_LABELS;
+        return TemplateFieldCatalog::labelsForType($this->record->type);
     }
 
     public function save(): void
@@ -100,16 +103,42 @@ class DesignDocumentTemplate extends Page
         $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
 
         Notification::make()
-            ->title('Şablon alanları veritabanına kaydedildi')
+            ->title('Şablon alanları kaydedildi')
             ->success()
             ->send();
     }
 
+    public function renderPreview(): void
+    {
+        try {
+            $engine = app(TemplateRenderEngine::class);
+            $png = $engine->renderPng(
+                $this->record,
+                TemplateSampleValues::forType($this->record->type),
+                TemplateFieldNormalizer::normalizeAll(array_values($this->fields)),
+            );
+
+            $this->previewDataUri = 'data:image/png;base64,' . base64_encode($png);
+
+            Notification::make()
+                ->title('Önizleme oluşturuldu')
+                ->body('Aşağıdaki görüntü, gerçek render motoru ile üretilmiştir.')
+                ->success()
+                ->send();
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title('Önizleme oluşturulamadı')
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
     public function addField(string $key): void
     {
-        $label = TemplateFieldDefaults::FIELD_LABELS[$key] ?? $key;
+        $label = TemplateFieldCatalog::LABELS[$key] ?? $key;
         $type = $key === 'qr_code' ? 'qr' : 'text';
-        $isSingleLine = in_array($key, ['ad_soyad', 'bagis_turu', 'tarih', 'bagis_no'], true);
+        $isSingleLine = TemplateFieldCatalog::isSingleLine($key);
 
         $field = TemplateFieldNormalizer::normalize([
             'id' => 'field_' . $key . '_' . Str::random(4),
@@ -128,6 +157,8 @@ class DesignDocumentTemplate extends Page
             'auto_resize' => true,
             'word_wrap' => ! $isSingleLine,
         ]);
+
+        $field = TemplateCoordinateHelper::attachRatios($field, $this->canvasWidth, $this->canvasHeight);
 
         $this->fields[] = $field;
         $this->selectedFieldId = $field['id'];
@@ -151,9 +182,11 @@ class DesignDocumentTemplate extends Page
         $this->record->load('fields');
         $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
         $this->selectedFieldId = $this->fields[0]['id'] ?? null;
+        $this->previewDataUri = null;
 
         Notification::make()
-            ->title('Varsayılan alanlar yüklendi ve kaydedildi')
+            ->title('Varsayılan alanlar yüklendi')
+            ->body('Konumları düzenleyicide ince ayar yapıp kaydedin.')
             ->success()
             ->send();
     }
@@ -178,6 +211,12 @@ class DesignDocumentTemplate extends Page
                     $this->fields[$index][$key] = max(0, (int) $payload[$key]);
                 }
             }
+
+            $this->fields[$index] = TemplateCoordinateHelper::attachRatios(
+                $this->fields[$index],
+                $this->canvasWidth,
+                $this->canvasHeight,
+            );
         }
     }
 
@@ -188,6 +227,11 @@ class DesignDocumentTemplate extends Page
                 ->label('Geri')
                 ->url(DocumentTemplateResource::getUrl('edit', ['record' => $this->record]))
                 ->color('gray'),
+            Action::make('preview')
+                ->label('Örnek Veriyle Önizle')
+                ->icon('heroicon-o-eye')
+                ->action('renderPreview')
+                ->color('info'),
             Action::make('reset')
                 ->label('Varsayılanlara sıfırla')
                 ->action('resetDefaults')

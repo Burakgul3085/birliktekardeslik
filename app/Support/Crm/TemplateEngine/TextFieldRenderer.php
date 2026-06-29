@@ -158,9 +158,9 @@ class TextFieldRenderer
         $lineHeightPx = $metrics['line_height'];
         $blockHeight = $metrics['height'];
         $yStart = match ($verticalAlign) {
-            'top' => (int) $field['y'] + $metrics['ascent'],
+            'top' => (int) $field['y'] + 4 + $metrics['ascent'],
             'bottom' => (int) $field['y'] + (int) $field['height'] - $blockHeight + $metrics['ascent'],
-            default => (int) $field['y'] + (int) (((int) $field['height'] - $blockHeight) / 2) + $metrics['ascent'],
+            default => (int) $field['y'] + (int) round((((int) $field['height'] - $blockHeight) / 2)) + $metrics['ascent'],
         };
 
         foreach ($lines as $index => $line) {

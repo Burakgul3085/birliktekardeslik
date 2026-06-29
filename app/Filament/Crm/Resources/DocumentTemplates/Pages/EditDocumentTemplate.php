@@ -5,11 +5,16 @@ namespace App\Filament\Crm\Resources\DocumentTemplates\Pages;
 use App\Filament\Crm\Resources\DocumentTemplates\DocumentTemplateResource;
 use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditDocumentTemplate extends EditRecord
 {
     protected static string $resource = DocumentTemplateResource::class;
+
+    protected ?int $canvasWidthBefore = null;
+
+    protected ?int $canvasHeightBefore = null;
 
     protected function getHeaderActions(): array
     {
@@ -23,11 +28,38 @@ class EditDocumentTemplate extends EditRecord
         ];
     }
 
+    protected function beforeSave(): void
+    {
+        $this->canvasWidthBefore = $this->record->canvas_width;
+        $this->canvasHeightBefore = $this->record->canvas_height;
+    }
+
     protected function afterSave(): void
     {
-        $this->record->syncCanvasDimensions();
-        $this->record->saveQuietly();
+        $oldWidth = (int) ($this->canvasWidthBefore ?? 0);
+        $oldHeight = (int) ($this->canvasHeightBefore ?? 0);
 
-        app(TemplateFieldSynchronizer::class)->ensureFields($this->record);
+        $this->record->syncCanvasDimensions();
+        $sync = app(TemplateFieldSynchronizer::class);
+
+        $newWidth = (int) ($this->record->canvas_width ?? 0);
+        $newHeight = (int) ($this->record->canvas_height ?? 0);
+
+        if ($this->record->fields()->exists()) {
+            if ($oldWidth > 0 && $oldHeight > 0 && ($newWidth !== $oldWidth || $newHeight !== $oldHeight)) {
+                $sync->rescaleFieldsToCanvas($this->record, $oldWidth, $oldHeight);
+
+                Notification::make()
+                    ->title('Şablon boyutu değişti')
+                    ->body('Alan koordinatları yeni PNG boyutuna orantılı olarak güncellendi. Düzenleyicide kontrol edebilirsiniz.')
+                    ->success()
+                    ->send();
+            } else {
+                $sync->reapplyFieldsFromRatios($this->record);
+            }
+        }
+
+        $this->record->saveQuietly();
+        $sync->ensureFields($this->record);
     }
 }

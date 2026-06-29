@@ -16,7 +16,7 @@ class TemplateFieldNormalizer
         $base = [
             'id' => (string) ($field['id'] ?? 'field_' . $key),
             'key' => $key,
-            'label' => (string) ($field['label'] ?? (TemplateFieldDefaults::FIELD_LABELS[$key] ?? $key)),
+            'label' => (string) ($field['label'] ?? (TemplateFieldCatalog::LABELS[$key] ?? $key)),
             'type' => $type,
             'x' => max(0, (int) ($field['x'] ?? 0)),
             'y' => max(0, (int) ($field['y'] ?? 0)),
@@ -30,7 +30,7 @@ class TemplateFieldNormalizer
             return $base;
         }
 
-        $isSingleLine = in_array($key, ['ad_soyad', 'bagis_turu', 'tarih', 'bagis_no'], true);
+        $isSingleLine = TemplateFieldCatalog::isSingleLine($key);
 
         return array_merge($base, [
             'font_family' => (string) ($field['font_family'] ?? 'DejaVuSans'),

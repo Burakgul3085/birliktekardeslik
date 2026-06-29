@@ -6,17 +6,7 @@ use App\Models\DocumentTemplate;
 
 class TemplateFieldDefaults
 {
-    public const FIELD_LABELS = [
-        'ad_soyad' => 'Ad Soyad',
-        'tesekkur_paragrafi' => 'Teşekkür Paragrafı',
-        'bagis_aciklamasi' => 'Bağış Açıklaması',
-        'bagis_turu' => 'Bağış Türü',
-        'tarih' => 'Tarih',
-        'bagis_no' => 'Bağış No',
-        'qr_code' => 'QR Kod',
-    ];
-
-    public const FIELDS_VERSION = 2;
+    public const FIELDS_VERSION = 3;
 
     /**
      * @return array<int, array<string, mixed>>
@@ -61,21 +51,41 @@ class TemplateFieldDefaults
     private static function thanksPosterFields(): array
     {
         return [
-            self::textField('ad_soyad', 'Ad Soyad', 0.125, 0.358, 0.75, 0.038, [
+            self::textField('ad_soyad', 'Ad Soyad', 0.18, 0.30, 0.64, 0.04, [
                 'font_family' => 'DejaVuSerif-Bold',
-                'font_size' => 48,
+                'font_size' => 44,
                 'color' => '#1B3A6B',
                 'max_lines' => 1,
                 'word_wrap' => false,
                 'auto_resize' => true,
             ]),
-            self::textField('tesekkur_paragrafi', 'Teşekkür Paragrafı', 0.135, 0.405, 0.73, 0.205, [
+            self::textField('tesekkur_metni', 'Teşekkür Metni', 0.12, 0.38, 0.76, 0.28, [
                 'font_family' => 'DejaVuSerif',
+                'font_size' => 28,
+                'color' => '#1B3A6B',
+                'line_height' => 1.55,
+                'max_lines' => 12,
+                'word_wrap' => true,
+                'auto_resize' => true,
+            ]),
+            self::textField('imza_ad_soyad', 'İmza Ad Soyad', 0.42, 0.78, 0.36, 0.028, [
+                'font_family' => 'DejaVuSerif-Bold',
                 'font_size' => 32,
                 'color' => '#1B3A6B',
-                'line_height' => 1.65,
-                'max_lines' => 14,
-                'word_wrap' => true,
+                'align' => 'left',
+                'vertical_align' => 'middle',
+                'max_lines' => 1,
+                'word_wrap' => false,
+                'auto_resize' => true,
+            ]),
+            self::textField('imza_unvan', 'İmza Ünvan', 0.42, 0.815, 0.36, 0.024, [
+                'font_family' => 'DejaVuSerif',
+                'font_size' => 24,
+                'color' => '#1B3A6B',
+                'align' => 'left',
+                'vertical_align' => 'middle',
+                'max_lines' => 1,
+                'word_wrap' => false,
                 'auto_resize' => true,
             ]),
         ];
@@ -151,7 +161,6 @@ class TemplateFieldDefaults
             'font_size' => 32,
             'color' => '#1B3A6B',
             'line_height' => 1.4,
-            'letter_spacing' => 0,
             'max_lines' => 5,
             'auto_resize' => true,
             'word_wrap' => true,

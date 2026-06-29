@@ -16,6 +16,10 @@ class DocumentTemplateField extends Model
         'y',
         'width',
         'height',
+        'x_ratio',
+        'y_ratio',
+        'width_ratio',
+        'height_ratio',
         'font_family',
         'font_size',
         'color',
@@ -32,6 +36,10 @@ class DocumentTemplateField extends Model
         'auto_resize' => 'boolean',
         'word_wrap' => 'boolean',
         'line_height' => 'float',
+        'x_ratio' => 'float',
+        'y_ratio' => 'float',
+        'width_ratio' => 'float',
+        'height_ratio' => 'float',
     ];
 
     public function template(): BelongsTo
@@ -53,6 +61,10 @@ class DocumentTemplateField extends Model
             'y' => $this->y,
             'width' => $this->width,
             'height' => $this->height,
+            'x_ratio' => $this->x_ratio,
+            'y_ratio' => $this->y_ratio,
+            'width_ratio' => $this->width_ratio,
+            'height_ratio' => $this->height_ratio,
             'font_family' => $this->font_family,
             'font_size' => $this->font_size,
             'color' => $this->color,
@@ -79,6 +91,10 @@ class DocumentTemplateField extends Model
             'y' => max(0, (int) ($data['y'] ?? 0)),
             'width' => max(1, (int) ($data['width'] ?? 100)),
             'height' => max(1, (int) ($data['height'] ?? 50)),
+            'x_ratio' => isset($data['x_ratio']) ? (float) $data['x_ratio'] : null,
+            'y_ratio' => isset($data['y_ratio']) ? (float) $data['y_ratio'] : null,
+            'width_ratio' => isset($data['width_ratio']) ? (float) $data['width_ratio'] : null,
+            'height_ratio' => isset($data['height_ratio']) ? (float) $data['height_ratio'] : null,
             'font_family' => (string) ($data['font_family'] ?? 'DejaVuSans'),
             'font_size' => max(8, (int) ($data['font_size'] ?? 32)),
             'color' => (string) ($data['color'] ?? '#1B3A6B'),
@@ -90,7 +106,7 @@ class DocumentTemplateField extends Model
                 : (bool) ($data['auto_shrink'] ?? true),
             'word_wrap' => array_key_exists('word_wrap', $data)
                 ? (bool) $data['word_wrap']
-                : ((string) ($data['key'] ?? '') !== 'ad_soyad'),
+                : ! \App\Support\Crm\TemplateEngine\TemplateFieldCatalog::isSingleLine((string) ($data['key'] ?? '')),
             'line_height' => (float) ($data['line_height'] ?? 1.4),
             'sort_order' => $sortOrder,
         ];

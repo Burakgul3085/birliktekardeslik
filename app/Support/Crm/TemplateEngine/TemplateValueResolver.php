@@ -14,12 +14,17 @@ class TemplateValueResolver
     {
         $donation->loadMissing(['donor', 'donationType']);
 
+        $thankYouBody = PosterContentBuilder::thankYouBody($donation);
+
         $base = [
-            'tesekkur_paragrafi' => PosterContentBuilder::thankYouBody($donation),
+            'tesekkur_metni' => $thankYouBody,
+            'tesekkur_paragrafi' => $thankYouBody,
             'bagis_aciklamasi' => mb_strtoupper(trim($donation->description ?? ''), 'UTF-8'),
             'bagis_turu' => mb_strtoupper($donation->donationType?->name ?? '', 'UTF-8'),
             'tarih' => $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y'),
             'bagis_no' => $donation->donation_number,
+            'imza_ad_soyad' => TemplateFieldCatalog::SIGNATURE_NAME,
+            'imza_unvan' => TemplateFieldCatalog::SIGNATURE_TITLE,
             'qr_code' => $verifyUrl ?? '',
         ];
 

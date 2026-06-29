@@ -17,19 +17,24 @@ class TemplateRenderEngine
 
     /**
      * @param  array<string, string>  $values
+     * @param  array<int, array<string, mixed>>|null  $fieldOverrides
      */
-    public function renderPng(DocumentTemplate $template, array $values): string
+    public function renderPng(DocumentTemplate $template, array $values, ?array $fieldOverrides = null): string
     {
-        $this->fieldSynchronizer->ensureFields($template);
-        $template->loadMissing('fields');
+        if ($fieldOverrides === null) {
+            $this->fieldSynchronizer->ensureFields($template);
+            $template->loadMissing('fields');
+            $definitions = $template->fields->map(fn ($field) => $field->toRenderDefinition())->all();
+        } else {
+            $definitions = TemplateFieldNormalizer::normalizeAll(array_values($fieldOverrides));
+        }
 
         $canvas = $this->canvasLoader->load($template);
 
-        foreach ($template->fields as $field) {
-            $definition = $field->toRenderDefinition();
+        foreach ($definitions as $definition) {
             $value = $values[$definition['key']] ?? '';
 
-            if ($definition['type'] === 'qr') {
+            if (($definition['type'] ?? 'text') === 'qr') {
                 $this->qrRenderer->render($canvas, $definition, $value);
             } else {
                 $this->textRenderer->render($canvas, $definition, $value);
