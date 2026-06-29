@@ -6,6 +6,10 @@ use App\Models\DocumentTemplate;
 use App\Models\Donation;
 use App\Models\DonationDocument;
 use App\Models\Setting;
+use App\Support\Crm\TemplateEngine\DocumentRenderService;
+use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
+use App\Support\Crm\TemplateEngine\TemplateRenderEngine;
+use App\Support\Crm\TemplateEngine\TemplateValueResolver;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Endroid\QrCode\QrCode;
@@ -15,12 +19,14 @@ use Illuminate\Support\Str;
 
 class DonationDocumentGenerator
 {
+    public function __construct(
+        private readonly TemplateRenderEngine $templateEngine = new TemplateRenderEngine(),
+        private readonly TemplateFieldSynchronizer $fieldSynchronizer = new TemplateFieldSynchronizer(),
+        private readonly DocumentRenderService $documentRenderService = new DocumentRenderService(),
+    ) {}
+
     public function generate(Donation $donation, string $type, bool $regenerate = false, ?string $description = null): DonationDocument
     {
-        if ($type !== DocumentTemplate::TYPE_RECEIPT) {
-            throw new \RuntimeException('Şu anda yalnızca makbuz oluşturulabilir.');
-        }
-
         $donation->loadMissing(['donor', 'donationType', 'paymentMethod', 'project']);
 
         if ($description !== null) {
@@ -28,7 +34,12 @@ class DonationDocumentGenerator
             $donation->refresh();
         }
 
+        if ($type === DocumentTemplate::TYPE_DONATION_POSTER && blank($donation->description)) {
+            throw new \RuntimeException('Bağış afişi için bağış açıklaması gereklidir.');
+        }
+
         $template = DocumentTemplate::query()
+            ->with('fields')
             ->where('type', $type)
             ->where('is_active', true)
             ->orderByDesc('is_default')
@@ -37,6 +48,12 @@ class DonationDocumentGenerator
 
         if (! $template) {
             throw new \RuntimeException('Bu belge türü için aktif şablon bulunamadı.');
+        }
+
+        if ($template->requiresBackground() && ! $template->usesOverlay()) {
+            throw new \RuntimeException(
+                DocumentTemplate::ACTIVE_TYPES[$type] . ' için boş şablon görseli yüklenmemiş. Afiş Şablonları bölümünden PNG yükleyin.'
+            );
         }
 
         if (! $regenerate) {
@@ -52,7 +69,17 @@ class DonationDocumentGenerator
 
         $verificationCode = Str::upper(Str::random(12));
         $verifyUrl = route('crm.document.verify', $verificationCode);
-        $pdfBinary = $this->renderReceiptPdf($donation, $verificationCode, $verifyUrl, $template);
+
+        if ($template->usesTemplateEngine()) {
+            $rendered = $this->renderTemplateEngine($template, $donation, $verifyUrl, $verificationCode);
+            $pdfBinary = $rendered['pdf'];
+            $pngRelativePath = $rendered['png_path'];
+            $engine = 'template_engine';
+        } else {
+            $pdfBinary = $this->renderReceiptPdf($donation, $verificationCode, $verifyUrl, $template);
+            $pngRelativePath = null;
+            $engine = 'receipt_blade';
+        }
 
         $relativePath = 'crm/documents/' . $donation->id . '/' . $type . '-' . $verificationCode . '.pdf';
         Storage::disk('public')->put($relativePath, $pdfBinary);
@@ -61,8 +88,10 @@ class DonationDocumentGenerator
             'donation_id' => $donation->id,
             'document_template_id' => $template->id,
             'type' => $type,
+            'status' => DonationDocument::STATUS_DRAFT,
             'verification_code' => $verificationCode,
             'pdf_path' => $relativePath,
+            'png_path' => $pngRelativePath,
             'generated_at' => now(),
             'meta' => [
                 'donation_number' => $donation->donation_number,
@@ -70,9 +99,79 @@ class DonationDocumentGenerator
                 'amount' => (string) $donation->amount,
                 'currency' => $donation->currency,
                 'template_id' => $template->id,
-                'engine' => 'receipt_blade',
+                'engine' => $engine,
             ],
         ]);
+    }
+
+    /**
+     * @return array<string, DonationDocument>
+     */
+    public function generateAll(Donation $donation, bool $regenerate = false, ?string $description = null): array
+    {
+        $documents = [];
+
+        foreach (DocumentTemplate::GENERATABLE_TYPES as $type) {
+            $documents[$type] = $this->generate(
+                $donation,
+                $type,
+                $regenerate,
+                $type === DocumentTemplate::TYPE_DONATION_POSTER ? $description : null,
+            );
+        }
+
+        return $documents;
+    }
+
+    public function rerender(DonationDocument $document): DonationDocument
+    {
+        $document->loadMissing(['donation.donor', 'donation.donationType', 'template', 'fieldOverrides']);
+
+        if ($document->template?->usesTemplateEngine()) {
+            $result = $this->documentRenderService->renderForDocument($document);
+
+            Storage::disk('public')->put($document->pdf_path, $result['pdf']);
+
+            $pngPath = $document->png_path ?? 'crm/documents/' . $document->donation_id . '/' . $document->type . '-' . $document->verification_code . '.png';
+            Storage::disk('public')->put($pngPath, $result['png']);
+
+            $document->update([
+                'png_path' => $pngPath,
+                'generated_at' => now(),
+            ]);
+        }
+
+        return $document->fresh();
+    }
+
+    public function finalize(DonationDocument $document): DonationDocument
+    {
+        $this->rerender($document);
+        $document->update(['status' => DonationDocument::STATUS_FINAL]);
+
+        return $document->fresh();
+    }
+
+    /**
+     * @return array{pdf: string, png_path: string}
+     */
+    private function renderTemplateEngine(DocumentTemplate $template, Donation $donation, string $verifyUrl, string $verificationCode): array
+    {
+        $template->syncCanvasDimensions();
+        $template->saveQuietly();
+        $this->fieldSynchronizer->ensureFields($template);
+        $template->load('fields');
+
+        $values = TemplateValueResolver::forDonation($donation, $template->type, $verifyUrl, $template);
+        $result = $this->templateEngine->render($template, $values);
+
+        $pngRelativePath = 'crm/documents/' . $donation->id . '/' . $template->type . '-' . $verificationCode . '.png';
+        Storage::disk('public')->put($pngRelativePath, $result['png']);
+
+        return [
+            'pdf' => $result['pdf'],
+            'png_path' => $pngRelativePath,
+        ];
     }
 
     private function renderReceiptPdf(Donation $donation, string $verificationCode, string $verifyUrl, DocumentTemplate $template): string

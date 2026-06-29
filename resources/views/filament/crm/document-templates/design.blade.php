@@ -1,9 +1,14 @@
 <x-filament-panels::page>
+    <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+        <strong>Adımlar:</strong> Alanları sürükleyerek taşıyın, sağ alt köşeden boyutlandırın, sağ panelden font/renk ayarlayın → <strong>Örnek Veriyle Önizle</strong> → <strong>Kaydet</strong>.
+        Kendi boş PNG'nizi yüklediyseniz konumları buna göre hizalayın.
+    </div>
+
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
         <div class="xl:col-span-8">
             <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
-                    Alanları sürükleyerek taşıyın. Koordinatlar orijinal PNG boyutuna göre kaydedilir ({{ $canvasWidth }}×{{ $canvasHeight }} px).
+                    Orijinal PNG boyutu: {{ $canvasWidth }}×{{ $canvasHeight }} px — koordinatlar bu ölçeğe göre kaydedilir.
                 </p>
                 <div
                     id="template-canvas"
@@ -11,8 +16,8 @@
                     style="max-width: 100%; aspect-ratio: {{ $canvasWidth }} / {{ $canvasHeight }};"
                     x-data="templateDesigner(@js($canvasWidth), @js($canvasHeight))"
                     x-init="init()"
-                    @mousemove.window="onDrag($event)"
-                    @mouseup.window="endDrag()"
+                    @mousemove.window="onPointerMove($event)"
+                    @mouseup.window="endPointer()"
                 >
                     <img
                         src="{{ $backgroundUrl }}"
@@ -27,7 +32,9 @@
                             data-field-id="{{ $field['id'] }}"
                             data-x="{{ $field['x'] }}"
                             data-y="{{ $field['y'] }}"
-                            class="template-field-box absolute cursor-move rounded border-2 bg-primary-500/10 transition-shadow {{ ($selectedFieldId ?? '') === $field['id'] ? 'border-primary-500 shadow-lg' : 'border-primary-300/70' }}"
+                            data-width="{{ $field['width'] }}"
+                            data-height="{{ $field['height'] }}"
+                            class="template-field-box group absolute cursor-move rounded border-2 bg-primary-500/10 transition-shadow {{ ($selectedFieldId ?? '') === $field['id'] ? 'border-primary-500 shadow-lg ring-2 ring-primary-300/50' : 'border-primary-300/70' }}"
                             style="
                                 left: {{ ($field['x'] / max($canvasWidth, 1)) * 100 }}%;
                                 top: {{ ($field['y'] / max($canvasHeight, 1)) * 100 }}%;
@@ -40,6 +47,10 @@
                             <span class="absolute -top-6 left-0 rounded bg-primary-600 px-2 py-0.5 text-[10px] font-medium text-white">
                                 {{ $field['label'] }}
                             </span>
+                            <span
+                                class="absolute bottom-0 right-0 h-3 w-3 translate-x-1/2 translate-y-1/2 cursor-se-resize rounded-full border-2 border-white bg-primary-600 opacity-0 shadow group-hover:opacity-100"
+                                @mousedown.stop="startResize('{{ $field['id'] }}', $event)"
+                            ></span>
                         </div>
                     @endforeach
                 </div>
@@ -48,13 +59,28 @@
             @if ($previewDataUri)
                 <div class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                     <h3 class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Canlı Render Önizlemesi</h3>
-                    <p class="mb-3 text-xs text-gray-500">Bu görüntü PDF üretiminde kullanılan motor ile oluşturulmuştur.</p>
+                    <p class="mb-3 text-xs text-gray-500">Bu görüntü belge üretiminde kullanılan motor ile oluşturulmuştur.</p>
                     <img src="{{ $previewDataUri }}" alt="Önizleme" class="mx-auto max-w-full rounded-lg border border-gray-200 shadow" />
                 </div>
             @endif
         </div>
 
         <div class="space-y-4 xl:col-span-4">
+            <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                <h3 class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Alanlar</h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($fields as $field)
+                        <button
+                            type="button"
+                            wire:click="selectField('{{ $field['id'] }}')"
+                            class="rounded-lg border px-3 py-1.5 text-xs font-medium transition {{ ($selectedFieldId ?? '') === $field['id'] ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-200' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800' }}"
+                        >
+                            {{ $field['label'] }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
             <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <h3 class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Alan Ekle</h3>
                 <div class="flex flex-wrap gap-2">
@@ -120,12 +146,14 @@
                                     <label class="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" wire:model.live="fields.{{ $index }}.auto_resize" class="rounded border-gray-300" /> Otomatik küçült</label>
                                     <label class="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" wire:model.live="fields.{{ $index }}.word_wrap" class="rounded border-gray-300" /> Satır kaydır</label>
                                 </div>
+                            @else
+                                <p class="mt-3 text-xs text-gray-500">QR alanı — konum ve boyut yeterlidir.</p>
                             @endif
                         </div>
                     @endforeach
 
                     @if (! $selectedFieldId)
-                        <p class="text-sm text-gray-500">Düzenlemek için tuvalde bir alan seçin.</p>
+                        <p class="text-sm text-gray-500">Düzenlemek için tuvalde veya listeden bir alan seçin.</p>
                     @endif
                 </div>
             @endif
@@ -137,12 +165,14 @@
         Alpine.data('templateDesigner', (canvasWidth, canvasHeight) => ({
             canvasWidth,
             canvasHeight,
-            dragging: false,
-            dragFieldId: null,
-            dragStartX: 0,
-            dragStartY: 0,
+            mode: null,
+            activeFieldId: null,
+            startX: 0,
+            startY: 0,
             fieldStartX: 0,
             fieldStartY: 0,
+            fieldStartW: 0,
+            fieldStartH: 0,
             scale: 1,
 
             init() {
@@ -156,49 +186,82 @@
                 this.scale = canvas.clientWidth / this.canvasWidth;
             },
 
+            box(fieldId) {
+                return document.querySelector(`[data-field-id="${fieldId}"]`);
+            },
+
             startDrag(fieldId, event) {
-                const box = document.querySelector(`[data-field-id="${fieldId}"]`);
+                const box = this.box(fieldId);
                 if (!box) return;
 
-                this.dragging = true;
-                this.dragFieldId = fieldId;
-                this.dragStartX = event.clientX;
-                this.dragStartY = event.clientY;
+                this.mode = 'drag';
+                this.activeFieldId = fieldId;
+                this.startX = event.clientX;
+                this.startY = event.clientY;
                 this.fieldStartX = parseInt(box.dataset.x, 10);
                 this.fieldStartY = parseInt(box.dataset.y, 10);
                 $wire.selectField(fieldId);
             },
 
-            onDrag(event) {
-                if (!this.dragging || !this.dragFieldId) return;
-
-                const box = document.querySelector(`[data-field-id="${this.dragFieldId}"]`);
+            startResize(fieldId, event) {
+                const box = this.box(fieldId);
                 if (!box) return;
 
-                const deltaX = (event.clientX - this.dragStartX) / this.scale;
-                const deltaY = (event.clientY - this.dragStartY) / this.scale;
-                const newX = Math.max(0, Math.round(this.fieldStartX + deltaX));
-                const newY = Math.max(0, Math.round(this.fieldStartY + deltaY));
-
-                box.dataset.x = newX;
-                box.dataset.y = newY;
-                box.style.left = `${(newX / this.canvasWidth) * 100}%`;
-                box.style.top = `${(newY / this.canvasHeight) * 100}%`;
+                this.mode = 'resize';
+                this.activeFieldId = fieldId;
+                this.startX = event.clientX;
+                this.startY = event.clientY;
+                this.fieldStartX = parseInt(box.dataset.x, 10);
+                this.fieldStartY = parseInt(box.dataset.y, 10);
+                this.fieldStartW = parseInt(box.dataset.width, 10);
+                this.fieldStartH = parseInt(box.dataset.height, 10);
+                $wire.selectField(fieldId);
             },
 
-            endDrag() {
-                if (!this.dragging || !this.dragFieldId) return;
+            onPointerMove(event) {
+                if (!this.mode || !this.activeFieldId) return;
 
-                const box = document.querySelector(`[data-field-id="${this.dragFieldId}"]`);
-                if (box) {
-                    $wire.updateFieldGeometry(this.dragFieldId, {
-                        x: parseInt(box.dataset.x, 10),
-                        y: parseInt(box.dataset.y, 10),
-                    });
+                const box = this.box(this.activeFieldId);
+                if (!box) return;
+
+                const deltaX = (event.clientX - this.startX) / this.scale;
+                const deltaY = (event.clientY - this.startY) / this.scale;
+
+                if (this.mode === 'drag') {
+                    const newX = Math.max(0, Math.round(this.fieldStartX + deltaX));
+                    const newY = Math.max(0, Math.round(this.fieldStartY + deltaY));
+                    box.dataset.x = newX;
+                    box.dataset.y = newY;
+                    box.style.left = `${(newX / this.canvasWidth) * 100}%`;
+                    box.style.top = `${(newY / this.canvasHeight) * 100}%`;
                 }
 
-                this.dragging = false;
-                this.dragFieldId = null;
+                if (this.mode === 'resize') {
+                    const newW = Math.max(40, Math.round(this.fieldStartW + deltaX));
+                    const newH = Math.max(24, Math.round(this.fieldStartH + deltaY));
+                    box.dataset.width = newW;
+                    box.dataset.height = newH;
+                    box.style.width = `${(newW / this.canvasWidth) * 100}%`;
+                    box.style.height = `${(newH / this.canvasHeight) * 100}%`;
+                }
+            },
+
+            endPointer() {
+                if (!this.mode || !this.activeFieldId) return;
+
+                const box = this.box(this.activeFieldId);
+                if (box) {
+                    const payload = {
+                        x: parseInt(box.dataset.x, 10),
+                        y: parseInt(box.dataset.y, 10),
+                        width: parseInt(box.dataset.width, 10),
+                        height: parseInt(box.dataset.height, 10),
+                    };
+                    $wire.updateFieldGeometry(this.activeFieldId, payload);
+                }
+
+                this.mode = null;
+                this.activeFieldId = null;
             },
         }));
     </script>

@@ -2,6 +2,7 @@
 
 namespace App\Support\Crm\TemplateEngine;
 
+use App\Models\DocumentTemplate;
 use App\Models\Donation;
 use App\Support\Crm\PosterContentBuilder;
 
@@ -10,11 +11,18 @@ class TemplateValueResolver
     /**
      * @return array<string, string>
      */
-    public static function forDonation(Donation $donation, string $templateType, ?string $verifyUrl = null): array
-    {
+    public static function forDonation(
+        Donation $donation,
+        string $templateType,
+        ?string $verifyUrl = null,
+        ?DocumentTemplate $template = null,
+    ): array {
         $donation->loadMissing(['donor', 'donationType']);
 
-        $thankYouBody = PosterContentBuilder::thankYouBody($donation);
+        $thankYouBody = PosterContentBuilder::thankYouBody(
+            $donation,
+            $template?->message_template,
+        );
 
         $base = [
             'tesekkur_metni' => $thankYouBody,
@@ -28,7 +36,7 @@ class TemplateValueResolver
             'qr_code' => $verifyUrl ?? '',
         ];
 
-        $base['ad_soyad'] = $templateType === \App\Models\DocumentTemplate::TYPE_DONATION_POSTER
+        $base['ad_soyad'] = $templateType === DocumentTemplate::TYPE_DONATION_POSTER
             ? PosterContentBuilder::displayName($donation, uppercase: true)
             : PosterContentBuilder::salutation($donation);
 

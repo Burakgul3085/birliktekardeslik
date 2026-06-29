@@ -12,10 +12,20 @@ class CreateDocumentTemplate extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['type'] = DocumentTemplate::TYPE_RECEIPT;
-        $data['blade_view'] = 'crm.documents.receipt';
-        $data['sort_order'] = (int) DocumentTemplate::query()->where('type', DocumentTemplate::TYPE_RECEIPT)->max('sort_order') + 1;
+        $type = $data['type'] ?? DocumentTemplate::TYPE_DONATION_POSTER;
+
+        $data['blade_view'] = 'template_engine';
+        $data['sort_order'] = (int) DocumentTemplate::query()->where('type', $type)->max('sort_order') + 1;
 
         return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        if (filled($this->record->background_image)) {
+            return DocumentTemplateResource::getUrl('design', ['record' => $this->record]);
+        }
+
+        return $this->getResource()::getUrl('edit', ['record' => $this->record]);
     }
 }

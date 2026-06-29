@@ -32,7 +32,7 @@ class TemplateRenderEngine
         $canvas = $this->canvasLoader->load($template);
 
         foreach ($definitions as $definition) {
-            $value = $values[$definition['key']] ?? '';
+            $value = $definition['_text_override'] ?? ($values[$definition['key']] ?? '');
 
             if (($definition['type'] ?? 'text') === 'qr') {
                 $this->qrRenderer->render($canvas, $definition, $value);
@@ -46,21 +46,23 @@ class TemplateRenderEngine
 
     /**
      * @param  array<string, string>  $values
+     * @param  array<int, array<string, mixed>>|null  $fieldOverrides
      */
-    public function renderPdf(DocumentTemplate $template, array $values): string
+    public function renderPdf(DocumentTemplate $template, array $values, ?array $fieldOverrides = null): string
     {
-        $png = $this->renderPng($template, $values);
+        $png = $this->renderPng($template, $values, $fieldOverrides);
 
         return $this->pdfConverter->convert($png);
     }
 
     /**
      * @param  array<string, string>  $values
+     * @param  array<int, array<string, mixed>>|null  $fieldOverrides
      * @return array{png: string, pdf: string}
      */
-    public function render(DocumentTemplate $template, array $values): array
+    public function render(DocumentTemplate $template, array $values, ?array $fieldOverrides = null): array
     {
-        $png = $this->renderPng($template, $values);
+        $png = $this->renderPng($template, $values, $fieldOverrides);
 
         return [
             'png' => $png,

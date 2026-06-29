@@ -132,7 +132,6 @@ class TemplateFieldSynchronizer
 
         $requiredKeys = TemplateFieldCatalog::keysForType($template->type);
         $missing = array_values(array_diff($requiredKeys, $existingKeys));
-        $missing = array_values(array_filter($missing, fn (string $key): bool => $key !== 'qr_code'));
 
         if ($missing === []) {
             return;

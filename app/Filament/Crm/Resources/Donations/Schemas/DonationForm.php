@@ -66,6 +66,11 @@ class DonationForm
                     ->label('Bağış Tarihi')
                     ->default(now())
                     ->required(),
+                TextInput::make('poster_name')
+                    ->label('Afişte Görünecek İsim')
+                    ->maxLength(255)
+                    ->placeholder('Boş bırakılırsa bağışçı adı kullanılır')
+                    ->helperText('Çift isim: Açelya Zer & Kaan Zer'),
                 TextInput::make('donation_number')
                     ->label('Bağış No')
                     ->disabled()
@@ -77,9 +82,9 @@ class DonationForm
                     ->unique(ignoreRecord: true),
             ]),
             Textarea::make('description')
-                ->label('Açıklama')
+                ->label('Bağış Afişi Notu')
                 ->rows(3)
-                ->helperText('İsteğe bağlı iç not veya bağış açıklaması.')
+                ->helperText('Bağış afişinde görünecek açıklama metni.')
                 ->columnSpanFull(),
             Textarea::make('notes')
                 ->label('Not')

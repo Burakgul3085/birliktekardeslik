@@ -6,7 +6,7 @@ use App\Models\DocumentTemplate;
 
 class TemplateFieldDefaults
 {
-    public const FIELDS_VERSION = 3;
+    public const FIELDS_VERSION = 4;
 
     /**
      * @return array<int, array<string, mixed>>
@@ -88,6 +88,7 @@ class TemplateFieldDefaults
                 'word_wrap' => false,
                 'auto_resize' => true,
             ]),
+            self::qrField('qr_code', 'QR Kod', 0.78, 0.86, 0.12, 0.10),
         ];
     }
 
@@ -130,6 +131,7 @@ class TemplateFieldDefaults
                 'word_wrap' => false,
                 'auto_resize' => true,
             ]),
+            self::qrField('qr_code', 'QR Kod', 0.78, 0.86, 0.12, 0.10),
         ];
     }
 
@@ -165,5 +167,28 @@ class TemplateFieldDefaults
             'auto_resize' => true,
             'word_wrap' => true,
         ], $overrides);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function qrField(
+        string $key,
+        string $label,
+        float $xRatio,
+        float $yRatio,
+        float $widthRatio,
+        float $heightRatio,
+    ): array {
+        return [
+            'id' => 'field_' . $key,
+            'key' => $key,
+            'label' => $label,
+            'type' => 'qr',
+            'x_ratio' => $xRatio,
+            'y_ratio' => $yRatio,
+            'width_ratio' => $widthRatio,
+            'height_ratio' => $heightRatio,
+        ];
     }
 }
