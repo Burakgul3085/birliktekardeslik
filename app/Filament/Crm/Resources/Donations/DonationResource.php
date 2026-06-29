@@ -81,7 +81,7 @@ class DonationResource extends Resource
             'index' => ListDonations::route('/'),
             'create' => CreateDonation::route('/create'),
             'edit' => EditDonation::route('/{record}/edit'),
-            'preview-document' => PreviewDonationDocument::route('/{record}/belgeler/{document}/onizle'),
+            'preview-document' => PreviewDonationDocument::route('/{record}/belgeler/{documentId}/onizle'),
         ];
     }
 }

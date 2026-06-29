@@ -26,33 +26,46 @@ class PreviewDonationDocument extends Page
 
     protected string $view = 'filament.crm.donations.preview-document';
 
-    public DonationDocument $document;
+    public ?DonationDocument $previewDocument = null;
 
     /** @var array<string, array<string, mixed>> */
     public array $fieldStates = [];
 
     public ?string $previewDataUri = null;
 
-    public function mount(int|string $record, int $document): void
+    public function mount(int|string $record, int $documentId): void
     {
         $this->record = $this->resolveRecord($record);
 
-        $this->document = DonationDocument::query()
+        $this->previewDocument = DonationDocument::query()
             ->with(['template.fields', 'fieldOverrides'])
             ->where('donation_id', $this->record->id)
-            ->findOrFail($document);
+            ->findOrFail($documentId);
 
-        if (! $this->document->isPoster()) {
+        if (! $this->previewDocument->isPoster()) {
             abort(404);
         }
 
+        if (! $this->previewDocument->template) {
+            Notification::make()
+                ->title('Şablon bulunamadı')
+                ->body('Bu belge için aktif afiş şablonu tanımlı değil.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
         $this->loadFieldStates();
-        $this->refreshPreview();
     }
 
     public function getTitle(): string|Htmlable
     {
-        return 'Belge Önizleme — ' . $this->document->type_label;
+        if (! $this->previewDocument) {
+            return 'Belge Önizleme';
+        }
+
+        return 'Belge Önizleme — ' . $this->previewDocument->type_label;
     }
 
     /**
@@ -65,11 +78,15 @@ class PreviewDonationDocument extends Page
 
     public function refreshPreview(): void
     {
+        if (! $this->previewDocument) {
+            return;
+        }
+
         try {
             $this->persistOverridesToDatabase(false);
-            $this->document->load('fieldOverrides');
+            $this->previewDocument->load('fieldOverrides');
 
-            $result = app(DocumentRenderService::class)->renderForDocument($this->document);
+            $result = app(DocumentRenderService::class)->renderForDocument($this->previewDocument);
             $this->previewDataUri = 'data:image/png;base64,' . base64_encode($result['png']);
         } catch (\Throwable $exception) {
             Notification::make()
@@ -82,8 +99,12 @@ class PreviewDonationDocument extends Page
 
     public function saveDocument(): void
     {
+        if (! $this->previewDocument) {
+            return;
+        }
+
         $this->persistOverridesToDatabase(true);
-        app(DonationDocumentGenerator::class)->rerender($this->document->fresh());
+        app(DonationDocumentGenerator::class)->rerender($this->previewDocument->fresh());
         $this->refreshPreview();
 
         Notification::make()->title('Belge ayarları kaydedildi')->success()->send();
@@ -91,7 +112,11 @@ class PreviewDonationDocument extends Page
 
     public function applyToTemplate(): void
     {
-        $template = $this->document->template;
+        if (! $this->previewDocument?->template) {
+            return;
+        }
+
+        $template = $this->previewDocument->template;
         $canvas = $template->canvasSize();
 
         foreach ($this->fieldStates as $fieldKey => $state) {
@@ -126,8 +151,12 @@ class PreviewDonationDocument extends Page
 
     public function finalizeAndDownload(): mixed
     {
+        if (! $this->previewDocument) {
+            return null;
+        }
+
         $this->persistOverridesToDatabase(true);
-        $document = app(DonationDocumentGenerator::class)->finalize($this->document->fresh());
+        $document = app(DonationDocumentGenerator::class)->finalize($this->previewDocument->fresh());
 
         if (! Storage::disk('public')->exists($document->pdf_path)) {
             Notification::make()->title('PDF oluşturulamadı')->danger()->send();
@@ -172,10 +201,14 @@ class PreviewDonationDocument extends Page
 
     private function loadFieldStates(): void
     {
-        $this->document->template->loadMissing('fields');
-        $overrides = $this->document->fieldOverrides->keyBy('field_key');
+        if (! $this->previewDocument?->template) {
+            return;
+        }
 
-        foreach ($this->document->template->fields as $field) {
+        $this->previewDocument->template->loadMissing('fields');
+        $overrides = $this->previewDocument->fieldOverrides->keyBy('field_key');
+
+        foreach ($this->previewDocument->template->fields as $field) {
             $override = $overrides->get($field->field_key);
 
             $this->fieldStates[$field->field_key] = [
@@ -197,10 +230,14 @@ class PreviewDonationDocument extends Page
 
     private function persistOverridesToDatabase(bool $notify): void
     {
+        if (! $this->previewDocument) {
+            return;
+        }
+
         foreach ($this->fieldStates as $fieldKey => $state) {
             DocumentFieldOverride::query()->updateOrCreate(
                 [
-                    'donation_document_id' => $this->document->id,
+                    'donation_document_id' => $this->previewDocument->id,
                     'field_key' => $fieldKey,
                 ],
                 [
@@ -219,7 +256,7 @@ class PreviewDonationDocument extends Page
         }
 
         if ($notify) {
-            $this->document->load('fieldOverrides');
+            $this->previewDocument->load('fieldOverrides');
         }
     }
 }

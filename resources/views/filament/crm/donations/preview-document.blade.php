@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+<x-filament-panels::page wire:init="refreshPreview">
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
         <div class="xl:col-span-7">
             <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">

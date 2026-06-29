@@ -99,7 +99,7 @@ class DocumentsRelationManager extends RelationManager
                     ->visible(fn (DonationDocument $record): bool => $record->isPoster())
                     ->url(fn (DonationDocument $record): string => DonationResource::getUrl('preview-document', [
                         'record' => $this->getOwnerRecord(),
-                        'document' => $record->id,
+                        'documentId' => $record->id,
                     ])),
                 Action::make('downloadPdf')
                     ->label('PDF İndir')
