@@ -6,7 +6,6 @@ use App\Models\CrmUser;
 use App\Models\DocumentTemplate;
 use App\Models\DonationType;
 use App\Models\PaymentMethod;
-use App\Support\Crm\TemplateEngine\TemplateFieldSynchronizer;
 use Illuminate\Database\Seeder;
 
 class CrmSeeder extends Seeder
@@ -62,48 +61,24 @@ class CrmSeeder extends Seeder
             );
         }
 
-        $templates = [
+        DocumentTemplate::query()->updateOrCreate(
+            ['type' => DocumentTemplate::TYPE_RECEIPT],
             [
                 'name' => 'Standart Makbuz',
-                'type' => DocumentTemplate::TYPE_RECEIPT,
                 'blade_view' => 'crm.documents.receipt',
+                'is_default' => true,
+                'is_active' => true,
                 'sort_order' => 1,
             ],
-            [
-                'name' => 'Bağış Afişi',
-                'type' => DocumentTemplate::TYPE_DONATION_POSTER,
-                'blade_view' => 'template_engine',
-                'sort_order' => 2,
-            ],
-            [
-                'name' => 'Teşekkür Afişi',
-                'type' => DocumentTemplate::TYPE_THANKS_POSTER,
-                'blade_view' => 'template_engine',
-                'sort_order' => 3,
-            ],
-        ];
-
-        foreach ($templates as $template) {
-            $record = DocumentTemplate::query()->updateOrCreate(
-                ['type' => $template['type']],
-                [
-                    'name' => $template['name'],
-                    'blade_view' => $template['blade_view'],
-                    'is_default' => true,
-                    'is_active' => true,
-                    'sort_order' => $template['sort_order'],
-                ],
-            );
-
-            if (in_array($record->type, [DocumentTemplate::TYPE_DONATION_POSTER, DocumentTemplate::TYPE_THANKS_POSTER], true)) {
-                $record->syncCanvasDimensions();
-                $record->saveQuietly();
-                app(TemplateFieldSynchronizer::class)->ensureFields($record);
-            }
-        }
+        );
 
         DocumentTemplate::query()
-            ->whereIn('type', [DocumentTemplate::TYPE_THANKS_LETTER, DocumentTemplate::TYPE_CERTIFICATE])
+            ->whereIn('type', [
+                DocumentTemplate::TYPE_DONATION_POSTER,
+                DocumentTemplate::TYPE_THANKS_POSTER,
+                DocumentTemplate::TYPE_THANKS_LETTER,
+                DocumentTemplate::TYPE_CERTIFICATE,
+            ])
             ->update(['is_active' => false, 'is_default' => false]);
     }
 }

@@ -9,7 +9,6 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -20,7 +19,7 @@ class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
-    protected static ?string $title = 'Belgeler';
+    protected static ?string $title = 'Makbuzlar';
 
     private function canManageDocuments(): bool
     {
@@ -43,51 +42,6 @@ class DocumentsRelationManager extends RelationManager
                     ->visible(fn (): bool => $this->canManageDocuments())
                     ->action(function (): void {
                         $this->generateDocument(DocumentTemplate::TYPE_RECEIPT);
-                    }),
-                Action::make('generateDonationPoster')
-                    ->label('Bağış afişi oluştur')
-                    ->icon('heroicon-o-photo')
-                    ->visible(fn (): bool => $this->canManageDocuments())
-                    ->form(fn (): array => $this->descriptionFormFields())
-                    ->action(function (array $data): void {
-                        $this->generateDocument(
-                            DocumentTemplate::TYPE_DONATION_POSTER,
-                            $data['description'] ?? null,
-                        );
-                    }),
-                Action::make('generateThanksPoster')
-                    ->label('Teşekkür afişi oluştur')
-                    ->icon('heroicon-o-heart')
-                    ->visible(fn (): bool => $this->canManageDocuments())
-                    ->action(function (): void {
-                        $this->generateDocument(DocumentTemplate::TYPE_THANKS_POSTER);
-                    }),
-                Action::make('generateAll')
-                    ->label('Tüm belgeleri oluştur')
-                    ->icon('heroicon-o-document-duplicate')
-                    ->color('primary')
-                    ->visible(fn (): bool => $this->canManageDocuments())
-                    ->form(fn (): array => $this->descriptionFormFields())
-                    ->action(function (array $data): void {
-                        try {
-                            app(DonationDocumentGenerator::class)->generateAll(
-                                $this->getOwnerRecord(),
-                                regenerate: true,
-                                description: $data['description'] ?? null,
-                            );
-
-                            Notification::make()
-                                ->title('3 belge oluşturuldu')
-                                ->body('Makbuz, bağış afişi ve teşekkür afişi hazır.')
-                                ->success()
-                                ->send();
-                        } catch (\Throwable $exception) {
-                            Notification::make()
-                                ->title('Belgeler oluşturulamadı')
-                                ->body($exception->getMessage())
-                                ->danger()
-                                ->send();
-                        }
                     }),
             ])
             ->recordActions([
@@ -135,44 +89,22 @@ class DocumentsRelationManager extends RelationManager
             ]);
     }
 
-    /**
-     * @return array<int, Textarea>
-     */
-    private function descriptionFormFields(): array
-    {
-        $donation = $this->getOwnerRecord();
-
-        if (filled($donation->description)) {
-            return [];
-        }
-
-        return [
-            Textarea::make('description')
-                ->label('Bağış Açıklaması')
-                ->required()
-                ->rows(4)
-                ->helperText('Bağış afişinde görünecek metin. Kayıt altına alınır, bir sonraki sefer tekrar sorulmaz.')
-                ->placeholder('Örn: Açelya\'dan olma Kaan Zer\'in adaklık kurbanı sağlıkla doğması adına...'),
-        ];
-    }
-
-    private function generateDocument(string $type, ?string $description = null): void
+    private function generateDocument(string $type): void
     {
         try {
             app(DonationDocumentGenerator::class)->generate(
                 $this->getOwnerRecord(),
                 $type,
                 regenerate: true,
-                description: $description,
             );
 
             Notification::make()
-                ->title((DocumentTemplate::ACTIVE_TYPES[$type] ?? $type) . ' oluşturuldu')
+                ->title('Makbuz oluşturuldu')
                 ->success()
                 ->send();
         } catch (\Throwable $exception) {
             Notification::make()
-                ->title('Belge oluşturulamadı')
+                ->title('Makbuz oluşturulamadı')
                 ->body($exception->getMessage())
                 ->danger()
                 ->send();

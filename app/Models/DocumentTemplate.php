@@ -23,20 +23,18 @@ class DocumentTemplate extends Model
 
     public const ACTIVE_TYPES = [
         self::TYPE_RECEIPT => 'Makbuz',
-        self::TYPE_DONATION_POSTER => 'Bağış Afişi',
-        self::TYPE_THANKS_POSTER => 'Teşekkür Afişi',
     ];
 
     public const TYPES = [
         ...self::ACTIVE_TYPES,
+        self::TYPE_DONATION_POSTER => 'Bağış Afişi',
+        self::TYPE_THANKS_POSTER => 'Teşekkür Afişi',
         self::TYPE_THANKS_LETTER => 'Teşekkür Belgesi',
         self::TYPE_CERTIFICATE => 'Sertifika',
     ];
 
     public const GENERATABLE_TYPES = [
         self::TYPE_RECEIPT,
-        self::TYPE_DONATION_POSTER,
-        self::TYPE_THANKS_POSTER,
     ];
 
     protected $fillable = [

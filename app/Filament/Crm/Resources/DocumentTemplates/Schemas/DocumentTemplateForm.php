@@ -3,7 +3,6 @@
 namespace App\Filament\Crm\Resources\DocumentTemplates\Schemas;
 
 use App\Models\DocumentTemplate;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -26,24 +25,12 @@ class DocumentTemplateForm
                         Select::make('type')
                             ->label('Belge Türü')
                             ->options(DocumentTemplate::ACTIVE_TYPES)
-                            ->disabled(fn (?DocumentTemplate $record): bool => $record !== null)
-                            ->dehydrated()
-                            ->required(),
+                            ->default(DocumentTemplate::TYPE_RECEIPT)
+                            ->disabled()
+                            ->dehydrated(),
                         Toggle::make('is_active')->label('Aktif')->default(true),
                         Toggle::make('is_default')->label('Varsayılan şablon'),
                     ]),
-                ]),
-            Section::make('Şablon Görseli')
-                ->description('Boş afiş veya belge görselinizi yükleyin. Kaydettikten sonra "Düzenleyici" ile metin alanlarının konumunu ayarlayın.')
-                ->schema([
-                    FileUpload::make('background_image')
-                        ->label('Boş şablon (PNG/JPG)')
-                        ->disk('public')
-                        ->directory('crm/templates')
-                        ->image()
-                        ->imageEditor()
-                        ->required(fn (?DocumentTemplate $record): bool => $record?->requiresBackground() ?? false)
-                        ->helperText('PNG önerilir. Orijinal tasarım piksel piksel korunur; sistem sadece üzerine yazı yazar.'),
                 ]),
         ]);
     }

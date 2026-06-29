@@ -3,7 +3,6 @@
 namespace App\Filament\Crm\Resources\DocumentTemplates;
 
 use App\Filament\Crm\Resources\DocumentTemplates\Pages\CreateDocumentTemplate;
-use App\Filament\Crm\Resources\DocumentTemplates\Pages\DesignDocumentTemplate;
 use App\Filament\Crm\Resources\DocumentTemplates\Pages\EditDocumentTemplate;
 use App\Filament\Crm\Resources\DocumentTemplates\Pages\ListDocumentTemplates;
 use App\Filament\Crm\Resources\DocumentTemplates\Schemas\DocumentTemplateForm;
@@ -32,7 +31,7 @@ class DocumentTemplateResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth('crm')->user()?->canManageCrmUsers() ?? false;
+        return false;
     }
 
     public static function canViewAny(): bool
@@ -71,7 +70,6 @@ class DocumentTemplateResource extends Resource
             'index' => ListDocumentTemplates::route('/'),
             'create' => CreateDocumentTemplate::route('/create'),
             'edit' => EditDocumentTemplate::route('/{record}/edit'),
-            'design' => DesignDocumentTemplate::route('/{record}/design'),
         ];
     }
 }
