@@ -9,6 +9,7 @@ use App\Support\Crm\DonationDocumentGenerator;
 use App\Support\Crm\TemplateEngine\DocumentRenderService;
 use App\Support\Crm\TemplateEngine\FontRegistry;
 use App\Support\Crm\TemplateEngine\TemplateCoordinateHelper;
+use App\Support\Crm\TemplateEngine\TemplateValueResolver;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -31,14 +32,25 @@ class PreviewDonationDocument extends Page
     /** @var array<string, array<string, mixed>> */
     public array $fieldStates = [];
 
+    public ?string $selectedFieldKey = null;
+
     public ?string $previewDataUri = null;
+
+    public int $canvasWidth = 2480;
+
+    public int $canvasHeight = 3508;
+
+    public ?string $backgroundUrl = null;
+
+    /** @var array<string, string> */
+    public array $fieldValues = [];
 
     public function mount(int|string $record, int $documentId): void
     {
         $this->record = $this->resolveRecord($record);
 
         $this->previewDocument = DonationDocument::query()
-            ->with(['template.fields', 'fieldOverrides'])
+            ->with(['template.fields', 'fieldOverrides', 'donation.donor', 'donation.donationType'])
             ->where('donation_id', $this->record->id)
             ->findOrFail($documentId);
 
@@ -57,6 +69,53 @@ class PreviewDonationDocument extends Page
         }
 
         $this->loadFieldStates();
+        $this->loadCanvasContext();
+
+        if ($this->fieldStates !== []) {
+            $this->selectedFieldKey = array_key_first($this->fieldStates);
+        }
+    }
+
+    public function selectField(string $fieldKey): void
+    {
+        if (isset($this->fieldStates[$fieldKey])) {
+            $this->selectedFieldKey = $fieldKey;
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public function updateFieldGeometry(string $fieldKey, array $payload): void
+    {
+        if (! isset($this->fieldStates[$fieldKey])) {
+            return;
+        }
+
+        foreach (['x', 'y', 'width', 'height'] as $key) {
+            if (array_key_exists($key, $payload)) {
+                $this->fieldStates[$fieldKey][$key] = max($key === 'width' || $key === 'height' ? 24 : 0, (int) $payload[$key]);
+            }
+        }
+    }
+
+    public function updateFieldText(string $fieldKey, string $text): void
+    {
+        if (! isset($this->fieldStates[$fieldKey])) {
+            return;
+        }
+
+        $this->fieldStates[$fieldKey]['text_override'] = trim($text);
+    }
+
+    public function nudgeFontSize(int $delta): void
+    {
+        if (! $this->selectedFieldKey || ! isset($this->fieldStates[$this->selectedFieldKey])) {
+            return;
+        }
+
+        $current = (int) ($this->fieldStates[$this->selectedFieldKey]['font_size'] ?? 32);
+        $this->fieldStates[$this->selectedFieldKey]['font_size'] = max(8, min(120, $current + $delta));
     }
 
     public function getTitle(): string|Htmlable
@@ -74,6 +133,28 @@ class PreviewDonationDocument extends Page
     public function getFontOptions(): array
     {
         return FontRegistry::options();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getWebFontFamily(string $fontFamily): string
+    {
+        return match ($fontFamily) {
+            'DejaVuSerif', 'DejaVuSerif-Bold' => "'Lora', Georgia, serif",
+            default => "'Inter', system-ui, sans-serif",
+        };
+    }
+
+    public function getDisplayText(string $fieldKey): string
+    {
+        $override = trim((string) ($this->fieldStates[$fieldKey]['text_override'] ?? ''));
+
+        if ($override !== '') {
+            return $override;
+        }
+
+        return $this->fieldValues[$fieldKey] ?? '';
     }
 
     public function refreshPreview(): void
@@ -180,7 +261,8 @@ class PreviewDonationDocument extends Page
                 ->url(DonationResource::getUrl('edit', ['record' => $this->record]))
                 ->color('gray'),
             Action::make('refresh')
-                ->label('Önizlemeyi yenile')
+                ->label('PDF render önizleme')
+                ->icon('heroicon-o-eye')
                 ->action('refreshPreview')
                 ->color('info'),
             Action::make('save')
@@ -214,6 +296,7 @@ class PreviewDonationDocument extends Page
             $this->fieldStates[$field->field_key] = [
                 'label' => $field->label,
                 'field_key' => $field->field_key,
+                'type' => $field->field_type,
                 'x' => $override?->x ?? $field->x,
                 'y' => $override?->y ?? $field->y,
                 'width' => $override?->width ?? $field->width,
@@ -226,6 +309,26 @@ class PreviewDonationDocument extends Page
                 'text_override' => $override?->text_override ?? '',
             ];
         }
+    }
+
+    private function loadCanvasContext(): void
+    {
+        if (! $this->previewDocument?->template) {
+            return;
+        }
+
+        ['width' => $this->canvasWidth, 'height' => $this->canvasHeight] = $this->previewDocument->template->canvasSize();
+
+        if ($this->previewDocument->template->background_image) {
+            $this->backgroundUrl = asset('storage/' . $this->previewDocument->template->background_image);
+        }
+
+        $this->fieldValues = TemplateValueResolver::forDonation(
+            $this->previewDocument->donation,
+            $this->previewDocument->template->type,
+            $this->previewDocument->verification_url,
+            $this->previewDocument->template,
+        );
     }
 
     private function persistOverridesToDatabase(bool $notify): void
