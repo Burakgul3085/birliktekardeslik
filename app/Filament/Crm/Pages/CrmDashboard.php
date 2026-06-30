@@ -101,8 +101,10 @@ class CrmDashboard extends BaseDashboard
 
     public function updatedFilters(): void
     {
-        $this->filters = DashboardFilterResolver::store($this->filters ?? []);
+        $this->filters = DashboardFilterResolver::normalize($this->filters ?? []);
 
-        parent::updatedFilters();
+        if ($this->persistsFiltersInSession()) {
+            session()->put($this->getFiltersSessionKey(), $this->filters);
+        }
     }
 }
