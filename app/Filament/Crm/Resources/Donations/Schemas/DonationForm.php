@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class DonationForm
 {
@@ -36,7 +37,31 @@ class DonationForm
                     ->label('Bağış Türü')
                     ->options(fn (): array => DonationType::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'id')->all())
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Bağış Türü Adı')
+                            ->required()
+                            ->maxLength(120),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        $code = Str::slug($data['name'], '_');
+                        $baseCode = $code !== '' ? $code : 'type';
+                        $suffix = 1;
+
+                        while (DonationType::query()->where('code', $code)->exists()) {
+                            $code = $baseCode . '_' . $suffix;
+                            $suffix++;
+                        }
+
+                        return DonationType::query()->create([
+                            'name' => $data['name'],
+                            'code' => $code,
+                            'is_active' => true,
+                            'sort_order' => ((int) DonationType::query()->max('sort_order')) + 1,
+                        ])->id;
+                    })
+                    ->helperText('Listede yoksa yazıp yeni bağış türü ekleyebilirsiniz.'),
                 Select::make('payment_method_id')
                     ->label('Ödeme Türü')
                     ->options(fn (): array => PaymentMethod::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'id')->all())
@@ -46,7 +71,32 @@ class DonationForm
                     ->label('Proje / Faaliyet')
                     ->options(fn (): array => Project::query()->orderBy('title')->pluck('title', 'id')->all())
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('title')
+                            ->label('Proje / Faaliyet Adı')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        $slug = Str::slug($data['title']);
+                        $baseSlug = $slug !== '' ? $slug : 'proje';
+                        $suffix = 1;
+
+                        while (Project::query()->where('slug', $slug)->exists()) {
+                            $slug = $baseSlug . '-' . $suffix;
+                            $suffix++;
+                        }
+
+                        return Project::query()->create([
+                            'title' => $data['title'],
+                            'slug' => $slug,
+                            'status' => 'devam-ediyor',
+                            'is_active' => true,
+                            'sort_order' => ((int) Project::query()->max('sort_order')) + 1,
+                        ])->id;
+                    })
+                    ->helperText('Listede yoksa yazıp yeni proje veya faaliyet ekleyebilirsiniz.'),
                 TextInput::make('amount')
                     ->label('Tutar')
                     ->numeric()
@@ -73,8 +123,9 @@ class DonationForm
                     ->visibleOn('edit'),
                 TextInput::make('receipt_number')
                     ->label('Makbuz No')
-                    ->maxLength(120)
-                    ->unique(ignoreRecord: true),
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->visibleOn('edit'),
             ]),
             Textarea::make('description')
                 ->label('Açıklama')
