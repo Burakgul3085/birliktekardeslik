@@ -3,48 +3,47 @@
 namespace App\Support\Crm;
 
 use App\Models\Donation;
+use App\Models\Donor;
 use App\Models\Setting;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\CellAlignment;
-use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class DonationSpreadsheetExporter extends CorporateSpreadsheet
+class DonorSpreadsheetExporter extends CorporateSpreadsheet
 {
     /** Sütun başlıkları */
     private const HEADERS = [
         'Sıra',
-        'Bağış No',
-        'Makbuz No',
         'Ad',
         'Soyad',
         'Telefon',
+        'E-posta',
         'Şehir',
-        'Bağış Türü',
-        'Ödeme Türü',
-        'Tutar',
-        'Para Birimi',
-        'Bağış Tarihi',
-        'Proje / Faaliyet',
-        'Açıklama',
-        'Not',
-        'Kaydeden',
-        'Oluşturulma',
+        'Ülke',
+        'Adres',
+        'Bağış Sayısı',
+        'Toplam Tutar',
+        'İlk Bağış',
+        'Son Bağış',
+        'Kayıt Tarihi',
     ];
 
     /** 1 tabanlı sütun genişlikleri (A=1) */
-    private const COLUMN_WIDTHS = [6, 18, 16, 16, 16, 16, 14, 18, 18, 14, 11, 18, 26, 30, 24, 16, 18];
+    private const COLUMN_WIDTHS = [6, 16, 16, 16, 28, 14, 12, 32, 13, 16, 14, 14, 14];
 
-    private const AMOUNT_COLUMN_INDEX = 9; // 0 tabanlı (Tutar)
+    private const COUNT_COLUMN_INDEX = 8;  // 0 tabanlı (Bağış Sayısı)
+
+    private const AMOUNT_COLUMN_INDEX = 9; // 0 tabanlı (Toplam Tutar)
 
     public static function download(Builder $query, ?string $filename = null): StreamedResponse
     {
-        $filename ??= 'bagislar-' . now()->format('Y-m-d_His') . '.xlsx';
+        $filename ??= 'bagiscilar-' . now()->format('Y-m-d_His') . '.xlsx';
 
         return response()->streamDownload(function () use ($query): void {
             self::write($query);
@@ -55,29 +54,31 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
 
     private static function write(Builder $query): void
     {
-        $lastColumn = count(self::HEADERS) - 1; // 0 tabanlı son sütun
+        $lastColumn = count(self::HEADERS) - 1;
 
-        // Özet veriler (başlık ve toplam satırı için önceden hesaplanır).
-        // reorder(): tablodan gelen ORDER BY temizlenir; aksi halde MySQL
-        // ONLY_FULL_GROUP_BY modunda GROUP BY ile çakışıp hata verir.
-        $recordCount = (int) (clone $query)->reorder()->count();
-        $totalAmount = (float) (clone $query)->reorder()->sum('amount');
-        $totalsByCurrency = (clone $query)
-            ->reorder()
-            ->getQuery()
+        // Özet veriler: bağışçı listesine ait bağışlar üzerinden hesaplanır.
+        $base = (clone $query)->reorder();
+        $recordCount = (int) (clone $base)->count();
+        $donorIds = (clone $base)->pluck('id')->all();
+
+        $totalDonationCount = Donation::query()->whereIn('donor_id', $donorIds)->count();
+        $totalAmount = (float) Donation::query()->whereIn('donor_id', $donorIds)->sum('amount');
+        $totalsByCurrency = Donation::query()
+            ->whereIn('donor_id', $donorIds)
             ->select('currency', DB::raw('SUM(amount) as total'))
             ->groupBy('currency')
             ->pluck('total', 'currency')
             ->all();
 
         $metaLine = sprintf(
-            'Rapor Tarihi: %s          Kayıt Sayısı: %d          Toplam Tutar: %s TRY',
+            'Rapor Tarihi: %s          Bağışçı Sayısı: %d          Toplam Bağış: %s TRY (%d bağış)',
             now()->format('d.m.Y H:i'),
             $recordCount,
             number_format($totalAmount, 2, ',', '.'),
+            $totalDonationCount,
         );
 
-        $bands = self::titleBands(Setting::current(), 'BAĞIŞ RAPORU', $metaLine);
+        $bands = self::titleBands(Setting::current(), 'BAĞIŞÇI RAPORU', $metaLine);
 
         $options = new Options();
         foreach (self::COLUMN_WIDTHS as $i => $width) {
@@ -92,7 +93,8 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
         for ($r = 1; $r <= $titleRowCount; $r++) {
             $options->mergeCells(0, $r, $lastColumn, $r);
         }
-        $options->mergeCells(0, $totalsRow, self::AMOUNT_COLUMN_INDEX - 1, $totalsRow);
+        // Toplam satırında etiket alanı (Sıra..Adres) birleştirilir
+        $options->mergeCells(0, $totalsRow, self::COUNT_COLUMN_INDEX - 1, $totalsRow);
 
         $writer = new Writer($options);
         $writer->openToFile('php://output');
@@ -103,7 +105,7 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
 
         self::writeHeaderRow($writer);
         self::writeDataRows($writer, $query);
-        self::writeTotalsRow($writer, $totalAmount, $totalsByCurrency, $lastColumn);
+        self::writeTotalsRow($writer, $totalDonationCount, $totalAmount, $totalsByCurrency, $lastColumn);
 
         $writer->close();
     }
@@ -129,11 +131,11 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
         $index = 0;
 
         (clone $query)
-            ->with(['donor', 'donationType', 'paymentMethod', 'project', 'creator'])
-            ->orderByDesc('donated_at')
-            ->chunkById(200, function ($donations) use ($writer, &$index, $textStyles, $amountStyles, $centerStyles): void {
-                foreach ($donations as $donation) {
-                    /** @var Donation $donation */
+            ->with('donations')
+            ->orderByDesc('created_at')
+            ->chunkById(200, function ($donors) use ($writer, &$index, $textStyles, $amountStyles, $centerStyles): void {
+                foreach ($donors as $donor) {
+                    /** @var Donor $donor */
                     $index++;
                     $zebra = ($index % 2) === 0 ? 1 : 0;
 
@@ -141,24 +143,26 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
                     $center = $centerStyles[$zebra];
                     $amount = $amountStyles[$zebra];
 
+                    $donations = $donor->donations;
+                    $count = $donations->count();
+                    $sum = (float) $donations->sum('amount');
+                    $first = $donations->min('donated_at');
+                    $last = $donations->max('donated_at');
+
                     $cells = [
                         Cell::fromValue($index, $center),
-                        Cell::fromValue($donation->donation_number ?? '', $text),
-                        Cell::fromValue($donation->receipt_number ?? '', $text),
-                        Cell::fromValue($donation->donor?->first_name ?? '', $text),
-                        Cell::fromValue($donation->donor?->last_name ?? '', $text),
-                        Cell::fromValue($donation->donor?->phone ?? '', $text),
-                        Cell::fromValue($donation->donor?->city ?? '', $text),
-                        Cell::fromValue($donation->donationType?->name ?? '', $text),
-                        Cell::fromValue($donation->paymentMethod?->name ?? '', $text),
-                        Cell::fromValue((float) $donation->amount, $amount),
-                        Cell::fromValue($donation->currency ?? 'TRY', $center),
-                        Cell::fromValue($donation->donated_at?->format('d.m.Y H:i') ?? '', $center),
-                        Cell::fromValue($donation->project?->title ?? '', $text),
-                        Cell::fromValue($donation->description ?? '', $text),
-                        Cell::fromValue($donation->notes ?? '', $text),
-                        Cell::fromValue($donation->creator?->name ?? '', $text),
-                        Cell::fromValue($donation->created_at?->format('d.m.Y H:i') ?? '', $center),
+                        Cell::fromValue($donor->first_name ?? '', $text),
+                        Cell::fromValue($donor->last_name ?? '', $text),
+                        Cell::fromValue($donor->phone ?? '', $text),
+                        Cell::fromValue($donor->email ?? '', $text),
+                        Cell::fromValue($donor->city ?? '', $text),
+                        Cell::fromValue($donor->country ?? '', $text),
+                        Cell::fromValue($donor->address ?? '', $text),
+                        Cell::fromValue($count, $center),
+                        Cell::fromValue($sum, $amount),
+                        Cell::fromValue(self::formatDate($first), $center),
+                        Cell::fromValue(self::formatDate($last), $center),
+                        Cell::fromValue($donor->created_at?->format('d.m.Y') ?? '', $center),
                     ];
 
                     $writer->addRow(new Row($cells));
@@ -169,7 +173,7 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
     /**
      * @param  array<string, mixed>  $totalsByCurrency
      */
-    private static function writeTotalsRow(Writer $writer, float $totalAmount, array $totalsByCurrency, int $lastColumn): void
+    private static function writeTotalsRow(Writer $writer, int $totalDonationCount, float $totalAmount, array $totalsByCurrency, int $lastColumn): void
     {
         $labelStyle = self::totalsLabelStyle();
         $amountStyle = self::totalsAmountStyle();
@@ -182,15 +186,32 @@ class DonationSpreadsheetExporter extends CorporateSpreadsheet
         $currencySummary = $currencyParts === [] ? 'TRY' : implode('  |  ', $currencyParts);
 
         $cells = [Cell::fromValue('GENEL TOPLAM', $labelStyle)];
-        for ($i = 1; $i < self::AMOUNT_COLUMN_INDEX; $i++) {
+        for ($i = 1; $i < self::COUNT_COLUMN_INDEX; $i++) {
             $cells[] = Cell::fromValue('', $labelStyle);
         }
+        // Bağış Sayısı toplamı
+        $cells[] = Cell::fromValue($totalDonationCount, $cellStyle);
+        // Toplam Tutar
         $cells[] = Cell::fromValue($totalAmount, $amountStyle);
+        // İlk/Son bağış: para birimi özeti İlk Bağış sütununda gösterilir
         $cells[] = Cell::fromValue($currencySummary, $cellStyle);
         for ($i = self::AMOUNT_COLUMN_INDEX + 2; $i <= $lastColumn; $i++) {
             $cells[] = Cell::fromValue('', $cellStyle);
         }
 
         $writer->addRow(new Row($cells));
+    }
+
+    private static function formatDate(mixed $value): string
+    {
+        if ($value instanceof Carbon) {
+            return $value->format('d.m.Y');
+        }
+
+        if (is_string($value) && $value !== '') {
+            return Carbon::parse($value)->format('d.m.Y');
+        }
+
+        return '';
     }
 }

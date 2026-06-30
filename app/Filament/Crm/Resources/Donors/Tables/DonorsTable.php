@@ -2,15 +2,20 @@
 
 namespace App\Filament\Crm\Resources\Donors\Tables;
 
+use App\Models\Donor;
+use App\Support\Crm\DonorSpreadsheetExporter;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class DonorsTable
 {
@@ -69,6 +74,24 @@ class DonorsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('exportExcel')
+                        ->label('Seçilenleri Excel\'e aktar')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function (Collection $records) {
+                            if ($records->isEmpty()) {
+                                Notification::make()
+                                    ->title('Lütfen en az bir bağışçı seçin')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            return DonorSpreadsheetExporter::download(
+                                Donor::query()->whereIn('id', $records->pluck('id')),
+                                'bagiscilar-secili-' . now()->format('Y-m-d_His') . '.xlsx',
+                            );
+                        }),
                     DeleteBulkAction::make()->label('Seçilenleri sil'),
                 ]),
             ]);
