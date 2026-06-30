@@ -9,13 +9,17 @@
         canvas.style.setProperty('--canvas-scale', scale);
     }
 
-    document.addEventListener('livewire:init', () => {
-        Livewire.hook('morph.updated', () => {
-            requestAnimationFrame(refreshPosterCanvasScale);
-        });
-    });
+    if (! window.__posterEditorRegistered) {
+        window.__posterEditorRegistered = true;
 
-    Alpine.data('posterEditor', (canvasWidth, canvasHeight) => ({
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('morph.updated', () => {
+                requestAnimationFrame(refreshPosterCanvasScale);
+            });
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('posterEditor', (canvasWidth, canvasHeight) => ({
         canvasWidth,
         canvasHeight,
         mode: null,
@@ -162,6 +166,8 @@
             this.resizeCorner = null;
             this.activeFieldId = null;
         },
-    }));
+            }));
+        });
+    }
 </script>
 @endscript

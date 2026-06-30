@@ -140,10 +140,14 @@
             @endif
         </div>
 
-        @if ($previewDataUri)
+        @if ($previewImageUrl || $previewDataUri)
             <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <h3 class="mb-2 text-sm font-semibold">PDF Render Önizlemesi</h3>
-                <img src="{{ $previewDataUri }}" alt="Render" class="mx-auto max-h-[480px] rounded-lg border shadow" />
+                <img
+                    src="{{ $previewImageUrl ?? $previewDataUri }}"
+                    alt="Render"
+                    class="mx-auto max-h-[480px] rounded-lg border shadow"
+                />
             </div>
         @endif
     @endif

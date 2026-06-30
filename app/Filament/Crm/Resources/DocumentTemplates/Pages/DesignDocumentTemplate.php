@@ -15,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class DesignDocumentTemplate extends Page
@@ -41,11 +42,15 @@ class DesignDocumentTemplate extends Page
 
     public ?string $previewDataUri = null;
 
+    public ?string $previewImageUrl = null;
+
     /** @var array<string, string> */
     public array $sampleValues = [];
 
     public function mount(int|string $record): void
     {
+        $this->mountCanAuthorizeResourceAccess();
+
         $this->record = $this->resolveRecord($record);
 
         if (! $this->record->background_image) {
@@ -78,7 +83,7 @@ class DesignDocumentTemplate extends Page
 
     public function getTitle(): string|Htmlable
     {
-        return 'Şablon Düzenleyici — ' . $this->record->name;
+        return 'Şablon Düzenleyici — ' . $this->getRecord()->name;
     }
 
     /**
@@ -160,7 +165,7 @@ class DesignDocumentTemplate extends Page
      */
     public function getFieldKeyOptions(): array
     {
-        return TemplateFieldCatalog::labelsForType($this->record->type);
+        return TemplateFieldCatalog::labelsForType($this->getRecord()->type);
     }
 
     public function saveTemplateFields(): void
@@ -169,14 +174,14 @@ class DesignDocumentTemplate extends Page
 
         try {
             app(TemplateFieldSynchronizer::class)->persistFieldArrays(
-                $this->record,
+                $this->getRecord(),
                 TemplateFieldNormalizer::normalizeAll(array_values($this->fields)),
             );
 
-            $this->record->syncCanvasDimensions();
-            $this->record->saveQuietly();
-            $this->record->load('fields');
-            $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
+            $this->getRecord()->syncCanvasDimensions();
+            $this->getRecord()->saveQuietly();
+            $this->getRecord()->load('fields');
+            $this->fields = $this->getRecord()->fields->map(fn ($field) => $field->toRenderDefinition())->all();
             $this->syncToolbarWithSelection();
 
             Notification::make()
@@ -199,12 +204,16 @@ class DesignDocumentTemplate extends Page
         try {
             $engine = app(TemplateRenderEngine::class);
             $png = $engine->renderPng(
-                $this->record,
-                TemplateSampleValues::forType($this->record->type),
+                $this->getRecord(),
+                TemplateSampleValues::forType($this->getRecord()->type),
                 TemplateFieldNormalizer::normalizeAll(array_values($this->fields)),
             );
 
-            $this->previewDataUri = 'data:image/png;base64,' . base64_encode($png);
+            $path = 'template-previews/preview-' . $this->getRecord()->id . '.png';
+            Storage::disk('public')->put($path, $png);
+
+            $this->previewImageUrl = asset('storage/' . $path) . '?v=' . time();
+            $this->previewDataUri = null;
 
             Notification::make()
                 ->title('Önizleme oluşturuldu')
@@ -266,11 +275,12 @@ class DesignDocumentTemplate extends Page
 
     public function resetDefaults(): void
     {
-        app(TemplateFieldSynchronizer::class)->seedDefaults($this->record);
-        $this->record->load('fields');
-        $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
+        app(TemplateFieldSynchronizer::class)->seedDefaults($this->getRecord());
+        $this->getRecord()->load('fields');
+        $this->fields = $this->getRecord()->fields->map(fn ($field) => $field->toRenderDefinition())->all();
         $this->selectedFieldId = $this->fields[0]['id'] ?? null;
         $this->previewDataUri = null;
+        $this->previewImageUrl = null;
         $this->syncToolbarWithSelection();
 
         Notification::make()
@@ -324,6 +334,19 @@ class DesignDocumentTemplate extends Page
                 ->label('Geri')
                 ->url(fn (): string => DocumentTemplateResource::getUrl('edit', ['record' => $this->getRecord()]))
                 ->color('gray'),
+            Action::make('preview')
+                ->label('Örnek Veriyle Önizle')
+                ->icon('heroicon-o-eye')
+                ->color('info')
+                ->alpineClickHandler('$wire.renderPreview()'),
+            Action::make('reset')
+                ->label('Varsayılanlara sıfırla')
+                ->color('warning')
+                ->alpineClickHandler('if (confirm(' . json_encode('Varsayılan alan konumları yüklenecek. Mevcut düzenlemeler kaybolur. Emin misiniz?', JSON_UNESCAPED_UNICODE) . ')) { $wire.resetDefaults() }'),
+            Action::make('save')
+                ->label('Kaydet')
+                ->color('primary')
+                ->alpineClickHandler('$wire.saveTemplateFields()'),
         ];
     }
 }

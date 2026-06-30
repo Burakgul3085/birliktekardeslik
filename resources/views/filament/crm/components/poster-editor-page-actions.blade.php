@@ -17,26 +17,25 @@
         <button
             type="button"
             class="poster-page-btn poster-page-btn--info"
-            wire:click="{{ $previewMethod }}"
-            wire:loading.attr="disabled"
-            wire:target="{{ $previewMethod }}"
+            x-on:click="$wire.{{ $previewMethod }}()"
         >
-            <span wire:loading.remove wire:target="{{ $previewMethod }}">{{ $previewLabel }}</span>
-            <span wire:loading wire:target="{{ $previewMethod }}">Önizleniyor…</span>
+            {{ $previewLabel }}
         </button>
     @endif
 
     @foreach ($extraButtons as $button)
+        @php
+            $confirm = $button['confirm'] ?? null;
+            $click = $confirm
+                ? "if (confirm(" . json_encode($confirm, JSON_UNESCAPED_UNICODE) . ")) { \$wire.{$button['method']}() }"
+                : "\$wire.{$button['method']}()";
+        @endphp
         <button
             type="button"
             class="poster-page-btn poster-page-btn--{{ $button['color'] ?? 'secondary' }}"
-            wire:click="{{ $button['method'] }}"
-            @if (! empty($button['confirm'])) wire:confirm="{{ $button['confirm'] }}" @endif
-            wire:loading.attr="disabled"
-            wire:target="{{ $button['method'] }}"
+            x-on:click="{{ $click }}"
         >
-            <span wire:loading.remove wire:target="{{ $button['method'] }}">{{ $button['label'] }}</span>
-            <span wire:loading wire:target="{{ $button['method'] }}">İşleniyor…</span>
+            {{ $button['label'] }}
         </button>
     @endforeach
 
@@ -44,13 +43,9 @@
         <button
             type="button"
             class="poster-page-btn poster-page-btn--warning"
-            wire:click="{{ $resetMethod }}"
-            wire:confirm="{{ $resetConfirm }}"
-            wire:loading.attr="disabled"
-            wire:target="{{ $resetMethod }}"
+            x-on:click="if (confirm({{ json_encode($resetConfirm, JSON_UNESCAPED_UNICODE) }})) { $wire.{{ $resetMethod }}() }"
         >
-            <span wire:loading.remove wire:target="{{ $resetMethod }}">{{ $resetLabel }}</span>
-            <span wire:loading wire:target="{{ $resetMethod }}">Sıfırlanıyor…</span>
+            {{ $resetLabel }}
         </button>
     @endif
 
@@ -58,12 +53,9 @@
         <button
             type="button"
             class="poster-page-btn poster-page-btn--primary"
-            wire:click="{{ $saveMethod }}"
-            wire:loading.attr="disabled"
-            wire:target="{{ $saveMethod }}"
+            x-on:click="$wire.{{ $saveMethod }}()"
         >
-            <span wire:loading.remove wire:target="{{ $saveMethod }}">{{ $saveLabel }}</span>
-            <span wire:loading wire:target="{{ $saveMethod }}">Kaydediliyor…</span>
+            {{ $saveLabel }}
         </button>
     @endif
 </div>
