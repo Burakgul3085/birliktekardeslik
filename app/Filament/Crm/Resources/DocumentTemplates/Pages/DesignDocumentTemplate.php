@@ -39,6 +39,9 @@ class DesignDocumentTemplate extends Page
 
     public ?string $previewDataUri = null;
 
+    /** @var array<string, string> */
+    public array $sampleValues = [];
+
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
@@ -63,6 +66,7 @@ class DesignDocumentTemplate extends Page
         ['width' => $this->canvasWidth, 'height' => $this->canvasHeight] = $this->record->canvasSize();
         $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
         $this->backgroundUrl = asset('storage/' . $this->record->background_image);
+        $this->sampleValues = TemplateSampleValues::forType($this->record->type);
 
         if ($this->fields !== []) {
             $this->selectedFieldId = $this->fields[0]['id'] ?? null;
@@ -72,6 +76,51 @@ class DesignDocumentTemplate extends Page
     public function getTitle(): string|Htmlable
     {
         return 'Şablon Düzenleyici — ' . $this->record->name;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getWebFontFamily(string $fontFamily): string
+    {
+        return match ($fontFamily) {
+            'DejaVuSerif', 'DejaVuSerif-Bold' => "'Lora', Georgia, serif",
+            default => "'Inter', system-ui, sans-serif",
+        };
+    }
+
+    public function getDisplayText(array $field): string
+    {
+        $key = (string) ($field['key'] ?? '');
+
+        return $this->sampleValues[$key] ?? ($field['label'] ?? $key);
+    }
+
+    public function getSelectedFieldIndex(): ?int
+    {
+        if (! $this->selectedFieldId) {
+            return null;
+        }
+
+        foreach ($this->fields as $index => $field) {
+            if (($field['id'] ?? '') === $this->selectedFieldId) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    public function nudgeFontSize(int $delta): void
+    {
+        $index = $this->getSelectedFieldIndex();
+
+        if ($index === null) {
+            return;
+        }
+
+        $current = (int) ($this->fields[$index]['font_size'] ?? 32);
+        $this->fields[$index]['font_size'] = max(8, min(120, $current + $delta));
     }
 
     /**
@@ -208,7 +257,8 @@ class DesignDocumentTemplate extends Page
 
             foreach (['x', 'y', 'width', 'height'] as $key) {
                 if (array_key_exists($key, $payload)) {
-                    $this->fields[$index][$key] = max(0, (int) $payload[$key]);
+                    $min = $key === 'width' || $key === 'height' ? 24 : 0;
+                    $this->fields[$index][$key] = max($min, (int) $payload[$key]);
                 }
             }
 
