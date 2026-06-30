@@ -4,11 +4,11 @@ return [
 
     'single' => [
 
-        'label' => 'İliştir',
+        'label' => 'Ekle',
 
         'modal' => [
 
-            'heading' => ':label iliştir',
+            'heading' => ':label ekle',
 
             'fields' => [
 
@@ -21,11 +21,11 @@ return [
             'actions' => [
 
                 'attach' => [
-                    'label' => 'İliştir',
+                    'label' => 'Ekle',
                 ],
 
                 'attach_another' => [
-                    'label' => 'İliştir ve başka bir taneye başla',
+                    'label' => 'Ekle ve yenisini ekle',
                 ],
 
             ],
@@ -35,7 +35,7 @@ return [
         'notifications' => [
 
             'attached' => [
-                'title' => 'İliştirildi',
+                'title' => 'Eklendi',
             ],
 
         ],

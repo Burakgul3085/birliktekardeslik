@@ -18,7 +18,9 @@ class CrmDashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    protected static ?string $navigationLabel = 'Dashboard';
+    protected static ?string $navigationLabel = 'Genel Bakış';
+
+    protected static ?string $title = 'Genel Bakış';
 
     public function mount(): void
     {

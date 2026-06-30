@@ -33,7 +33,7 @@ return [
     'notifications' => [
 
         'sent' => [
-            'body' => 'Eğer hesabınız yoksa bir e-posta almayacaksınız.',
+            'body' => 'Hesabınız mevcut değilse e-postayı almazsınız.',
         ],
 
         'throttled' => [

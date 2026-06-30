@@ -4,6 +4,6 @@ return [
 
     'title' => 'Sayfa yüklenirken hata oluştu',
 
-    'body' => 'Sayfa yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
+    'body' => 'Bu sayfa yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
 
 ];

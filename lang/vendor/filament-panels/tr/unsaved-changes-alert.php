@@ -2,6 +2,6 @@
 
 return [
 
-    'body' => 'Kayıt edilmemiş değişiklikleriniz mevcut. Bu sayfayı terk etmek istediğinize emin misiniz?',
+    'body' => 'Kaydedilmemiş değişiklikleriniz var. Bu sayfadan ayrılmak istediğinizden emin misiniz?',
 
 ];

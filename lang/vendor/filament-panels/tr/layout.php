@@ -11,11 +11,11 @@ return [
         ],
 
         'logout' => [
-            'label' => 'Oturumu kapat',
+            'label' => 'Çıkış yap',
         ],
 
         'open_database_notifications' => [
-            'label' => 'Bildirimleri aç',
+            'label' => 'Bildirimler',
         ],
 
         'open_user_menu' => [
@@ -37,15 +37,15 @@ return [
         'theme_switcher' => [
 
             'dark' => [
-                'label' => 'Koyu tema',
+                'label' => 'Koyu temayı etkinleştir',
             ],
 
             'light' => [
-                'label' => 'Açık tema',
+                'label' => 'Açık temayı etkinleştir',
             ],
 
             'system' => [
-                'label' => 'Sistem varsayılanı',
+                'label' => 'Sistem temasını etkinleştir',
             ],
 
         ],
@@ -57,7 +57,16 @@ return [
     ],
 
     'logo' => [
-        'alt' => ':name logo',
+        'alt' => ':name logosu',
+    ],
+
+    'tenant_menu' => [
+
+        'search_field' => [
+            'label' => 'Kiracı araması',
+            'placeholder' => 'Ara',
+        ],
+
     ],
 
 ];

@@ -8,7 +8,7 @@ return [
 
         'modal' => [
 
-            'heading' => ':label Sil',
+            'heading' => ':label sil',
 
             'actions' => [
 
@@ -36,7 +36,7 @@ return [
 
         'modal' => [
 
-            'heading' => 'Seçilenleri sil', // When ':label' is used here, the meaning is distorted.
+            'heading' => 'Seçilen :label sil',
 
             'actions' => [
 
@@ -55,16 +55,17 @@ return [
             ],
 
             'deleted_partial' => [
-                'title' => ':total kayıttan :count kayıt silindi',
-                'missing_authorization_failure_message' => ':count kayıt silmek için gereken izniniz yok.',
+                'title' => ':total kayıttan :count tanesi silindi',
+                'missing_authorization_failure_message' => ':count kaydı silme yetkiniz yok.',
                 'missing_processing_failure_message' => ':count kayıt silinemedi.',
             ],
 
             'deleted_none' => [
-                'title' => 'Kayıtlar silinemedi',
-                'missing_authorization_failure_message' => ':count kayıt silmek için gereken izniniz yok.',
+                'title' => 'Silme başarısız',
+                'missing_authorization_failure_message' => ':count kaydı silme yetkiniz yok.',
                 'missing_processing_failure_message' => ':count kayıt silinemedi.',
             ],
+
         ],
 
     ],

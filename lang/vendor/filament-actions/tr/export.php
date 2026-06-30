@@ -2,17 +2,29 @@
 
 return [
 
-    'label' => 'Dışa Aktar :label',
+    'label' => ':label dışa aktar',
 
     'modal' => [
 
-        'heading' => 'Dışa Aktar :label',
+        'heading' => ':label dışa aktar',
 
         'form' => [
 
             'columns' => [
 
                 'label' => 'Sütunlar',
+
+                'actions' => [
+
+                    'select_all' => [
+                        'label' => 'Tümünü seç',
+                    ],
+
+                    'deselect_all' => [
+                        'label' => 'Seçimi kaldır',
+                    ],
+
+                ],
 
                 'form' => [
 
@@ -33,7 +45,7 @@ return [
         'actions' => [
 
             'export' => [
-                'label' => 'Dışa Aktar',
+                'label' => 'Dışa aktar',
             ],
 
         ],
@@ -44,16 +56,16 @@ return [
 
         'completed' => [
 
-            'title' => 'Dışa Aktarım Tamamlandı',
+            'title' => 'Dışa aktarma tamamlandı',
 
             'actions' => [
 
                 'download_csv' => [
-                    'label' => '.csv Olarak İndir',
+                    'label' => '.csv indir',
                 ],
 
                 'download_xlsx' => [
-                    'label' => '.xlsx Olarak İndir',
+                    'label' => '.xlsx indir',
                 ],
 
             ],
@@ -61,17 +73,22 @@ return [
         ],
 
         'max_rows' => [
-            'title' => 'Maksimum Satır Sayısı Aşıldı',
-            'body' => 'Birden fazla satırı dışa aktaramazsınız.|:count satırı dışa aktaramazsınız.',
+            'title' => 'Dışa aktarma çok büyük',
+            'body' => 'Aynı anda 1 satırdan fazla dışa aktaramazsınız.|Aynı anda :count satırdan fazla dışa aktaramazsınız.',
+        ],
+
+        'no_columns' => [
+            'title' => 'Sütun seçilmedi',
+            'body' => 'Lütfen dışa aktarmak için en az bir sütun seçin.',
         ],
 
         'started' => [
-            'title' => 'Dışa Aktarım Başladı',
-            'body' => 'Dışa aktarım başladı ve 1 satır arka planda işlenecek.|Dışa aktarım başladı ve :count satır arka planda işlenecek.',
+            'title' => 'Dışa aktarma başladı',
+            'body' => 'Dışa aktarma başladı ve arka planda 1 satır işlenecek. Tamamlandığında indirme bağlantısını içeren bir bildirim alacaksınız.|Dışa aktarma başladı ve arka planda :count satır işlenecek. Tamamlandığında indirme bağlantısını içeren bir bildirim alacaksınız.',
         ],
 
     ],
 
-    'file_name' => 'export-:export_id-:model',
+    'file_name' => 'disa-aktarma-:export_id-:model',
 
 ];

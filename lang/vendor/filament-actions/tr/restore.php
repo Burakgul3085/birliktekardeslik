@@ -23,7 +23,7 @@ return [
         'notifications' => [
 
             'restored' => [
-                'title' => 'Kayıt geri yüklendi',
+                'title' => 'Geri yüklendi',
             ],
 
         ],
@@ -32,11 +32,11 @@ return [
 
     'multiple' => [
 
-        'label' => 'Seçileni geri yükle',
+        'label' => 'Seçilenleri geri yükle',
 
         'modal' => [
 
-            'heading' => ':label seçileni geri yükle',
+            'heading' => 'Seçilen :label geri yükle',
 
             'actions' => [
 
@@ -51,19 +51,19 @@ return [
         'notifications' => [
 
             'restored' => [
-                'title' => 'Kayıtlar geri yüklendi',
+                'title' => 'Geri yüklendi',
             ],
 
             'restored_partial' => [
-                'title' => ':total kayıttan :count kayıt geri yüklendi',
-                'missing_authorization_failure_message' => ':count kayıt geri yüklemek için gereken izniniz yok.',
-                'missing_processing_failure_message' => ':count geri yüklenemedi.',
+                'title' => ':total kayıttan :count tanesi geri yüklendi',
+                'missing_authorization_failure_message' => ':count kaydı geri yükleme yetkiniz yok.',
+                'missing_processing_failure_message' => ':count kayıt geri yüklenemedi.',
             ],
 
             'restored_none' => [
-                'title' => 'Kayıtlar geri yüklenemedi',
-                'missing_authorization_failure_message' => ':count kayıt geri yüklemek için gereken izniniz yok.',
-                'missing_processing_failure_message' => ':count geri yüklenemedi.',
+                'title' => 'Geri yükleme başarısız',
+                'missing_authorization_failure_message' => ':count kaydı geri yükleme yetkiniz yok.',
+                'missing_processing_failure_message' => ':count kayıt geri yüklenemedi.',
             ],
 
         ],

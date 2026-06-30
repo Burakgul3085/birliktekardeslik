@@ -13,7 +13,7 @@ return [
             'actions' => [
 
                 'delete' => [
-                    'label' => 'Kalıcı olarak sil',
+                    'label' => 'Sil',
                 ],
 
             ],
@@ -23,7 +23,7 @@ return [
         'notifications' => [
 
             'deleted' => [
-                'title' => 'Kayıt kalıcı olarak silindi',
+                'title' => 'Silindi',
             ],
 
         ],
@@ -32,16 +32,16 @@ return [
 
     'multiple' => [
 
-        'label' => 'Seçiliyi kalıcı olarak sil',
+        'label' => 'Seçilenleri kalıcı olarak sil',
 
         'modal' => [
 
-            'heading' => ':label seçiliyi kalıcı olarak sil',
+            'heading' => 'Seçilen :label kalıcı olarak sil',
 
             'actions' => [
 
                 'delete' => [
-                    'label' => 'Kalıcı olarak sil',
+                    'label' => 'Sil',
                 ],
 
             ],
@@ -51,19 +51,19 @@ return [
         'notifications' => [
 
             'deleted' => [
-                'title' => 'Kayıtlar kalıcı olarak silindi',
+                'title' => 'Silindi',
             ],
 
             'deleted_partial' => [
-                'title' => ':total kayıttan :count kayıt kalıcı olarak silindi',
-                'missing_authorization_failure_message' => ':count kayıtı kalıcı olarak silmek için gereken izniniz yok.',
-                'missing_processing_failure_message' => ':count kayıt kalıcı olarak silinemedi.',
+                'title' => ':total kayıttan :count tanesi silindi',
+                'missing_authorization_failure_message' => ':count kaydı silme yetkiniz yok.',
+                'missing_processing_failure_message' => ':count kayıt silinemedi.',
             ],
 
             'deleted_none' => [
-                'title' => 'Kayıtlar kalıcı olarak silinemedi',
-                'missing_authorization_failure_message' => ':count kayıtı kalıcı olarak silmek için gereken izniniz yok.',
-                'missing_processing_failure_message' => ':count kayıt kalıcı olarak silinemedi.',
+                'title' => 'Silme başarısız',
+                'missing_authorization_failure_message' => ':count kaydı silme yetkiniz yok.',
+                'missing_processing_failure_message' => ':count kayıt silinemedi.',
             ],
 
         ],

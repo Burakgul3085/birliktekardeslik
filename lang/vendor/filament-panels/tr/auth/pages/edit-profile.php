@@ -25,15 +25,15 @@ return [
         ],
 
         'current_password' => [
-            'label' => 'Güncel şifre',
-            'below_content' => 'Güvenliğiniz için lütfen güncel şifrenizi girin.',
-            'validation_attribute' => 'güncel şifre',
+            'label' => 'Mevcut şifre',
+            'below_content' => 'Güvenliğiniz için devam etmek üzere şifrenizi onaylayın.',
+            'validation_attribute' => 'mevcut şifre',
         ],
 
         'actions' => [
 
             'save' => [
-                'label' => 'Değişiklikleri Kaydet',
+                'label' => 'Değişiklikleri kaydet',
             ],
 
         ],
@@ -41,18 +41,23 @@ return [
     ],
 
     'multi_factor_authentication' => [
-        'label' => 'İki Faktörlü Doğrulama (2FA)',
+        'label' => 'İki adımlı doğrulama (2FA)',
     ],
 
     'notifications' => [
 
         'email_change_verification_sent' => [
-            'title' => 'E-posta adresi güncelleme isteği gönderildi',
-            'body' => 'E-posta adresi güncelleme isteği :email adresine gönderildi. Lütfen güncellemeyi tamamlamak için E-posta adresinizi doğrulayın.',
+            'title' => 'E-posta değişikliği talebi gönderildi',
+            'body' => 'E-posta adresinizi değiştirme talebi :email adresine gönderildi. Değişikliği doğrulamak için lütfen e-postanızı kontrol edin.',
         ],
 
         'saved' => [
             'title' => 'Kaydedildi',
+        ],
+
+        'throttled' => [
+            'title' => 'Çok fazla istek. Lütfen :seconds saniye sonra tekrar deneyin.',
+            'body' => 'Lütfen :seconds saniye sonra tekrar deneyin.',
         ],
 
     ],

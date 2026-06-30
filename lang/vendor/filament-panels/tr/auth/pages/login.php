@@ -2,9 +2,9 @@
 
 return [
 
-    'title' => 'Giriş Yap',
+    'title' => 'Giriş',
 
-    'heading' => 'Oturum Aç',
+    'heading' => 'Giriş yap',
 
     'actions' => [
 
@@ -47,7 +47,7 @@ return [
 
         'heading' => 'Kimliğinizi doğrulayın',
 
-        'subheading' => 'Giriş yapmaya devam etmek için kimliğinizi doğrulamanız gerekmektedir.',
+        'subheading' => 'Girişe devam etmek için kimliğinizi doğrulamanız gerekiyor.',
 
         'form' => [
 
@@ -58,7 +58,7 @@ return [
             'actions' => [
 
                 'authenticate' => [
-                    'label' => 'Girişi doğrula',
+                    'label' => 'Girişi onayla',
                 ],
 
             ],
@@ -69,7 +69,7 @@ return [
 
     'messages' => [
 
-        'failed' => 'Bu kimlik bilgileri kayıtlarımızla eşleşmiyor.',
+        'failed' => 'Bu bilgiler kayıtlarımızla eşleşmiyor.',
 
     ],
 

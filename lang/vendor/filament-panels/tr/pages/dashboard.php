@@ -2,17 +2,17 @@
 
 return [
 
-    'title' => 'Panel',
+    'title' => 'Genel Bakış',
 
     'actions' => [
 
         'filter' => [
 
-            'label' => 'Filtre',
+            'label' => 'Filtrele',
 
             'modal' => [
 
-                'heading' => 'Filtre',
+                'heading' => 'Filtrele',
 
                 'actions' => [
 

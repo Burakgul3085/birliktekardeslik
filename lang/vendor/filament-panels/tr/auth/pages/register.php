@@ -2,9 +2,9 @@
 
 return [
 
-    'title' => 'Kayıt Ol',
+    'title' => 'Kayıt ol',
 
-    'heading' => 'Üye Ol',
+    'heading' => 'Kayıt ol',
 
     'actions' => [
 
@@ -27,7 +27,7 @@ return [
 
         'password' => [
             'label' => 'Şifre',
-            'validation_attribute' => 'password',
+            'validation_attribute' => 'şifre',
         ],
 
         'password_confirmation' => [
@@ -37,7 +37,7 @@ return [
         'actions' => [
 
             'register' => [
-                'label' => 'Üye ol',
+                'label' => 'Kayıt ol',
             ],
 
         ],

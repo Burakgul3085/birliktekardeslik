@@ -30,7 +30,9 @@ return [
 
             'loading_message' => 'Yükleniyor...',
 
-            'no_search_results_message' => 'Arama kriterlerinize uyan seçenek yok.',
+            'no_options_message' => 'Seçenek bulunamadı.',
+
+            'no_search_results_message' => 'Aramanızla eşleşen seçenek yok.',
 
             'placeholder' => 'Bir seçenek seçin',
 
@@ -43,11 +45,11 @@ return [
         'text' => [
 
             'actions' => [
-                'collapse_list' => ':count kayıt az göster',
-                'expand_list' => ':count kayıt daha göster',
+                'collapse_list' => ':count tanesini gizle',
+                'expand_list' => ':count tane daha göster',
             ],
 
-            'more_list_items' => 've :count daha',
+            'more_list_items' =>'ve :count tane daha',
 
         ],
 
@@ -56,21 +58,21 @@ return [
     'fields' => [
 
         'bulk_select_page' => [
-            'label' => 'Toplu işlemler için tüm öğeleri seç/seçimi kaldır.',
+            'label' => 'Toplu işlemler için tüm öğeleri seç/kaldır.',
         ],
 
         'bulk_select_record' => [
-            'label' => 'Toplu işlemler için :key öğesini seç/seçimi kaldır.',
+            'label' => 'Toplu işlemler için :key öğesini seç/kaldır.',
         ],
 
         'bulk_select_group' => [
-            'label' => 'Toplu işlemler için :title grubunu seç/seçimi kaldır.',
+            'label' => 'Toplu işlemler için :title grubunu seç/kaldır.',
         ],
 
         'search' => [
             'label' => 'Ara',
             'placeholder' => 'Ara',
-            'indicator' => 'Ara',
+            'indicator' => 'Arama',
         ],
 
     ],
@@ -92,7 +94,7 @@ return [
             ],
 
             'count' => [
-                'label' => 'Sayı',
+                'label' => 'Adet',
             ],
 
             'sum' => [
@@ -110,7 +112,7 @@ return [
         ],
 
         'enable_reordering' => [
-            'label' => 'Kayıtları sırala',
+            'label' => 'Kayıtları yeniden sırala',
         ],
 
         'filter' => [
@@ -126,16 +128,16 @@ return [
         ],
 
         'column_manager' => [
-            'label' => 'Sütunları göster/gizle',
+            'label' => 'Sütun yöneticisi',
         ],
 
     ],
 
     'empty' => [
 
-        'heading' => ':model Yok',
+        'heading' => 'Kayıt bulunamadı',
 
-        'description' => 'Başlamak için bir :model oluşturun.',
+        'description' => 'Başlamak için yeni bir kayıt oluşturun.',
 
     ],
 
@@ -182,13 +184,13 @@ return [
 
         'trashed' => [
 
-            'label' => 'Silinmiş kayıtlar',
+            'label' => 'Silinen kayıtlar',
 
-            'only_trashed' => 'Sadece silinmiş kayıtlar',
+            'only_trashed' => 'Yalnızca silinen kayıtlar',
 
-            'with_trashed' => 'Silinmiş kayıtlarla birlikte',
+            'with_trashed' => 'Silinenler dahil',
 
-            'without_trashed' => 'Silinmiş kayıtlar olmadan',
+            'without_trashed' => 'Silinenler hariç',
 
         ],
 
@@ -217,7 +219,7 @@ return [
 
     ],
 
-    'reorder_indicator' => 'Kayıtları sıralamak için sürükleyip bırakın.',
+    'reorder_indicator' => 'Kayıtları sürükleyip bırakarak sıralayın.',
 
     'selection_indicator' => [
 
@@ -226,11 +228,11 @@ return [
         'actions' => [
 
             'select_all' => [
-                'label' => 'Tüm :count kaydı seç ',
+                'label' => 'Tümünü seç (:count)',
             ],
 
             'deselect_all' => [
-                'label' => 'Tüm seçimleri kaldır',
+                'label' => 'Seçimi kaldır',
             ],
 
         ],

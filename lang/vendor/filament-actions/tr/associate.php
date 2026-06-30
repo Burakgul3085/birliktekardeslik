@@ -8,7 +8,7 @@ return [
 
         'modal' => [
 
-            'heading' => ':label İlişkilendir',
+            'heading' => ':label ilişkilendir',
 
             'fields' => [
 
@@ -25,7 +25,7 @@ return [
                 ],
 
                 'associate_another' => [
-                    'label' => 'İlişkilendir ve başka bir taneye başla',
+                    'label' => 'İlişkilendir ve yenisini ekle',
                 ],
 
             ],

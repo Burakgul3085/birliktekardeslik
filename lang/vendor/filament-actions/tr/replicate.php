@@ -23,7 +23,7 @@ return [
         'notifications' => [
 
             'replicated' => [
-                'title' => 'Kayıt çoğaltıldı',
+                'title' => 'Çoğaltıldı',
             ],
 
         ],

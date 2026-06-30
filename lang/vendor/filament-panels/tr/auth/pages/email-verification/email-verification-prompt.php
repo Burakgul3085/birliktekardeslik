@@ -9,24 +9,24 @@ return [
     'actions' => [
 
         'resend_notification' => [
-            'label' => 'Yeniden Gönder',
+            'label' => 'Tekrar gönder',
         ],
 
     ],
 
     'messages' => [
         'notification_not_received' => 'Gönderdiğimiz e-postayı almadınız mı?',
-        'notification_sent' => ':email adresine, e-posta adresinizi nasıl doğrulayacağınıza ilişkin talimatları içeren bir e-posta gönderdik.',
+        'notification_sent' => ':email adresine, e-posta adresinizi nasıl doğrulayacağınıza dair talimatları içeren bir e-posta gönderdik.',
     ],
 
     'notifications' => [
 
         'notification_resent' => [
-            'title' => 'E-posta yeniden gönderildi.',
+            'title' => 'E-postayı tekrar gönderdik.',
         ],
 
         'notification_resend_throttled' => [
-            'title' => 'Çok fazla yeniden gönderme denemesi',
+            'title' => 'Çok fazla tekrar gönderme denemesi',
             'body' => 'Lütfen :seconds saniye sonra tekrar deneyin.',
         ],
 

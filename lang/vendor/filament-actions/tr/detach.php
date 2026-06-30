@@ -32,16 +32,16 @@ return [
 
     'multiple' => [
 
-        'label' => 'Seçiliyi ayır',
+        'label' => 'Seçilenleri ayır',
 
         'modal' => [
 
-            'heading' => ':label seçiliyi ayır ',
+            'heading' => 'Seçilen :label ayır',
 
             'actions' => [
 
                 'detach' => [
-                    'label' => 'Seçiliyi ayır',
+                    'label' => 'Ayır',
                 ],
 
             ],

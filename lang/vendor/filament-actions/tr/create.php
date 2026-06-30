@@ -4,7 +4,7 @@ return [
 
     'single' => [
 
-        'label' => ':label Oluştur',
+        'label' => 'Yeni :label',
 
         'modal' => [
 
@@ -17,7 +17,7 @@ return [
                 ],
 
                 'create_another' => [
-                    'label' => 'Oluştur & yeni oluştur',
+                    'label' => 'Oluştur ve yenisini ekle',
                 ],
 
             ],

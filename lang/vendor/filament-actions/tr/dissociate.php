@@ -4,16 +4,16 @@ return [
 
     'single' => [
 
-        'label' => 'Ayrıştır',
+        'label' => 'İlişkiyi kaldır',
 
         'modal' => [
 
-            'heading' => ':label ayrıştır',
+            'heading' => ':label ilişkisini kaldır',
 
             'actions' => [
 
                 'dissociate' => [
-                    'label' => 'Ayrıştır',
+                    'label' => 'İlişkiyi kaldır',
                 ],
 
             ],
@@ -23,7 +23,7 @@ return [
         'notifications' => [
 
             'dissociated' => [
-                'title' => 'Ayrıştırıldı',
+                'title' => 'İlişki kaldırıldı',
             ],
 
         ],
@@ -32,16 +32,16 @@ return [
 
     'multiple' => [
 
-        'label' => 'Seçiliyi ayrıştır',
+        'label' => 'Seçilenlerin ilişkisini kaldır',
 
         'modal' => [
 
-            'heading' => ':label seçiliyi ayrıştır',
+            'heading' => 'Seçilen :label ilişkisini kaldır',
 
             'actions' => [
 
                 'dissociate' => [
-                    'label' => 'Seçiliyi ayrıştır',
+                    'label' => 'İlişkiyi kaldır',
                 ],
 
             ],
@@ -51,7 +51,7 @@ return [
         'notifications' => [
 
             'dissociated' => [
-                'title' => 'Ayrıştırıldı',
+                'title' => 'İlişki kaldırıldı',
             ],
 
         ],
