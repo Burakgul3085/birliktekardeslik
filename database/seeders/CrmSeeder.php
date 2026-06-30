@@ -72,10 +72,8 @@ class CrmSeeder extends Seeder
             ],
         );
 
-        app(\App\Support\Crm\PosterTemplateInstaller::class)->install();
-
         DocumentTemplate::query()
-            ->whereIn('type', [DocumentTemplate::TYPE_THANKS_LETTER, DocumentTemplate::TYPE_CERTIFICATE])
+            ->where('type', '!=', DocumentTemplate::TYPE_RECEIPT)
             ->update(['is_active' => false, 'is_default' => false]);
     }
 }

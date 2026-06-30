@@ -3,7 +3,6 @@
 namespace App\Filament\Crm\Resources\Donations\Pages;
 
 use App\Filament\Crm\Resources\Donations\DonationResource;
-use App\Models\DocumentTemplate;
 use App\Support\Crm\DonationDocumentGenerator;
 use App\Support\Crm\DonationNumberGenerator;
 use Filament\Notifications\Notification;
@@ -36,7 +35,7 @@ class CreateDonation extends CreateRecord
     protected function afterCreate(): void
     {
         try {
-            app(DonationDocumentGenerator::class)->generate($this->record, DocumentTemplate::TYPE_RECEIPT);
+            app(DonationDocumentGenerator::class)->generate($this->record);
         } catch (\Throwable $exception) {
             Notification::make()
                 ->title('Bağış kaydedildi, makbuz oluşturulamadı')

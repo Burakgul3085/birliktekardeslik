@@ -6,8 +6,8 @@
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 mb-4">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
-                    <h1 class="text-2xl font-bold">Belge Doğrulandı</h1>
-                    <p class="text-teal-50 mt-2 text-sm">Bu belge Birlikte Kardeşlik Derneği sisteminde kayıtlıdır.</p>
+                    <h1 class="text-2xl font-bold">Makbuz Doğrulandı</h1>
+                    <p class="text-teal-50 mt-2 text-sm">Bu makbuz Birlikte Kardeşlik Derneği sisteminde kayıtlıdır.</p>
                 </div>
 
                 <div class="p-6 md:p-8 space-y-4 text-sm text-slate-700">

@@ -20,7 +20,6 @@ class Donation extends Model
         'currency',
         'donated_at',
         'description',
-        'poster_name',
         'notes',
     ];
 

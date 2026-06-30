@@ -5,7 +5,6 @@ namespace App\Filament\Crm\Resources\Donations;
 use App\Filament\Crm\Resources\Donations\Pages\CreateDonation;
 use App\Filament\Crm\Resources\Donations\Pages\EditDonation;
 use App\Filament\Crm\Resources\Donations\Pages\ListDonations;
-use App\Filament\Crm\Resources\Donations\Pages\PreviewDonationDocument;
 use App\Filament\Crm\Resources\Donations\RelationManagers\DocumentsRelationManager;
 use App\Filament\Crm\Resources\Donations\Schemas\DonationForm;
 use App\Filament\Crm\Resources\Donations\Tables\DonationsTable;
@@ -81,7 +80,6 @@ class DonationResource extends Resource
             'index' => ListDonations::route('/'),
             'create' => CreateDonation::route('/create'),
             'edit' => EditDonation::route('/{record}/edit'),
-            'preview-document' => PreviewDonationDocument::route('/{record}/belgeler/{documentId}/onizle'),
         ];
     }
 }
