@@ -22,9 +22,7 @@ class CrmDashboard extends BaseDashboard
 
     public function mount(): void
     {
-        if (blank($this->filters)) {
-            $this->filters = DashboardFilterResolver::defaults();
-        }
+        $this->filters = DashboardFilterResolver::normalize($this->filters);
     }
 
     public function getFiltersForm(): Schema
@@ -36,7 +34,6 @@ class CrmDashboard extends BaseDashboard
         $schema = $this->makeSchema()
             ->columns(1)
             ->extraAttributes(['wire:partial' => 'table-filters-form', 'class' => 'crm-dashboard-filters'])
-            ->live()
             ->statePath('filters');
 
         return $this->filtersForm($schema);
@@ -67,6 +64,8 @@ class CrmDashboard extends BaseDashboard
                                     ->pluck('title', 'id')
                                     ->all())
                                 ->searchable()
+                                ->preload()
+                                ->nullable()
                                 ->placeholder('Tüm faaliyetler')
                                 ->live()
                                 ->native(false),
@@ -75,20 +74,24 @@ class CrmDashboard extends BaseDashboard
                                 ->numeric()
                                 ->minValue(1)
                                 ->default(3)
+                                ->live(onBlur: true)
                                 ->visible(fn ($get): bool => $get('period') === 'relative'),
                             Select::make('relative_unit')
                                 ->label('Birim')
                                 ->options(DonationDateFilter::relativeUnitOptions())
                                 ->default('weeks')
+                                ->live()
                                 ->native(false)
                                 ->visible(fn ($get): bool => $get('period') === 'relative'),
                             DateTimePicker::make('from')
                                 ->label('Başlangıç')
                                 ->seconds(false)
+                                ->live(onBlur: true)
                                 ->visible(fn ($get): bool => $get('period') === 'custom_range'),
                             DateTimePicker::make('until')
                                 ->label('Bitiş')
                                 ->seconds(false)
+                                ->live(onBlur: true)
                                 ->visible(fn ($get): bool => $get('period') === 'custom_range'),
                         ]),
                     ])
@@ -99,8 +102,10 @@ class CrmDashboard extends BaseDashboard
 
     public function updatedFilters(): void
     {
+        $this->filters = DashboardFilterResolver::store($this->filters ?? []);
+
         parent::updatedFilters();
 
-        $this->dispatch('crm-dashboard-filters-updated');
+        $this->dispatch('crm-dashboard-filters-updated', filters: $this->filters);
     }
 }

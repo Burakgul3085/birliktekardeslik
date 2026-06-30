@@ -10,9 +10,18 @@ use Livewire\Attributes\On;
 
 trait InteractsWithCrmDashboardFilters
 {
+    /**
+     * @var array<string, mixed>|null
+     */
+    public ?array $crmDashboardFilters = null;
+
     #[On('crm-dashboard-filters-updated')]
-    public function refreshDashboardWidgets(): void
+    public function refreshDashboardWidgets(array $filters = []): void
     {
+        if ($filters !== []) {
+            $this->crmDashboardFilters = DashboardFilterResolver::normalize($filters);
+        }
+
         if (property_exists($this, 'cachedStats')) {
             $this->cachedStats = null;
         }
@@ -27,6 +36,10 @@ trait InteractsWithCrmDashboardFilters
      */
     protected function dashboardFilters(): array
     {
+        if (is_array($this->crmDashboardFilters)) {
+            return $this->crmDashboardFilters;
+        }
+
         return DashboardFilterResolver::get();
     }
 

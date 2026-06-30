@@ -31,9 +31,9 @@ class TopProjectsWidget extends TableWidget
                         filled($filters['project_id'] ?? null),
                         fn (Builder $query) => $query->whereKey($filters['project_id']),
                     )
+                    ->whereHas('donations', fn (Builder $query) => DonationDateFilter::applyDashboardFilters($query, $filters))
                     ->withCount(['donations' => fn (Builder $query) => DonationDateFilter::applyDashboardFilters($query, $filters)])
                     ->withSum(['donations' => fn (Builder $query) => DonationDateFilter::applyDashboardFilters($query, $filters)], 'amount')
-                    ->having('donations_count', '>', 0)
                     ->orderByDesc('donations_sum_amount')
                     ->limit(8),
             )

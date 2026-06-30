@@ -29,34 +29,28 @@ class DonationDateFilter
     }
 
     /**
-     * @return array<string, array<string, string>>
+     * @return array<string, string>
      */
     public static function dashboardPeriodOptions(): array
     {
         return [
-            'Hızlı seçim' => [
-                'today' => 'Bugün',
-                'yesterday' => 'Dün',
-                'this_week' => 'Bu hafta',
-                'last_week' => 'Geçen hafta',
-                'this_month' => 'Bu ay',
-                'last_month' => 'Geçen ay',
-                'this_year' => 'Bu yıl',
-                'last_year' => 'Geçen yıl',
-            ],
-            'Göreceli süre' => [
-                'last_2_hours' => 'Son 2 saat',
-                'last_6_hours' => 'Son 6 saat',
-                'last_24_hours' => 'Son 24 saat',
-                'last_7_days' => 'Son 7 gün',
-                'last_30_days' => 'Son 30 gün',
-                'last_90_days' => 'Son 90 gün',
-            ],
-            'Özel' => [
-                'relative' => 'Son X süre (özel)',
-                'custom_range' => 'Tarih aralığı',
-                'all_time' => 'Tüm zamanlar',
-            ],
+            'today' => 'Bugün',
+            'yesterday' => 'Dün',
+            'this_week' => 'Bu hafta',
+            'last_week' => 'Geçen hafta',
+            'this_month' => 'Bu ay',
+            'last_month' => 'Geçen ay',
+            'this_year' => 'Bu yıl',
+            'last_year' => 'Geçen yıl',
+            'last_2_hours' => 'Son 2 saat',
+            'last_6_hours' => 'Son 6 saat',
+            'last_24_hours' => 'Son 24 saat',
+            'last_7_days' => 'Son 7 gün',
+            'last_30_days' => 'Son 30 gün',
+            'last_90_days' => 'Son 90 gün',
+            'relative' => 'Son X süre (özel)',
+            'custom_range' => 'Tarih aralığı',
+            'all_time' => 'Tüm zamanlar',
         ];
     }
 
@@ -98,9 +92,7 @@ class DonationDateFilter
             return "{$from} – {$until}";
         }
 
-        $flat = collect(self::dashboardPeriodOptions())
-            ->flatMap(fn (array $group): array => $group)
-            ->all();
+        $flat = self::dashboardPeriodOptions();
 
         return $flat[$period] ?? 'Bu ay';
     }

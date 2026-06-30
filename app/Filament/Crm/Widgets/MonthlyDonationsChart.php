@@ -78,7 +78,14 @@ class MonthlyDonationsChart extends ChartWidget
         $labels = [];
         $data = [];
 
-        foreach (CarbonPeriod::create($from->copy()->startOfDay(), '1 day', $to->copy()->endOfDay()) as $day) {
+        $start = $from->copy()->startOfDay();
+        $end = $to->copy()->endOfDay();
+
+        if ($start->diffInDays($end) > 90) {
+            $start = $end->copy()->subDays(90)->startOfDay();
+        }
+
+        foreach (CarbonPeriod::create($start, '1 day', $end) as $day) {
             $labels[] = $day->locale('tr')->translatedFormat('d M');
             $data[] = (float) $this->filteredDonationsQuery()
                 ->whereDate('donated_at', $day->toDateString())
