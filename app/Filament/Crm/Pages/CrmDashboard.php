@@ -27,27 +27,39 @@ class CrmDashboard extends BaseDashboard
         }
     }
 
+    public function getFiltersForm(): Schema
+    {
+        if ((! $this->isCachingSchemas) && $this->hasCachedSchema('filtersForm')) {
+            return $this->getSchema('filtersForm');
+        }
+
+        $schema = $this->makeSchema()
+            ->columns(1)
+            ->extraAttributes(['wire:partial' => 'table-filters-form', 'class' => 'crm-dashboard-filters'])
+            ->live()
+            ->statePath('filters');
+
+        return $this->filtersForm($schema);
+    }
+
     public function filtersForm(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Section::make('Filtreler')
                     ->description('Özet kartlar, grafikler ve tablolar seçtiğiniz dönem ve faaliyete göre güncellenir.')
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make([
                             'default' => 1,
                             'md' => 2,
-                            'xl' => 4,
                         ])->schema([
                             Select::make('period')
                                 ->label('Zaman aralığı')
                                 ->options(DonationDateFilter::dashboardPeriodOptions())
                                 ->default('this_month')
                                 ->live()
-                                ->columnSpan([
-                                    'default' => 1,
-                                    'md' => 2,
-                                ]),
+                                ->native(false),
                             Select::make('project_id')
                                 ->label('Proje / Faaliyet')
                                 ->options(fn (): array => Project::query()
@@ -56,7 +68,8 @@ class CrmDashboard extends BaseDashboard
                                     ->all())
                                 ->searchable()
                                 ->placeholder('Tüm faaliyetler')
-                                ->live(),
+                                ->live()
+                                ->native(false),
                             TextInput::make('relative_amount')
                                 ->label('Son')
                                 ->numeric()
@@ -67,6 +80,7 @@ class CrmDashboard extends BaseDashboard
                                 ->label('Birim')
                                 ->options(DonationDateFilter::relativeUnitOptions())
                                 ->default('weeks')
+                                ->native(false)
                                 ->visible(fn ($get): bool => $get('period') === 'relative'),
                             DateTimePicker::make('from')
                                 ->label('Başlangıç')
