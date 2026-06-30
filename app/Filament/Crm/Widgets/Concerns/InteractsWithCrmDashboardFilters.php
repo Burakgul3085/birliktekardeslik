@@ -5,29 +5,32 @@ namespace App\Filament\Crm\Widgets\Concerns;
 use App\Models\Donation;
 use App\Support\Crm\DashboardFilterResolver;
 use App\Support\Crm\DonationDateFilter;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Attributes\On;
 
 trait InteractsWithCrmDashboardFilters
 {
-    /**
-     * @var array<string, mixed>|null
-     */
-    public ?array $crmDashboardFilters = null;
+    use InteractsWithPageFilters;
 
-    #[On('crm-dashboard-filters-updated')]
-    public function refreshDashboardWidgets(array $filters = []): void
+    protected ?string $dashboardFiltersHash = null;
+
+    public function updatedPageFilters(): void
     {
-        if ($filters !== []) {
-            $this->crmDashboardFilters = DashboardFilterResolver::normalize($filters);
-        }
+        $this->resetDashboardWidgetCaches();
+    }
 
+    protected function resetDashboardWidgetCaches(): void
+    {
         if (property_exists($this, 'cachedStats')) {
             $this->cachedStats = null;
         }
 
         if (property_exists($this, 'cachedData')) {
             $this->cachedData = null;
+        }
+
+        if (property_exists($this, 'dataChecksum')) {
+            $this->dataChecksum = null;
         }
     }
 
@@ -36,11 +39,15 @@ trait InteractsWithCrmDashboardFilters
      */
     protected function dashboardFilters(): array
     {
-        if (is_array($this->crmDashboardFilters)) {
-            return $this->crmDashboardFilters;
+        $normalized = DashboardFilterResolver::normalize($this->pageFilters);
+        $hash = md5(json_encode($normalized));
+
+        if ($this->dashboardFiltersHash !== $hash) {
+            $this->dashboardFiltersHash = $hash;
+            $this->resetDashboardWidgetCaches();
         }
 
-        return DashboardFilterResolver::get();
+        return $normalized;
     }
 
     protected function filteredDonationsQuery(): Builder

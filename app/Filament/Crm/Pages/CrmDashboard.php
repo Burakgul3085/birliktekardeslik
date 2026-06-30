@@ -22,7 +22,7 @@ class CrmDashboard extends BaseDashboard
 
     public function mount(): void
     {
-        $this->filters = DashboardFilterResolver::normalize($this->filters);
+        $this->filters = DashboardFilterResolver::store($this->filters ?? []);
     }
 
     public function getFiltersForm(): Schema
@@ -64,7 +64,6 @@ class CrmDashboard extends BaseDashboard
                                     ->pluck('title', 'id')
                                     ->all())
                                 ->searchable()
-                                ->preload()
                                 ->nullable()
                                 ->placeholder('Tüm faaliyetler')
                                 ->live()
@@ -105,7 +104,5 @@ class CrmDashboard extends BaseDashboard
         $this->filters = DashboardFilterResolver::store($this->filters ?? []);
 
         parent::updatedFilters();
-
-        $this->dispatch('crm-dashboard-filters-updated', filters: $this->filters);
     }
 }

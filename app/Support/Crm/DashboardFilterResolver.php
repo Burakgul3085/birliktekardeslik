@@ -34,16 +34,21 @@ class DashboardFilterResolver
     {
         $filters = array_merge(self::defaults(), $filters ?? []);
 
+        $filters['period'] = (string) ($filters['period'] ?? 'this_month');
         $filters['relative_amount'] = max(1, (int) ($filters['relative_amount'] ?? 1));
         $filters['relative_unit'] = (string) ($filters['relative_unit'] ?? 'weeks');
-        $filters['period'] = (string) ($filters['period'] ?? 'this_month');
 
         $filters['project_id'] = filled($filters['project_id'] ?? null)
             ? (int) $filters['project_id']
             : null;
 
-        $filters['from'] = filled($filters['from'] ?? null) ? (string) $filters['from'] : null;
-        $filters['until'] = filled($filters['until'] ?? null) ? (string) $filters['until'] : null;
+        if ($filters['period'] !== 'custom_range') {
+            $filters['from'] = null;
+            $filters['until'] = null;
+        } else {
+            $filters['from'] = filled($filters['from'] ?? null) ? (string) $filters['from'] : null;
+            $filters['until'] = filled($filters['until'] ?? null) ? (string) $filters['until'] : null;
+        }
 
         return $filters;
     }
