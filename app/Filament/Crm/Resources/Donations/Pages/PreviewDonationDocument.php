@@ -285,26 +285,8 @@ class PreviewDonationDocument extends Page
         return [
             Action::make('back')
                 ->label('Bağışa dön')
-                ->url(DonationResource::getUrl('edit', ['record' => $this->record]))
+                ->url(fn (): string => DonationResource::getUrl('edit', ['record' => $this->getRecord()]))
                 ->color('gray'),
-            Action::make('refresh')
-                ->label('PDF render önizleme')
-                ->icon('heroicon-o-eye')
-                ->action(fn () => $this->refreshPreview())
-                ->color('info'),
-            Action::make('save')
-                ->label('Belgeye kaydet')
-                ->action(fn () => $this->saveDocument())
-                ->color('primary'),
-            Action::make('applyTemplate')
-                ->label('Şablona uygula')
-                ->action(fn () => $this->applyToTemplate())
-                ->color('warning')
-                ->requiresConfirmation(),
-            Action::make('download')
-                ->label('Onayla ve PDF indir')
-                ->action(fn () => $this->finalizeAndDownload())
-                ->color('success'),
         ];
     }
 

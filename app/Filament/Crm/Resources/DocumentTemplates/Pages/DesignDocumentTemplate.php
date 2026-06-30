@@ -322,22 +322,8 @@ class DesignDocumentTemplate extends Page
         return [
             Action::make('back')
                 ->label('Geri')
-                ->url(DocumentTemplateResource::getUrl('edit', ['record' => $this->record]))
+                ->url(fn (): string => DocumentTemplateResource::getUrl('edit', ['record' => $this->getRecord()]))
                 ->color('gray'),
-            Action::make('preview')
-                ->label('Örnek Veriyle Önizle')
-                ->icon('heroicon-o-eye')
-                ->action(fn () => $this->renderPreview())
-                ->color('info'),
-            Action::make('reset')
-                ->label('Varsayılanlara sıfırla')
-                ->action(fn () => $this->resetDefaults())
-                ->color('warning')
-                ->requiresConfirmation(),
-            Action::make('save')
-                ->label('Kaydet')
-                ->action(fn () => $this->saveTemplateFields())
-                ->color('primary'),
         ];
     }
 }

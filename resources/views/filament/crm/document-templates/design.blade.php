@@ -6,6 +6,8 @@
             Önce şablon PNG görseli yükleyin.
         </div>
     @else
+        @include('filament.crm.components.poster-editor-page-actions')
+
         <div class="mb-3 text-sm text-gray-500 dark:text-gray-400">
             Afiş üzerinde alanları sürükleyin, köşelerden boyutlandırın. Alttaki araç çubuğundan font ve renk ayarlayın, sonra <strong>Kaydet</strong>.
         </div>

@@ -131,6 +131,52 @@
         border-color: #2563eb;
         color: #fff;
     }
+    .poster-page-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .poster-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+    }
+    .poster-page-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
+    }
+    .poster-page-btn:disabled {
+        opacity: 0.65;
+        cursor: wait;
+    }
+    .poster-page-btn--info {
+        background: #0ea5e9;
+        color: #fff;
+    }
+    .poster-page-btn--warning {
+        background: #f59e0b;
+        color: #fff;
+    }
+    .poster-page-btn--primary {
+        background: #0d9488;
+        color: #fff;
+    }
+    .poster-page-btn--success {
+        background: #10b981;
+        color: #fff;
+    }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">

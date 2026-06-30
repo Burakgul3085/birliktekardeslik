@@ -6,6 +6,27 @@
             Şablon görseli bulunamadı. Önce Afiş Şablonları bölümünden PNG yükleyin.
         </div>
     @else
+        @include('filament.crm.components.poster-editor-page-actions', [
+            'showReset' => false,
+            'previewMethod' => 'refreshPreview',
+            'previewLabel' => 'PDF render önizleme',
+            'saveMethod' => 'saveDocument',
+            'saveLabel' => 'Belgeye kaydet',
+            'extraButtons' => [
+                [
+                    'method' => 'applyToTemplate',
+                    'label' => 'Şablona uygula',
+                    'color' => 'warning',
+                    'confirm' => 'Bu belgedeki konumlar şablona yazılacak. Emin misiniz?',
+                ],
+                [
+                    'method' => 'finalizeAndDownload',
+                    'label' => 'Onayla ve PDF indir',
+                    'color' => 'success',
+                ],
+            ],
+        ])
+
         <div class="mb-3 flex flex-wrap items-center gap-2">
             <span class="text-sm text-gray-500 dark:text-gray-400">
                 Afiş üzerinde sürükleyin, köşelerden boyutlandırın, çift tıklayarak metni düzenleyin.
