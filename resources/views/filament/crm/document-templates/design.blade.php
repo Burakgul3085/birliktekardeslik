@@ -39,6 +39,8 @@
                 <div
                     id="poster-canvas"
                     class="relative bg-white"
+                    data-canvas-width="{{ $canvasWidth }}"
+                    data-canvas-height="{{ $canvasHeight }}"
                     style="aspect-ratio: {{ $canvasWidth }} / {{ $canvasHeight }};"
                     x-data="posterEditor(@js($canvasWidth), @js($canvasHeight))"
                     x-init="init()"
@@ -126,36 +128,13 @@
             @php $selIndex = $this->getSelectedFieldIndex(); @endphp
             @if ($selIndex !== null && isset($fields[$selIndex]))
                 @php $sel = $fields[$selIndex]; @endphp
-                <div class="poster-toolbar" wire:key="toolbar-{{ $sel['id'] }}">
-                    <span class="mr-2 text-sm font-semibold text-gray-700 dark:text-gray-200">{{ $sel['label'] }}</span>
-
-                    @if (($sel['type'] ?? 'text') !== 'qr')
-                        <button type="button" class="poster-toolbar-btn" wire:click="nudgeFontSize(-2)">A−</button>
-                        <span class="min-w-[2.5rem] text-center text-sm font-medium">{{ $sel['font_size'] ?? 32 }}</span>
-                        <button type="button" class="poster-toolbar-btn" wire:click="nudgeFontSize(2)">A+</button>
-
-                        <input type="color" wire:model.live="fields.{{ $selIndex }}.color" class="h-9 w-12 cursor-pointer rounded-lg border border-gray-200" title="Renk">
-
-                        <select wire:model.live="fields.{{ $selIndex }}.font_family" class="h-9 rounded-lg border border-gray-200 bg-white px-2 text-sm dark:border-gray-600 dark:bg-gray-900">
-                            @foreach ($this->getFontOptions() as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-
-                        <button type="button" class="poster-toolbar-btn {{ ($sel['align'] ?? '') === 'left' ? 'is-active' : '' }}" wire:click="$set('fields.{{ $selIndex }}.align', 'left')">⬅</button>
-                        <button type="button" class="poster-toolbar-btn {{ ($sel['align'] ?? '') === 'center' ? 'is-active' : '' }}" wire:click="$set('fields.{{ $selIndex }}.align', 'center')">⬌</button>
-                        <button type="button" class="poster-toolbar-btn {{ ($sel['align'] ?? '') === 'right' ? 'is-active' : '' }}" wire:click="$set('fields.{{ $selIndex }}.align', 'right')">➡</button>
-
-                        <label class="flex items-center gap-1 text-xs text-gray-500">
-                            <input type="checkbox" wire:model.live="fields.{{ $selIndex }}.auto_resize" class="rounded"> Oto küçült
-                        </label>
-                        <label class="flex items-center gap-1 text-xs text-gray-500">
-                            <input type="checkbox" wire:model.live="fields.{{ $selIndex }}.word_wrap" class="rounded"> Satır kaydır
-                        </label>
-                    @endif
-
-                    <button type="button" class="poster-toolbar-btn text-danger-600" wire:click="removeField('{{ $sel['id'] }}')" wire:confirm="Bu alanı silmek istediğinize emin misiniz?">Sil</button>
-                </div>
+                @include('filament.crm.components.poster-editor-toolbar', [
+                    'toolbarKey' => $sel['id'],
+                    'fieldLabel' => $sel['label'],
+                    'fieldType' => $sel['type'] ?? 'text',
+                    'fontOptions' => $this->getFontOptions(),
+                    'deleteWireClick' => "removeField('{$sel['id']}')",
+                ])
             @endif
         </div>
 

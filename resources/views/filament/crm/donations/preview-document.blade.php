@@ -29,6 +29,8 @@
                 <div
                     id="poster-canvas"
                     class="relative bg-white"
+                    data-canvas-width="{{ $canvasWidth }}"
+                    data-canvas-height="{{ $canvasHeight }}"
                     style="aspect-ratio: {{ $canvasWidth }} / {{ $canvasHeight }};"
                     x-data="posterEditor(@js($canvasWidth), @js($canvasHeight))"
                     x-init="init()"
@@ -116,52 +118,12 @@
 
             @if ($selectedFieldKey && isset($fieldStates[$selectedFieldKey]))
                 @php $sel = $fieldStates[$selectedFieldKey]; @endphp
-                <div class="poster-toolbar" wire:key="toolbar-{{ $selectedFieldKey }}">
-                    <span class="mr-2 text-sm font-semibold text-gray-700 dark:text-gray-200">{{ $sel['label'] }}</span>
-
-                    @if (($sel['type'] ?? 'text') !== 'qr')
-                        <button type="button" class="poster-toolbar-btn" wire:click="nudgeFontSize(-2)" title="Küçült">A−</button>
-                        <span class="min-w-[2.5rem] text-center text-sm font-medium text-gray-600 dark:text-gray-300">{{ $sel['font_size'] ?? 32 }}</span>
-                        <button type="button" class="poster-toolbar-btn" wire:click="nudgeFontSize(2)" title="Büyüt">A+</button>
-
-                        <input
-                            type="color"
-                            wire:model.live="fieldStates.{{ $selectedFieldKey }}.color"
-                            class="h-9 w-12 cursor-pointer rounded-lg border border-gray-200"
-                            title="Renk"
-                        >
-
-                        <select
-                            wire:model.live="fieldStates.{{ $selectedFieldKey }}.font_family"
-                            class="h-9 rounded-lg border border-gray-200 bg-white px-2 text-sm dark:border-gray-600 dark:bg-gray-900"
-                        >
-                            @foreach ($this->getFontOptions() as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-
-                        <button
-                            type="button"
-                            class="poster-toolbar-btn {{ ($sel['align'] ?? '') === 'left' ? 'is-active' : '' }}"
-                            wire:click="$set('fieldStates.{{ $selectedFieldKey }}.align', 'left')"
-                            title="Sola hizala"
-                        >⬅</button>
-                        <button
-                            type="button"
-                            class="poster-toolbar-btn {{ ($sel['align'] ?? '') === 'center' ? 'is-active' : '' }}"
-                            wire:click="$set('fieldStates.{{ $selectedFieldKey }}.align', 'center')"
-                            title="Ortala"
-                        >⬌</button>
-                        <button
-                            type="button"
-                            class="poster-toolbar-btn {{ ($sel['align'] ?? '') === 'right' ? 'is-active' : '' }}"
-                            wire:click="$set('fieldStates.{{ $selectedFieldKey }}.align', 'right')"
-                            title="Sağa hizala"
-                        >➡</button>
-                    @else
-                        <span class="text-xs text-gray-500">QR alanını sürükleyerek konumlandırın</span>
-                    @endif
-                </div>
+                @include('filament.crm.components.poster-editor-toolbar', [
+                    'toolbarKey' => $selectedFieldKey,
+                    'fieldLabel' => $sel['label'],
+                    'fieldType' => $sel['type'] ?? 'text',
+                    'fontOptions' => $this->getFontOptions(),
+                ])
             @endif
         </div>
 

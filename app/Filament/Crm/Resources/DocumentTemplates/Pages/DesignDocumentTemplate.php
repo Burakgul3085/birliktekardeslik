@@ -2,6 +2,7 @@
 
 namespace App\Filament\Crm\Resources\DocumentTemplates\Pages;
 
+use App\Filament\Crm\Concerns\InteractsWithPosterToolbar;
 use App\Filament\Crm\Resources\DocumentTemplates\DocumentTemplateResource;
 use App\Support\Crm\TemplateEngine\TemplateCoordinateHelper;
 use App\Support\Crm\TemplateEngine\TemplateFieldCatalog;
@@ -19,6 +20,7 @@ use Illuminate\Support\Str;
 class DesignDocumentTemplate extends Page
 {
     use InteractsWithRecord;
+    use InteractsWithPosterToolbar;
 
     protected static string $resource = DocumentTemplateResource::class;
 
@@ -70,6 +72,7 @@ class DesignDocumentTemplate extends Page
 
         if ($this->fields !== []) {
             $this->selectedFieldId = $this->fields[0]['id'] ?? null;
+            $this->syncToolbarWithSelection();
         }
     }
 
@@ -113,14 +116,35 @@ class DesignDocumentTemplate extends Page
 
     public function nudgeFontSize(int $delta): void
     {
+        if ($delta < 0) {
+            $this->decreaseFontSize();
+        } else {
+            $this->increaseFontSize();
+        }
+    }
+
+    protected function pushToolbarToField(): void
+    {
         $index = $this->getSelectedFieldIndex();
 
         if ($index === null) {
             return;
         }
 
-        $current = (int) ($this->fields[$index]['font_size'] ?? 32);
-        $this->fields[$index]['font_size'] = max(8, min(120, $current + $delta));
+        $fields = $this->fields;
+        $fields[$index] = array_merge($fields[$index], $this->toolbarPatch());
+        $this->fields = $fields;
+    }
+
+    protected function syncToolbarWithSelection(): void
+    {
+        $index = $this->getSelectedFieldIndex();
+
+        if ($index === null) {
+            return;
+        }
+
+        $this->pullToolbarFromField($this->fields[$index]);
     }
 
     /**
@@ -211,6 +235,7 @@ class DesignDocumentTemplate extends Page
 
         $this->fields[] = $field;
         $this->selectedFieldId = $field['id'];
+        $this->syncToolbarWithSelection();
     }
 
     public function removeField(string $fieldId): void
@@ -222,6 +247,7 @@ class DesignDocumentTemplate extends Page
 
         if ($this->selectedFieldId === $fieldId) {
             $this->selectedFieldId = $this->fields[0]['id'] ?? null;
+            $this->syncToolbarWithSelection();
         }
     }
 
@@ -232,6 +258,7 @@ class DesignDocumentTemplate extends Page
         $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
         $this->selectedFieldId = $this->fields[0]['id'] ?? null;
         $this->previewDataUri = null;
+        $this->syncToolbarWithSelection();
 
         Notification::make()
             ->title('Varsayılan alanlar yüklendi')
@@ -243,6 +270,7 @@ class DesignDocumentTemplate extends Page
     public function selectField(string $fieldId): void
     {
         $this->selectedFieldId = $fieldId;
+        $this->syncToolbarWithSelection();
     }
 
     /**
@@ -250,7 +278,9 @@ class DesignDocumentTemplate extends Page
      */
     public function updateFieldGeometry(string $fieldId, array $payload): void
     {
-        foreach ($this->fields as $index => $field) {
+        $fields = $this->fields;
+
+        foreach ($fields as $index => $field) {
             if (($field['id'] ?? '') !== $fieldId) {
                 continue;
             }
@@ -258,16 +288,20 @@ class DesignDocumentTemplate extends Page
             foreach (['x', 'y', 'width', 'height'] as $key) {
                 if (array_key_exists($key, $payload)) {
                     $min = $key === 'width' || $key === 'height' ? 24 : 0;
-                    $this->fields[$index][$key] = max($min, (int) $payload[$key]);
+                    $fields[$index][$key] = max($min, (int) $payload[$key]);
                 }
             }
 
-            $this->fields[$index] = TemplateCoordinateHelper::attachRatios(
-                $this->fields[$index],
+            $fields[$index] = TemplateCoordinateHelper::attachRatios(
+                $fields[$index],
                 $this->canvasWidth,
                 $this->canvasHeight,
             );
+
+            break;
         }
+
+        $this->fields = $fields;
     }
 
     protected function getHeaderActions(): array

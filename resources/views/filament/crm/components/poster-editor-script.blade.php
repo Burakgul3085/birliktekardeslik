@@ -1,9 +1,23 @@
 @script
 <script>
-    Alpine.data('posterEditor', (canvasWidth, canvasHeight, idAttr = 'id') => ({
+    function refreshPosterCanvasScale() {
+        const canvas = document.getElementById('poster-canvas');
+        if (!canvas) return;
+
+        const width = parseInt(canvas.dataset.canvasWidth, 10) || 2480;
+        const scale = canvas.clientWidth > 0 ? canvas.clientWidth / width : 0.3;
+        canvas.style.setProperty('--canvas-scale', scale);
+    }
+
+    document.addEventListener('livewire:init', () => {
+        Livewire.hook('morph.updated', () => {
+            requestAnimationFrame(refreshPosterCanvasScale);
+        });
+    });
+
+    Alpine.data('posterEditor', (canvasWidth, canvasHeight) => ({
         canvasWidth,
         canvasHeight,
-        idAttr,
         mode: null,
         resizeCorner: null,
         activeFieldId: null,
@@ -16,14 +30,21 @@
         scale: 1,
 
         init() {
-            this.$nextTick(() => this.recalculateScale());
-            window.addEventListener('resize', () => this.recalculateScale());
+            this.$nextTick(() => {
+                refreshPosterCanvasScale();
+                this.recalculateScale();
+            });
+            window.addEventListener('resize', () => {
+                refreshPosterCanvasScale();
+                this.recalculateScale();
+            });
         },
 
         recalculateScale() {
             const canvas = document.getElementById('poster-canvas');
             if (!canvas) return;
-            this.scale = canvas.clientWidth / this.canvasWidth;
+            const width = parseInt(canvas.dataset.canvasWidth, 10) || this.canvasWidth;
+            this.scale = canvas.clientWidth / width;
             canvas.style.setProperty('--canvas-scale', this.scale);
         },
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Crm\Resources\Donations\Pages;
 
+use App\Filament\Crm\Concerns\InteractsWithPosterToolbar;
 use App\Filament\Crm\Resources\Donations\DonationResource;
 use App\Models\DocumentFieldOverride;
 use App\Models\DonationDocument;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 class PreviewDonationDocument extends Page
 {
     use InteractsWithRecord;
+    use InteractsWithPosterToolbar;
 
     protected static string $resource = DonationResource::class;
 
@@ -73,6 +75,7 @@ class PreviewDonationDocument extends Page
 
         if ($this->fieldStates !== []) {
             $this->selectedFieldKey = array_key_first($this->fieldStates);
+            $this->syncToolbarWithSelection();
         }
     }
 
@@ -80,6 +83,7 @@ class PreviewDonationDocument extends Page
     {
         if (isset($this->fieldStates[$fieldKey])) {
             $this->selectedFieldKey = $fieldKey;
+            $this->syncToolbarWithSelection();
         }
     }
 
@@ -92,11 +96,15 @@ class PreviewDonationDocument extends Page
             return;
         }
 
+        $states = $this->fieldStates;
+
         foreach (['x', 'y', 'width', 'height'] as $key) {
             if (array_key_exists($key, $payload)) {
-                $this->fieldStates[$fieldKey][$key] = max($key === 'width' || $key === 'height' ? 24 : 0, (int) $payload[$key]);
+                $states[$fieldKey][$key] = max($key === 'width' || $key === 'height' ? 24 : 0, (int) $payload[$key]);
             }
         }
+
+        $this->fieldStates = $states;
     }
 
     public function updateFieldText(string $fieldKey, string $text): void
@@ -105,17 +113,32 @@ class PreviewDonationDocument extends Page
             return;
         }
 
-        $this->fieldStates[$fieldKey]['text_override'] = trim($text);
+        $states = $this->fieldStates;
+        $states[$fieldKey]['text_override'] = trim($text);
+        $this->fieldStates = $states;
     }
 
-    public function nudgeFontSize(int $delta): void
+    protected function pushToolbarToField(): void
     {
         if (! $this->selectedFieldKey || ! isset($this->fieldStates[$this->selectedFieldKey])) {
             return;
         }
 
-        $current = (int) ($this->fieldStates[$this->selectedFieldKey]['font_size'] ?? 32);
-        $this->fieldStates[$this->selectedFieldKey]['font_size'] = max(8, min(120, $current + $delta));
+        $states = $this->fieldStates;
+        $states[$this->selectedFieldKey] = array_merge(
+            $states[$this->selectedFieldKey],
+            $this->toolbarPatch(),
+        );
+        $this->fieldStates = $states;
+    }
+
+    protected function syncToolbarWithSelection(): void
+    {
+        if (! $this->selectedFieldKey || ! isset($this->fieldStates[$this->selectedFieldKey])) {
+            return;
+        }
+
+        $this->pullToolbarFromField($this->fieldStates[$this->selectedFieldKey]);
     }
 
     public function getTitle(): string|Htmlable
