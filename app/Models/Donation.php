@@ -57,4 +57,9 @@ class Donation extends Model
     {
         return $this->hasMany(DonationDocument::class);
     }
+
+    public function posters(): HasMany
+    {
+        return $this->hasMany(PosterDocument::class);
+    }
 }

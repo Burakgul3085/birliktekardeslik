@@ -70,6 +70,10 @@ class CrmPanelProvider extends PanelProvider
                 fn (): string => view('filament.crm.partials.login-style')->render(),
             )
             ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => view('filament.crm.partials.poster-assets')->render(),
+            )
+            ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
                 fn (): string => view('filament.crm.partials.login-hero')->render(),
             )

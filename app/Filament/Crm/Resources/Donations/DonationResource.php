@@ -6,6 +6,7 @@ use App\Filament\Crm\Resources\Donations\Pages\CreateDonation;
 use App\Filament\Crm\Resources\Donations\Pages\EditDonation;
 use App\Filament\Crm\Resources\Donations\Pages\ListDonations;
 use App\Filament\Crm\Resources\Donations\RelationManagers\DocumentsRelationManager;
+use App\Filament\Crm\Resources\Donations\RelationManagers\PostersRelationManager;
 use App\Filament\Crm\Resources\Donations\Schemas\DonationForm;
 use App\Filament\Crm\Resources\Donations\Tables\DonationsTable;
 use App\Models\CrmUser;
@@ -71,6 +72,7 @@ class DonationResource extends Resource
     {
         return [
             DocumentsRelationManager::class,
+            PostersRelationManager::class,
         ];
     }
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CrmDocumentController;
+use App\Http\Controllers\Crm\PosterController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\AdminOtpController;
 use App\Http\Controllers\AdminForgotPasswordController;
@@ -41,6 +42,12 @@ Route::get('/makbuz-indir/{code}', [CrmDocumentController::class, 'downloadByCod
 
 Route::middleware('auth:crm')->group(function (): void {
     Route::get('/belge-indir/{document}', [CrmDocumentController::class, 'download'])->name('crm.documents.download');
+
+    Route::post('/crm/afis/yukle', [PosterController::class, 'store'])->name('crm.posters.store');
+    Route::get('/crm/afis-duzenle/{poster}', [PosterController::class, 'edit'])->name('crm.posters.edit');
+    Route::post('/crm/afis-duzenle/{poster}', [PosterController::class, 'update'])->name('crm.posters.update');
+    Route::get('/crm/afis/{poster}/indir-png', [PosterController::class, 'downloadPng'])->name('crm.posters.download.png');
+    Route::get('/crm/afis/{poster}/indir-pdf', [PosterController::class, 'downloadPdf'])->name('crm.posters.download.pdf');
 });
 
 Route::prefix('bkd-panel')->name('admin.otp.')->group(function (): void {
