@@ -29,6 +29,7 @@ class DonationsTable
     {
         return $table
             ->defaultSort('donated_at', 'desc')
+            ->filtersFormColumns(2)
             ->columns([
                 TextColumn::make('donation_number')
                     ->label('Bağış No')
@@ -40,11 +41,24 @@ class DonationsTable
                     ->placeholder('-'),
                 TextColumn::make('donor.full_name')
                     ->label('Bağışçı')
-                    ->searchable(['donors.first_name', 'donors.last_name'])
-                    ->sortable(),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
+                        'donor',
+                        fn (Builder $donorQuery) => $donorQuery
+                            ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%"),
+                    ))
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy(
+                        Donor::query()
+                            ->select('last_name')
+                            ->whereColumn('donors.id', 'donations.donor_id'),
+                        $direction,
+                    )),
                 TextColumn::make('donor.phone')
                     ->label('Telefon')
-                    ->searchable()
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
+                        'donor',
+                        fn (Builder $donorQuery) => $donorQuery->where('phone', 'like', "%{$search}%"),
+                    ))
                     ->placeholder('-')
                     ->toggleable(),
                 TextColumn::make('donor.city')
@@ -115,13 +129,23 @@ class DonationsTable
                     })
                     ->getOptionLabelUsing(fn ($value): ?string => Donor::query()->find($value)?->full_name),
                 Filter::make('donor_contact')
-                    ->label('Bağışçı İletişim')
+                    ->label('Bağışçı')
                     ->form([
+                        TextInput::make('first_name')->label('Ad'),
+                        TextInput::make('last_name')->label('Soyad'),
                         TextInput::make('phone')->label('Telefon'),
                         TextInput::make('city')->label('Şehir'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
+                            ->when($data['first_name'] ?? null, fn (Builder $q, $name) => $q->whereHas(
+                                'donor',
+                                fn (Builder $donorQuery) => $donorQuery->where('first_name', 'like', "%{$name}%"),
+                            ))
+                            ->when($data['last_name'] ?? null, fn (Builder $q, $name) => $q->whereHas(
+                                'donor',
+                                fn (Builder $donorQuery) => $donorQuery->where('last_name', 'like', "%{$name}%"),
+                            ))
                             ->when($data['phone'] ?? null, fn (Builder $q, $phone) => $q->whereHas(
                                 'donor',
                                 fn (Builder $donorQuery) => $donorQuery->where('phone', 'like', "%{$phone}%"),
@@ -130,6 +154,27 @@ class DonationsTable
                                 'donor',
                                 fn (Builder $donorQuery) => $donorQuery->where('city', 'like', "%{$city}%"),
                             ));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if (filled($data['first_name'] ?? null)) {
+                            $indicators[] = 'Ad: ' . $data['first_name'];
+                        }
+
+                        if (filled($data['last_name'] ?? null)) {
+                            $indicators[] = 'Soyad: ' . $data['last_name'];
+                        }
+
+                        if (filled($data['phone'] ?? null)) {
+                            $indicators[] = 'Telefon: ' . $data['phone'];
+                        }
+
+                        if (filled($data['city'] ?? null)) {
+                            $indicators[] = 'Şehir: ' . $data['city'];
+                        }
+
+                        return $indicators;
                     }),
                 Filter::make('numbers')
                     ->label('Numaralar')
