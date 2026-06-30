@@ -73,10 +73,14 @@ class DonationSpreadsheetExporter
     {
         $lastColumn = count(self::HEADERS) - 1; // 0 tabanlı son sütun
 
-        // Özet veriler (başlık ve toplam satırı için önceden hesaplanır)
-        $recordCount = (int) (clone $query)->count();
-        $totalAmount = (float) (clone $query)->sum('amount');
+        // Özet veriler (başlık ve toplam satırı için önceden hesaplanır).
+        // reorder(): tablodan gelen ORDER BY temizlenir; aksi halde MySQL
+        // ONLY_FULL_GROUP_BY modunda GROUP BY ile çakışıp hata verir.
+        $recordCount = (int) (clone $query)->reorder()->count();
+        $totalAmount = (float) (clone $query)->reorder()->sum('amount');
         $totalsByCurrency = (clone $query)
+            ->reorder()
+            ->getQuery()
             ->select('currency', DB::raw('SUM(amount) as total'))
             ->groupBy('currency')
             ->pluck('total', 'currency')
