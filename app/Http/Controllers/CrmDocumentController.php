@@ -26,10 +26,25 @@ class CrmDocumentController extends Controller
     {
         abort_unless(auth('crm')->check(), 403);
 
+        return $this->streamPdf($document);
+    }
+
+    public function downloadByCode(string $code): StreamedResponse
+    {
+        $document = DonationDocument::query()
+            ->where('verification_code', $code)
+            ->firstOrFail();
+
+        return $this->streamPdf($document);
+    }
+
+    private function streamPdf(DonationDocument $document): StreamedResponse
+    {
         abort_unless(Storage::disk('public')->exists($document->pdf_path), 404);
 
-        $filename = $document->type . '-' . $document->verification_code . '.pdf';
-
-        return Storage::disk('public')->download($document->pdf_path, $filename);
+        return Storage::disk('public')->download(
+            $document->pdf_path,
+            'makbuz-' . $document->verification_code . '.pdf',
+        );
     }
 }

@@ -43,6 +43,11 @@ class DonationDocument extends Model
         return route('crm.document.verify', $this->verification_code);
     }
 
+    public function getPublicDownloadUrlAttribute(): string
+    {
+        return route('crm.document.download.public', $this->verification_code);
+    }
+
     protected static function booted(): void
     {
         static::deleting(function (DonationDocument $document): void {

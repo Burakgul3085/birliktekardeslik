@@ -3,6 +3,7 @@
 namespace App\Filament\Crm\Resources\Donations\RelationManagers;
 
 use App\Support\Crm\DonationDocumentGenerator;
+use App\Support\Crm\ReceiptWhatsAppLinkBuilder;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -42,6 +43,13 @@ class DocumentsRelationManager extends RelationManager
                     ->action(fn () => $this->generateReceipt()),
             ])
             ->recordActions([
+                Action::make('sendWhatsApp')
+                    ->label('WhatsApp ile Gönder')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('success')
+                    ->visible(fn ($record): bool => app(ReceiptWhatsAppLinkBuilder::class)->donorHasPhone($record))
+                    ->url(fn ($record): string => app(ReceiptWhatsAppLinkBuilder::class)->build($record) ?? '#')
+                    ->openUrlInNewTab(),
                 Action::make('downloadPdf')
                     ->label('PDF İndir')
                     ->icon('heroicon-o-arrow-down-tray')

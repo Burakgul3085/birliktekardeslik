@@ -41,7 +41,10 @@
                     </div>
                 </div>
 
-                <div class="px-6 pb-8 text-center">
+                <div class="px-6 pb-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <a href="{{ $document->public_download_url }}" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition">
+                        PDF İndir
+                    </a>
                     <a href="{{ route('home') }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition">
                         Ana Sayfaya Dön
                     </a>
