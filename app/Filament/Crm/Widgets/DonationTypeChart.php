@@ -2,12 +2,14 @@
 
 namespace App\Filament\Crm\Widgets;
 
-use App\Models\Donation;
+use App\Filament\Crm\Widgets\Concerns\InteractsWithCrmDashboardFilters;
 use App\Models\DonationType;
 use Filament\Widgets\ChartWidget;
 
 class DonationTypeChart extends ChartWidget
 {
+    use InteractsWithCrmDashboardFilters;
+
     protected static ?int $sort = 3;
 
     protected ?string $heading = 'Bağış Türlerine Göre Dağılım';
@@ -24,27 +26,36 @@ class DonationTypeChart extends ChartWidget
         return 'doughnut';
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->filteredDonationsQuery()->exists()
+            ? 'Seçili filtreye göre'
+            : 'Bu filtrede bağış bulunamadı';
+    }
+
     protected function getData(): array
     {
         $types = DonationType::query()
-            ->withSum('donations', 'amount')
             ->orderBy('sort_order')
             ->get();
 
         $labels = [];
         $data = [];
         $colors = [
-            '#0d9488',
-            '#14b8a6',
-            '#2dd4bf',
-            '#5eead4',
-            '#0f766e',
-            '#115e59',
-            '#134e4a',
+            '#0891b2',
+            '#06b6d4',
+            '#22d3ee',
+            '#67e8f9',
+            '#0e7490',
+            '#155e75',
+            '#164e63',
         ];
 
-        foreach ($types as $index => $type) {
-            $amount = (float) ($type->donations_sum_amount ?? 0);
+        foreach ($types as $type) {
+            $amount = (float) $this->filteredDonationsQuery()
+                ->where('donation_type_id', $type->id)
+                ->sum('amount');
+
             if ($amount <= 0) {
                 continue;
             }
@@ -54,7 +65,7 @@ class DonationTypeChart extends ChartWidget
         }
 
         if ($labels === []) {
-            $labels[] = 'Henüz bağış yok';
+            $labels[] = 'Veri yok';
             $data[] = 1;
         }
 
@@ -71,7 +82,7 @@ class DonationTypeChart extends ChartWidget
 
     protected function getOptions(): array
     {
-        $hasDonations = Donation::query()->exists();
+        $hasDonations = $this->filteredDonationsQuery()->exists();
 
         return [
             'plugins' => [

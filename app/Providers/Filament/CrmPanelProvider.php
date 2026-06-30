@@ -3,13 +3,13 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Crm\Auth\Login;
+use App\Filament\Crm\Pages\CrmDashboard;
 use App\Models\Setting;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -59,7 +59,7 @@ class CrmPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Crm/Resources'), for: 'App\Filament\Crm\Resources')
             ->discoverPages(in: app_path('Filament/Crm/Pages'), for: 'App\Filament\Crm\Pages')
             ->pages([
-                Dashboard::class,
+                CrmDashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Crm/Widgets'), for: 'App\Filament\Crm\Widgets')
             ->widgets([
