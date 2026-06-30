@@ -12,7 +12,7 @@ class CrmDocumentController extends Controller
     public function verify(string $code): View
     {
         $document = DonationDocument::query()
-            ->with(['donation.donor', 'donation.donationType', 'donation.paymentMethod'])
+            ->with(['donation.donor', 'donation.donationType', 'donation.paymentMethod', 'donation.project'])
             ->where('verification_code', $code)
             ->firstOrFail();
 
