@@ -163,26 +163,39 @@ class DesignDocumentTemplate extends Page
         return TemplateFieldCatalog::labelsForType($this->record->type);
     }
 
-    public function save(): void
+    public function saveTemplateFields(): void
     {
-        app(TemplateFieldSynchronizer::class)->persistFieldArrays(
-            $this->record,
-            TemplateFieldNormalizer::normalizeAll(array_values($this->fields)),
-        );
+        $this->pushToolbarToField();
 
-        $this->record->syncCanvasDimensions();
-        $this->record->saveQuietly();
-        $this->record->load('fields');
-        $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
+        try {
+            app(TemplateFieldSynchronizer::class)->persistFieldArrays(
+                $this->record,
+                TemplateFieldNormalizer::normalizeAll(array_values($this->fields)),
+            );
 
-        Notification::make()
-            ->title('Şablon alanları kaydedildi')
-            ->success()
-            ->send();
+            $this->record->syncCanvasDimensions();
+            $this->record->saveQuietly();
+            $this->record->load('fields');
+            $this->fields = $this->record->fields->map(fn ($field) => $field->toRenderDefinition())->all();
+            $this->syncToolbarWithSelection();
+
+            Notification::make()
+                ->title('Şablon alanları kaydedildi')
+                ->success()
+                ->send();
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title('Kayıt başarısız')
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public function renderPreview(): void
     {
+        $this->pushToolbarToField();
+
         try {
             $engine = app(TemplateRenderEngine::class);
             $png = $engine->renderPng(
@@ -314,16 +327,16 @@ class DesignDocumentTemplate extends Page
             Action::make('preview')
                 ->label('Örnek Veriyle Önizle')
                 ->icon('heroicon-o-eye')
-                ->action('renderPreview')
+                ->action(fn () => $this->renderPreview())
                 ->color('info'),
             Action::make('reset')
                 ->label('Varsayılanlara sıfırla')
-                ->action('resetDefaults')
+                ->action(fn () => $this->resetDefaults())
                 ->color('warning')
                 ->requiresConfirmation(),
             Action::make('save')
                 ->label('Kaydet')
-                ->action('save')
+                ->action(fn () => $this->saveTemplateFields())
                 ->color('primary'),
         ];
     }

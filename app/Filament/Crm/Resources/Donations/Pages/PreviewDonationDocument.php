@@ -186,6 +186,8 @@ class PreviewDonationDocument extends Page
             return;
         }
 
+        $this->pushToolbarToField();
+
         try {
             $this->persistOverridesToDatabase(false);
             $this->previewDocument->load('fieldOverrides');
@@ -206,6 +208,8 @@ class PreviewDonationDocument extends Page
         if (! $this->previewDocument) {
             return;
         }
+
+        $this->pushToolbarToField();
 
         $this->persistOverridesToDatabase(true);
         app(DonationDocumentGenerator::class)->rerender($this->previewDocument->fresh());
@@ -286,20 +290,20 @@ class PreviewDonationDocument extends Page
             Action::make('refresh')
                 ->label('PDF render önizleme')
                 ->icon('heroicon-o-eye')
-                ->action('refreshPreview')
+                ->action(fn () => $this->refreshPreview())
                 ->color('info'),
             Action::make('save')
                 ->label('Belgeye kaydet')
-                ->action('saveDocument')
+                ->action(fn () => $this->saveDocument())
                 ->color('primary'),
             Action::make('applyTemplate')
                 ->label('Şablona uygula')
-                ->action('applyToTemplate')
+                ->action(fn () => $this->applyToTemplate())
                 ->color('warning')
                 ->requiresConfirmation(),
             Action::make('download')
                 ->label('Onayla ve PDF indir')
-                ->action('finalizeAndDownload')
+                ->action(fn () => $this->finalizeAndDownload())
                 ->color('success'),
         ];
     }
