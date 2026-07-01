@@ -62,4 +62,9 @@ class Donation extends Model
     {
         return $this->hasMany(PosterDocument::class);
     }
+
+    public function crmNotes(): HasMany
+    {
+        return $this->hasMany(CrmNote::class);
+    }
 }

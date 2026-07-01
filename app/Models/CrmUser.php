@@ -5,6 +5,7 @@ namespace App\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -64,5 +65,29 @@ class CrmUser extends Authenticatable implements FilamentUser
     public function canDeleteRecords(): bool
     {
         return in_array($this->role, ['super_admin', 'manager'], true);
+    }
+
+    public function canWriteNotes(): bool
+    {
+        return in_array($this->role, ['super_admin', 'manager', 'staff'], true);
+    }
+
+    public function canEditNote(CrmNote $note): bool
+    {
+        if ($this->canDeleteRecords()) {
+            return true;
+        }
+
+        return $this->canWriteNotes() && $note->crm_user_id === $this->id;
+    }
+
+    public function canDeleteNote(CrmNote $note): bool
+    {
+        return $this->canEditNote($note);
+    }
+
+    public function crmNotes(): HasMany
+    {
+        return $this->hasMany(CrmNote::class);
     }
 }

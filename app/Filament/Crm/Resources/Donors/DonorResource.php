@@ -7,6 +7,7 @@ use App\Filament\Crm\Resources\Donors\Pages\EditDonor;
 use App\Filament\Crm\Resources\Donors\Pages\ListDonors;
 use App\Filament\Crm\Resources\Donors\Pages\ViewDonor;
 use App\Filament\Crm\Resources\Donors\RelationManagers\DonationsRelationManager;
+use App\Filament\Crm\Resources\Donors\RelationManagers\NotesRelationManager;
 use App\Filament\Crm\Resources\Donors\Schemas\DonorForm;
 use App\Filament\Crm\Resources\Donors\Schemas\DonorInfolist;
 use App\Filament\Crm\Resources\Donors\Tables\DonorsTable;
@@ -78,6 +79,7 @@ class DonorResource extends Resource
     {
         return [
             DonationsRelationManager::class,
+            NotesRelationManager::class,
         ];
     }
 

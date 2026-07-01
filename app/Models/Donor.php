@@ -23,6 +23,11 @@ class Donor extends Model
         return $this->hasMany(Donation::class);
     }
 
+    public function crmNotes(): HasMany
+    {
+        return $this->hasMany(CrmNote::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name . ' ' . $this->last_name);
