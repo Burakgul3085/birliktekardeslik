@@ -69,6 +69,7 @@ return [
         'close'             => 'Kapat',
         'subscribe'         => 'E-bültene kayıt ol',
         'admin_login'       => 'Yönetim Girişi',
+        'crm_login'         => 'CRM Girişi',
     ],
 
     /*

@@ -307,6 +307,16 @@
                     @endforeach
                 </nav>
                 <a
+                    href="{{ route('filament.crm.auth.login') }}"
+                    class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-800/50 text-slate-500 transition hover:border-teal-500/60 hover:text-teal-300"
+                    title="{{ __('app.footer.crm_login') }}"
+                    aria-label="{{ __('app.footer.crm_login') }}"
+                >
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M2 4.75A2.75 2.75 0 0 1 4.75 2h10.5A2.75 2.75 0 0 1 18 4.75v2.5A2.75 2.75 0 0 1 15.25 10H4.75A2.75 2.75 0 0 1 2 7.25v-2.5ZM4.75 11.5A2.75 2.75 0 0 0 2 14.25v1.5A2.75 2.75 0 0 0 4.75 18.5h10.5A2.75 2.75 0 0 0 18 15.75v-1.5A2.75 2.75 0 0 0 15.25 11.5H4.75Z" />
+                    </svg>
+                </a>
+                <a
                     href="{{ route('filament.admin.auth.login') }}"
                     class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-800/50 text-slate-500 transition hover:border-cyan-500/60 hover:text-cyan-300"
                     title="{{ __('app.footer.admin_login') }}"

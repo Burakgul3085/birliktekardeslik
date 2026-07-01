@@ -69,6 +69,7 @@ return [
         'close'             => 'Close',
         'subscribe'         => 'Subscribe to newsletter',
         'admin_login'       => 'Admin Login',
+        'crm_login'         => 'CRM Login',
     ],
 
     /*
