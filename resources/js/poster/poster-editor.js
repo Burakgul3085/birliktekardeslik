@@ -184,9 +184,14 @@ class PosterCanvas {
 
         tb.bkdBinding = layer.binding ?? null;
         tb.bkdBaseFontSize = layer.fontSize ?? 42;
-        const longField = tb.bkdBinding === 'tesekkur_metni' || tb.bkdBinding === 'not';
-        tb.bkdAutofit = layer.autofit ?? longField;
+        tb.bkdAutofit = layer.autofit ?? true;
+        tb.bkdBoxWidth = layer.width ?? Math.round(this.naturalW * 0.7);
         tb.bkdBoxHeight = layer.boxHeight ?? null;
+        // Köşe tutamaçlarını kilitle: genişlik yalnızca yan tutamaçlarla,
+        // boyut yalnızca panelden değişsin (öngörülebilir davranış).
+        if (this.mode !== 'generate') {
+            tb.setControlsVisibility({ tl: false, tr: false, bl: false, br: false, mt: false, mb: false });
+        }
         this.canvas.add(tb);
 
         if (select && this.mode !== 'generate') {
@@ -223,30 +228,46 @@ class PosterCanvas {
             return;
         }
 
-        const maxW = tb.width;
-        const maxH = tb.bkdBoxHeight || (this.naturalH * 0.92 - tb.top);
-
-        let size = tb.bkdBaseFontSize || tb.fontSize;
-        const minSize = Math.max(8, Math.round(size * 0.35));
         const recalc = () => {
             if (typeof tb.initDimensions === 'function') {
                 tb.initDimensions();
             }
         };
 
+        // Kutu genişliği + güvenlik kenar boşluğu (kenar kırpılmasını önler)
+        const boxW = tb.bkdBoxWidth || tb.width;
+        const pad = Math.min(30, Math.max(6, Math.round(boxW * 0.02)));
+        const effW = Math.max(20, boxW - pad);
+        const maxH = (tb.bkdBoxHeight || (this.naturalH * 0.92 - tb.top)) - pad;
+
+        if (tb.splitByGrapheme) {
+            tb.set('splitByGrapheme', false);
+        }
+        tb.set('width', effW);
+
+        let size = tb.bkdBaseFontSize || tb.fontSize;
+        const minSize = Math.max(8, Math.round(size * 0.3));
         tb.set('fontSize', size);
         recalc();
 
         let guard = 0;
-        const overflowing = () => (maxH > 0 && tb.height > maxH) || (this.maxLineWidth(tb) > maxW + 0.5);
+        const overflowing = () => (maxH > 0 && tb.height > maxH) || (this.maxLineWidth(tb) > effW + 0.5);
 
-        while (overflowing() && size > minSize && guard < 600) {
+        while (overflowing() && size > minSize && guard < 800) {
             size -= 1;
             tb.set('fontSize', size);
             recalc();
             guard += 1;
         }
 
+        // Son çare: tek kelime en küçük boyutta bile sığmıyorsa, kırpmak
+        // yerine harf bazında alt satıra böl.
+        if (this.maxLineWidth(tb) > effW + 0.5) {
+            tb.set('splitByGrapheme', true);
+            recalc();
+        }
+
+        tb.bkdEffWidth = tb.width;
         tb.setCoords();
     }
 
@@ -275,7 +296,7 @@ class PosterCanvas {
             text: o.bkdBinding && !bakeText ? '' : o.text,
             left: Math.round(o.left),
             top: Math.round(o.top),
-            width: Math.round(o.width),
+            width: Math.round(o.bkdBoxWidth ?? o.width),
             // tasarımda temel (küçültülmemiş) boyut, snapshot'ta gerçek boyut saklanır
             fontSize: Math.round(this.mode === 'design' ? (o.bkdBaseFontSize ?? o.fontSize) : o.fontSize),
             fontFamily: o.fontFamily,
@@ -377,8 +398,13 @@ function initEditor(root) {
 
         // genişlik değişince (yan tutamaç) veya metin düzenlenince yeniden sığdır
         pc.canvas.on('object:modified', (e) => {
-            if (e.target && e.target.type === 'textbox') {
-                pc.applyAutofit(e.target);
+            const t = e.target;
+            if (t && t.type === 'textbox') {
+                // Kullanıcı yan tutamaçla genişliği değiştirdiyse kutu genişliğini güncelle
+                if (t.bkdEffWidth != null && Math.abs(t.width - t.bkdEffWidth) > 0.5) {
+                    t.bkdBoxWidth = t.width;
+                }
+                pc.applyAutofit(t);
                 pc.canvas.requestRenderAll();
                 refreshProps();
             }
