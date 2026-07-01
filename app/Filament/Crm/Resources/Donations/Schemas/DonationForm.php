@@ -2,10 +2,14 @@
 
 namespace App\Filament\Crm\Resources\Donations\Schemas;
 
+use App\Filament\Crm\Resources\CrmProjects\CrmProjectResource;
+use App\Filament\Crm\Resources\DonationTypes\DonationTypeResource;
 use App\Models\DonationType;
 use App\Models\Donor;
 use App\Models\PaymentMethod;
 use App\Models\Project;
+use App\Support\Crm\LookupDeletionGuard;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -18,6 +22,8 @@ class DonationForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $guard = app(LookupDeletionGuard::class);
+
         return $schema->components([
             Grid::make(2)->schema([
                 Select::make('donor_id')
@@ -35,9 +41,16 @@ class DonationForm
                     ]),
                 Select::make('donation_type_id')
                     ->label('Bağış Türü')
-                    ->options(fn (): array => DonationType::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'id')->all())
+                    ->options(fn (): array => $guard->selectableOptions(DonationType::class))
                     ->searchable()
                     ->preload()
+                    ->suffixAction(
+                        Action::make('manageDonationTypes')
+                            ->icon('heroicon-o-cog-6-tooth')
+                            ->tooltip('Bağış türlerini yönet')
+                            ->url(DonationTypeResource::getUrl('index'))
+                            ->openUrlInNewTab(),
+                    )
                     ->createOptionForm([
                         TextInput::make('name')
                             ->label('Bağış Türü Adı')
@@ -61,7 +74,7 @@ class DonationForm
                             'sort_order' => ((int) DonationType::query()->max('sort_order')) + 1,
                         ])->id;
                     })
-                    ->helperText('Listede yoksa yazıp yeni bağış türü ekleyebilirsiniz.'),
+                    ->helperText('Listede yoksa + ile ekleyin veya dişli ikondan türleri yönetin.'),
                 Select::make('payment_method_id')
                     ->label('Ödeme Türü')
                     ->options(fn (): array => PaymentMethod::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'id')->all())
@@ -69,9 +82,16 @@ class DonationForm
                     ->preload(),
                 Select::make('project_id')
                     ->label('Proje / Faaliyet')
-                    ->options(fn (): array => Project::query()->orderBy('title')->pluck('title', 'id')->all())
+                    ->options(fn (): array => $guard->selectableOptions(Project::class, 'title'))
                     ->searchable()
                     ->preload()
+                    ->suffixAction(
+                        Action::make('manageProjects')
+                            ->icon('heroicon-o-cog-6-tooth')
+                            ->tooltip('Proje / faaliyetleri yönet')
+                            ->url(CrmProjectResource::getUrl('index'))
+                            ->openUrlInNewTab(),
+                    )
                     ->createOptionForm([
                         TextInput::make('title')
                             ->label('Proje / Faaliyet Adı')
@@ -96,7 +116,7 @@ class DonationForm
                             'sort_order' => ((int) Project::query()->max('sort_order')) + 1,
                         ])->id;
                     })
-                    ->helperText('Listede yoksa yazıp yeni proje veya faaliyet ekleyebilirsiniz.'),
+                    ->helperText('Listede yoksa + ile ekleyin veya dişli ikondan faaliyetleri yönetin.'),
                 TextInput::make('amount')
                     ->label('Tutar')
                     ->numeric()

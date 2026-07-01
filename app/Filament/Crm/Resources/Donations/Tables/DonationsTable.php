@@ -6,6 +6,7 @@ use App\Models\Donation;
 use App\Models\DonationType;
 use App\Models\Donor;
 use App\Models\PaymentMethod;
+use App\Models\Project;
 use App\Support\Crm\DonationDateFilter;
 use App\Support\Crm\DonationSpreadsheetExporter;
 use Filament\Actions\BulkAction;
@@ -107,10 +108,14 @@ class DonationsTable
                     }),
                 SelectFilter::make('donation_type_id')
                     ->label('Bağış Türü')
-                    ->options(fn (): array => DonationType::query()->orderBy('sort_order')->pluck('name', 'id')->all()),
+                    ->options(fn (): array => app(\App\Support\Crm\LookupDeletionGuard::class)->activeOptions(DonationType::class)),
+                SelectFilter::make('project_id')
+                    ->label('Proje / Faaliyet')
+                    ->options(fn (): array => app(\App\Support\Crm\LookupDeletionGuard::class)->activeOptions(Project::class, 'title'))
+                    ->searchable(),
                 SelectFilter::make('payment_method_id')
                     ->label('Ödeme Türü')
-                    ->options(fn (): array => PaymentMethod::query()->orderBy('sort_order')->pluck('name', 'id')->all()),
+                    ->options(fn (): array => app(\App\Support\Crm\LookupDeletionGuard::class)->activeOptions(PaymentMethod::class)),
                 SelectFilter::make('donor_id')
                     ->label('Bağışçı')
                     ->searchable()

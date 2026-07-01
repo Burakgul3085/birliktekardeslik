@@ -5,6 +5,7 @@ namespace App\Filament\Crm\Pages;
 use App\Models\Project;
 use App\Support\Crm\DashboardFilterResolver;
 use App\Support\Crm\DonationDateFilter;
+use App\Support\Crm\LookupDeletionGuard;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -61,10 +62,7 @@ class CrmDashboard extends BaseDashboard
                                 ->native(false),
                             Select::make('project_id')
                                 ->label('Proje / Faaliyet')
-                                ->options(fn (): array => Project::query()
-                                    ->orderBy('title')
-                                    ->pluck('title', 'id')
-                                    ->all())
+                                ->options(fn (): array => app(LookupDeletionGuard::class)->activeOptions(Project::class, 'title'))
                                 ->searchable()
                                 ->nullable()
                                 ->placeholder('Tüm faaliyetler')
