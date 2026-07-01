@@ -4,9 +4,15 @@
  | Fabric.js tabanlı afiş tasarımcısı + stüdyosu + sessiz (offscreen) üretici.
  | Tek modül; Fabric dinamik import ile yalnızca gerektiğinde yüklenir.
  |
+ | Metin Kutusu modeli:
+ |  Her yazı katmanı bir dikdörtgen KUTU'dur (Rect). Kutu her yönden ve
+ |  köşelerden boyutlandırılabilir. Yazı, kutu genişliğine sarılır ve kutu
+ |  yüksekliğine sığacak şekilde ölçeklenir (taşmaz/kırpılmaz), dikey olarak
+ |  hizalanır. Böylece "ayrılan alan" içinde her zaman düzgün kalır.
+ |
  | Modlar:
- |  - design:  Afiş şablonu tasarımı (arka plan + yer tutuculu yazı katmanları)
- |  - studio:  Üretilmiş afişi elle düzenleme (font/renk/boyut/sürükle)
+ |  - design:  Afiş şablonu tasarımı (arka plan + yer tutuculu kutular)
+ |  - studio:  Üretilmiş afişi elle düzenleme (font/renk/boyut/kutu)
  |  - generate: Görünmez canvas'ta otomatik üretim (buton -> otomatik afiş)
  */
 
@@ -68,6 +74,10 @@ function csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 }
 
+function padOf(width) {
+    return Math.min(30, Math.max(6, Math.round(width * 0.02)));
+}
+
 /* ---------------------------------------------------------------------------
  | PosterCanvas
  | ------------------------------------------------------------------------- */
@@ -80,18 +90,20 @@ class PosterCanvas {
         this.naturalW = config.canvasWidth || 0;
         this.naturalH = config.canvasHeight || 0;
         this.scale = 1;
+        this.boxes = [];
 
         this.canvas = new fabric.Canvas(canvasEl, {
             preserveObjectStacking: true,
             backgroundColor: '#ffffff',
             enableRetinaScaling: false,
-            selection: this.mode !== 'generate',
+            selection: false,
         });
     }
 
     async init(displayWidth) {
-        let bgImg = null;
+        this.boxes = [];
 
+        let bgImg = null;
         if (this.config.backgroundUrl) {
             try {
                 bgImg = await this.fabric.FabricImage.fromURL(
@@ -131,7 +143,7 @@ class PosterCanvas {
         (this.config.layout || []).forEach((layer) => this.addLayer(layer, false));
 
         await ensureFontsLoaded(this.usedFonts());
-        this.textboxes().forEach((tb) => this.applyAutofit(tb));
+        this.boxes.forEach((box) => this.refit(box));
         this.canvas.requestRenderAll();
     }
 
@@ -149,11 +161,9 @@ class PosterCanvas {
         if (this.mode === 'design') {
             return layer.binding ? `{${layer.binding}}` : (layer.text ?? 'Metin');
         }
-        // Stüdyo: snapshot metni (gerekirse elle düzenlenmiş) korunur
         if (this.mode === 'studio') {
             return layer.text ?? '';
         }
-        // generate / document: bağlı alanlar veriden doldurulur
         if (layer.binding) {
             const value = (this.config.data || {})[layer.binding];
             return value === undefined || value === null ? '' : String(value);
@@ -163,10 +173,9 @@ class PosterCanvas {
 
     addLayer(layer, select = true) {
         const fabric = this.fabric;
-        const tb = new fabric.Textbox(this.resolveText(layer) || ' ', {
-            left: layer.left ?? 40,
-            top: layer.top ?? 40,
-            width: layer.width ?? Math.round(this.naturalW * 0.7),
+        const isGen = this.mode === 'generate';
+
+        const text = new fabric.Textbox(this.resolveText(layer) || ' ', {
             fontSize: layer.fontSize ?? 42,
             fontFamily: layer.fontFamily ?? 'Inter',
             fill: layer.fill ?? '#1d4ed8',
@@ -175,152 +184,226 @@ class PosterCanvas {
             underline: layer.underline ?? false,
             textAlign: layer.textAlign ?? 'center',
             lineHeight: layer.lineHeight ?? 1.16,
-            angle: layer.angle ?? 0,
             originX: 'left',
             originY: 'top',
-            editable: this.mode !== 'generate',
-            selectable: this.mode !== 'generate',
+            selectable: false,
+            evented: false,
+            editable: false,
+            splitByGrapheme: false,
         });
+        text.bkdBinding = layer.binding ?? null;
+        text.bkdBaseFontSize = layer.fontSize ?? 42;
 
-        tb.bkdBinding = layer.binding ?? null;
-        tb.bkdBaseFontSize = layer.fontSize ?? 42;
-        tb.bkdAutofit = layer.autofit ?? true;
-        tb.bkdBoxWidth = layer.width ?? Math.round(this.naturalW * 0.7);
-        tb.bkdBoxHeight = layer.boxHeight ?? null;
-        // Köşe tutamaçlarını kilitle: genişlik yalnızca yan tutamaçlarla,
-        // boyut yalnızca panelden değişsin (öngörülebilir davranış).
-        if (this.mode !== 'generate') {
-            tb.setControlsVisibility({ tl: false, tr: false, bl: false, br: false, mt: false, mb: false });
-        }
-        this.canvas.add(tb);
+        const bx = layer.left ?? Math.round(this.naturalW * 0.15);
+        const by = layer.top ?? Math.round(this.naturalH * 0.4);
+        const bw = layer.width ?? Math.round(this.naturalW * 0.7);
+        const pad = padOf(bw);
 
-        if (select && this.mode !== 'generate') {
-            this.canvas.setActiveObject(tb);
+        text.set('width', Math.max(20, bw - 2 * pad));
+        if (typeof text.initDimensions === 'function') {
+            text.initDimensions();
         }
-        return tb;
+
+        let bh = layer.height;
+        if (!bh || bh < 10) {
+            // Eski şablonlar (yükseklik yok): içeriğe göre otomatik yükseklik
+            bh = Math.round(text.height + 2 * pad);
+        }
+
+        const box = new fabric.Rect({
+            left: bx,
+            top: by,
+            width: bw,
+            height: bh,
+            fill: 'rgba(0,0,0,0)',
+            stroke: isGen ? 'rgba(0,0,0,0)' : '#3b82f6',
+            strokeDashArray: isGen ? null : [6, 4],
+            strokeWidth: isGen ? 0 : 1,
+            strokeUniform: true,
+            originX: 'left',
+            originY: 'top',
+            selectable: !isGen,
+            evented: !isGen,
+            lockRotation: true,
+            objectCaching: false,
+            hasBorders: true,
+        });
+        box.bkdRole = 'box';
+        box.bkdText = text;
+        box.bkdValign = layer.valign ?? 'top';
+        if (!isGen) {
+            box.setControlsVisibility({ mtr: false });
+        }
+
+        this.canvas.add(box);
+        this.canvas.add(text);
+        this.boxes.push(box);
+        this.refit(box);
+
+        if (select && !isGen) {
+            this.canvas.setActiveObject(box);
+        }
+        return box;
     }
 
     /**
-     * Bir yazı katmanının satır genişliklerinden en genişini döndürür.
+     * Yazıyı kutusuna sığdırır: genişliğe sarar, yüksekliğe sığacak kadar
+     * ölçekler, dikey hizalar. Taşma/kırpma olmaz.
      */
-    maxLineWidth(tb) {
-        try {
-            const n = tb.textLines ? tb.textLines.length : 0;
-            let max = 0;
-            for (let i = 0; i < n; i += 1) {
-                const w = tb.getLineWidth(i);
-                if (w > max) {
-                    max = w;
-                }
-            }
-            return max || tb.width;
-        } catch (e) {
-            return tb.width;
-        }
-    }
-
-    /**
-     * Metni katman genişliğine sarar; taşarsa yazı boyutunu kutuya sığana
-     * kadar otomatik küçültür (yatay + dikey taşmayı önler).
-     */
-    applyAutofit(tb) {
-        if (!tb || tb.type !== 'textbox' || !tb.bkdAutofit) {
+    refit(box) {
+        const text = box?.bkdText;
+        if (!text) {
             return;
         }
 
+        const w = box.width * (box.scaleX || 1);
+        const h = box.height * (box.scaleY || 1);
+        const left = box.left;
+        const top = box.top;
+        const pad = padOf(w);
+        const innerW = Math.max(20, w - 2 * pad);
+        const innerH = Math.max(20, h - 2 * pad);
+
         const recalc = () => {
-            if (typeof tb.initDimensions === 'function') {
-                tb.initDimensions();
+            if (typeof text.initDimensions === 'function') {
+                text.initDimensions();
             }
         };
 
-        // Kutu genişliği + güvenlik kenar boşluğu (kenar kırpılmasını önler)
-        const boxW = tb.bkdBoxWidth || tb.width;
-        const pad = Math.min(30, Math.max(6, Math.round(boxW * 0.02)));
-        const effW = Math.max(20, boxW - pad);
-        const maxH = (tb.bkdBoxHeight || (this.naturalH * 0.92 - tb.top)) - pad;
-
-        if (tb.splitByGrapheme) {
-            tb.set('splitByGrapheme', false);
+        if (text.splitByGrapheme) {
+            text.set('splitByGrapheme', false);
         }
-        tb.set('width', effW);
+        text.set('width', innerW);
 
-        let size = tb.bkdBaseFontSize || tb.fontSize;
-        const minSize = Math.max(8, Math.round(size * 0.3));
-        tb.set('fontSize', size);
+        let size = text.bkdBaseFontSize || text.fontSize;
+        const minSize = Math.max(8, Math.round(size * 0.25));
+        text.set('fontSize', size);
         recalc();
 
         let guard = 0;
-        const overflowing = () => (maxH > 0 && tb.height > maxH) || (this.maxLineWidth(tb) > effW + 0.5);
-
-        while (overflowing() && size > minSize && guard < 800) {
+        const overflowing = () => text.height > innerH || this.maxLineWidth(text) > innerW + 0.5;
+        while (overflowing() && size > minSize && guard < 1000) {
             size -= 1;
-            tb.set('fontSize', size);
+            text.set('fontSize', size);
             recalc();
             guard += 1;
         }
 
-        // Son çare: tek kelime en küçük boyutta bile sığmıyorsa, kırpmak
-        // yerine harf bazında alt satıra böl.
-        if (this.maxLineWidth(tb) > effW + 0.5) {
-            tb.set('splitByGrapheme', true);
+        // Son çare: tek kelime hâlâ genişliğe sığmıyorsa harf bazında böl
+        if (this.maxLineWidth(text) > innerW + 0.5) {
+            text.set('splitByGrapheme', true);
             recalc();
         }
 
-        tb.bkdEffWidth = tb.width;
-        tb.setCoords();
+        const th = text.height;
+        let ty = top + pad;
+        if (box.bkdValign === 'middle') {
+            ty = top + (h - th) / 2;
+        } else if (box.bkdValign === 'bottom') {
+            ty = top + h - pad - th;
+        }
+
+        text.set({ left: left + pad, top: ty });
+        text.setCoords();
     }
 
-    textboxes() {
-        return this.canvas.getObjects().filter((o) => o.type === 'textbox');
+    /**
+     * Ölçeklemeyi (scaleX/scaleY) genişlik/yükseklik değerine yazar.
+     */
+    normalizeBox(box) {
+        if ((box.scaleX && box.scaleX !== 1) || (box.scaleY && box.scaleY !== 1)) {
+            box.width = Math.max(20, box.width * box.scaleX);
+            box.height = Math.max(20, box.height * box.scaleY);
+            box.scaleX = 1;
+            box.scaleY = 1;
+            box.setCoords();
+        }
+    }
+
+    maxLineWidth(text) {
+        try {
+            const n = text.textLines ? text.textLines.length : 0;
+            let max = 0;
+            for (let i = 0; i < n; i += 1) {
+                const lw = text.getLineWidth(i);
+                if (lw > max) {
+                    max = lw;
+                }
+            }
+            return max || text.width;
+        } catch (e) {
+            return text.width;
+        }
     }
 
     usedFonts() {
         const set = new Set(['Inter']);
-        this.textboxes().forEach((o) => {
-            if (o.fontFamily) {
-                set.add(o.fontFamily);
+        this.boxes.forEach((box) => {
+            if (box.bkdText?.fontFamily) {
+                set.add(box.bkdText.fontFamily);
             }
         });
         return [...set];
     }
 
-    /**
-     * bakeText=false (tasarım): bağlı katmanlarda metin boş kaydedilir (veriden gelir).
-     * bakeText=true  (snapshot): ekrandaki metin de saklanır (tekrar düzenlemek için).
-     */
+    removeBox(box) {
+        this.canvas.remove(box.bkdText);
+        this.canvas.remove(box);
+        this.boxes = this.boxes.filter((b) => b !== box);
+    }
+
     serialize(bakeText = false) {
-        return this.textboxes().map((o) => ({
-            type: 'text',
-            binding: o.bkdBinding ?? null,
-            text: o.bkdBinding && !bakeText ? '' : o.text,
-            left: Math.round(o.left),
-            top: Math.round(o.top),
-            width: Math.round(o.bkdBoxWidth ?? o.width),
-            // tasarımda temel (küçültülmemiş) boyut, snapshot'ta gerçek boyut saklanır
-            fontSize: Math.round(this.mode === 'design' ? (o.bkdBaseFontSize ?? o.fontSize) : o.fontSize),
-            fontFamily: o.fontFamily,
-            fill: o.fill,
-            fontWeight: o.fontWeight,
-            fontStyle: o.fontStyle,
-            underline: !!o.underline,
-            textAlign: o.textAlign,
-            lineHeight: o.lineHeight,
-            angle: Math.round(o.angle || 0),
-            autofit: !!o.bkdAutofit,
-            boxHeight: o.bkdBoxHeight ?? null,
-        }));
+        return this.boxes.map((box) => {
+            this.normalizeBox(box);
+            const t = box.bkdText;
+            return {
+                type: 'text',
+                binding: t.bkdBinding ?? null,
+                text: t.bkdBinding && !bakeText ? '' : t.text,
+                left: Math.round(box.left),
+                top: Math.round(box.top),
+                width: Math.round(box.width),
+                height: Math.round(box.height),
+                fontSize: Math.round(this.mode === 'design' ? (t.bkdBaseFontSize ?? t.fontSize) : t.fontSize),
+                fontFamily: t.fontFamily,
+                fill: t.fill,
+                fontWeight: t.fontWeight,
+                fontStyle: t.fontStyle,
+                underline: !!t.underline,
+                textAlign: t.textAlign,
+                lineHeight: t.lineHeight,
+                angle: 0,
+                valign: box.bkdValign || 'top',
+            };
+        });
     }
 
     async exportDataUrl() {
         await ensureFontsLoaded(this.usedFonts());
-        this.textboxes().forEach((tb) => this.applyAutofit(tb));
+        this.boxes.forEach((box) => {
+            this.normalizeBox(box);
+            this.refit(box);
+        });
         this.canvas.discardActiveObject();
+
+        const hidden = [];
+        this.boxes.forEach((box) => {
+            if (box.visible) {
+                hidden.push(box);
+                box.visible = false;
+            }
+        });
         this.canvas.requestRenderAll();
-        return this.canvas.toDataURL({
+
+        const url = this.canvas.toDataURL({
             format: 'png',
             multiplier: this.scale ? 1 / this.scale : 1,
         });
+
+        hidden.forEach((box) => { box.visible = true; });
+        this.canvas.requestRenderAll();
+
+        return url;
     }
 
     dispose() {
@@ -396,29 +479,27 @@ function initEditor(root) {
         pc.canvas.on('selection:updated', refreshProps);
         pc.canvas.on('selection:cleared', refreshProps);
 
-        // genişlik değişince (yan tutamaç) veya metin düzenlenince yeniden sığdır
-        pc.canvas.on('object:modified', (e) => {
-            const t = e.target;
-            if (t && t.type === 'textbox') {
-                // Kullanıcı yan tutamaçla genişliği değiştirdiyse kutu genişliğini güncelle
-                if (t.bkdEffWidth != null && Math.abs(t.width - t.bkdEffWidth) > 0.5) {
-                    t.bkdBoxWidth = t.width;
-                }
-                pc.applyAutofit(t);
-                pc.canvas.requestRenderAll();
-                refreshProps();
+        pc.canvas.on('object:moving', (e) => {
+            if (e.target?.bkdRole === 'box') {
+                pc.refit(e.target);
             }
         });
-        pc.canvas.on('text:changed', (e) => {
-            if (e.target) {
-                pc.applyAutofit(e.target);
+        pc.canvas.on('object:scaling', (e) => {
+            if (e.target?.bkdRole === 'box') {
+                pc.refit(e.target);
+            }
+        });
+        pc.canvas.on('object:modified', (e) => {
+            if (e.target?.bkdRole === 'box') {
+                pc.normalizeBox(e.target);
+                pc.refit(e.target);
                 pc.canvas.requestRenderAll();
+                refreshProps();
             }
         });
 
         refreshProps();
 
-        // pencere yeniden boyutlanınca ölçeği koru (basit)
         window.addEventListener('resize', () => {
             const w = stage.clientWidth || displayWidth;
             pc.applyDisplaySize(w);
@@ -434,16 +515,18 @@ function buildToolbar(toolbar, pc, config) {
         pc.addLayer({
             binding: null,
             text: 'Yeni metin',
-            left: Math.round(pc.naturalW * 0.15),
+            left: Math.round(pc.naturalW * 0.2),
             top: Math.round(pc.naturalH * 0.4),
-            width: Math.round(pc.naturalW * 0.7),
+            width: Math.round(pc.naturalW * 0.6),
+            height: Math.round(pc.naturalH * 0.12),
             fontSize: 44,
             fontFamily: 'Inter',
             fill: '#1d4ed8',
             textAlign: 'center',
+            valign: 'middle',
         });
         pc.canvas.requestRenderAll();
-    } }, '+ Yazı ekle');
+    } }, '+ Yazı kutusu ekle');
     toolbar.appendChild(addBtn);
 
     if (config.mode === 'design') {
@@ -495,12 +578,11 @@ function buildPropsPanel(panel, pc, config) {
     const placeholders = config.placeholders || {};
     const fonts = config.fonts || ['Inter'];
 
-    const empty = el('div', { style: 'color:#64748b;font-size:13px;padding:8px 0;' },
-        'Düzenlemek için bir yazı katmanına tıklayın. Sürükleyerek taşıyabilir, köşelerden boyutlandırabilirsiniz.');
+    const empty = el('div', { style: 'color:#64748b;font-size:13px;padding:8px 0;line-height:1.5;' },
+        'Düzenlemek için bir yazı kutusuna tıklayın. Kutuyu her yönden ve köşelerden sürükleyerek alanı belirleyin; yazı bu alana göre otomatik sığar.');
 
     const wrap = el('div', { style: 'display:none;' });
 
-    // Bağlama (yalnızca tasarım modunda)
     let bindingSel = null;
     if (config.mode === 'design') {
         const opts = [el('option', { value: '' }, 'Statik metin (sabit)')];
@@ -521,14 +603,13 @@ function buildPropsPanel(panel, pc, config) {
     wrap.appendChild(fontSel);
 
     const sizeInput = el('input', { type: 'number', min: '6', max: '400', style: FIELD });
-    wrap.appendChild(el('label', { style: LABEL }, 'Yazı boyutu (px)'));
+    wrap.appendChild(el('label', { style: LABEL }, 'İstenen yazı boyutu (px)'));
     wrap.appendChild(sizeInput);
 
     const colorInput = el('input', { type: 'color', style: 'width:100%;height:38px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;' });
     wrap.appendChild(el('label', { style: LABEL }, 'Renk'));
     wrap.appendChild(colorInput);
 
-    // stil butonları
     const styleRow = el('div', { style: 'display:flex;gap:6px;margin-top:8px;' });
     const boldBtn = el('button', { type: 'button', style: BTN + 'font-weight:800;flex:1;' }, 'K');
     const italicBtn = el('button', { type: 'button', style: BTN + 'font-style:italic;flex:1;' }, 'İ');
@@ -537,128 +618,115 @@ function buildPropsPanel(panel, pc, config) {
     wrap.appendChild(el('label', { style: LABEL }, 'Stil'));
     wrap.appendChild(styleRow);
 
-    // hizalama
     const alignRow = el('div', { style: 'display:flex;gap:6px;margin-top:8px;' });
     const alignBtns = ['left', 'center', 'right'].map((a) =>
         el('button', { type: 'button', 'data-align': a, style: BTN + 'flex:1;' },
             a === 'left' ? 'Sol' : a === 'center' ? 'Orta' : 'Sağ'));
     alignBtns.forEach((b) => alignRow.appendChild(b));
-    wrap.appendChild(el('label', { style: LABEL }, 'Hizalama'));
+    wrap.appendChild(el('label', { style: LABEL }, 'Yatay hizalama'));
     wrap.appendChild(alignRow);
+
+    const valignRow = el('div', { style: 'display:flex;gap:6px;margin-top:8px;' });
+    const valignBtns = ['top', 'middle', 'bottom'].map((a) =>
+        el('button', { type: 'button', 'data-valign': a, style: BTN + 'flex:1;' },
+            a === 'top' ? 'Üst' : a === 'middle' ? 'Orta' : 'Alt'));
+    valignBtns.forEach((b) => valignRow.appendChild(b));
+    wrap.appendChild(el('label', { style: LABEL }, 'Dikey hizalama'));
+    wrap.appendChild(valignRow);
 
     const lineInput = el('input', { type: 'number', min: '0.8', max: '3', step: '0.05', style: FIELD });
     wrap.appendChild(el('label', { style: LABEL }, 'Satır aralığı'));
     wrap.appendChild(lineInput);
 
-    // Otomatik sığdırma (uzun metinler için)
-    const fitWrap = el('div', { style: 'margin-top:14px;padding:12px;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc;' });
-    const fitToggle = el('input', { type: 'checkbox', style: 'width:16px;height:16px;cursor:pointer;' });
-    const fitLabel = el('label', { style: 'display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#0f172a;cursor:pointer;' },
-        [fitToggle, document.createTextNode('Kutuya sığdır (uzun metni otomatik küçült)')]);
-    fitWrap.appendChild(fitLabel);
-    const boxHeightInput = el('input', { type: 'number', min: '20', style: FIELD + 'margin-top:8px;' });
-    fitWrap.appendChild(el('label', { style: LABEL }, 'Kutu yüksekliği (px)'));
-    fitWrap.appendChild(boxHeightInput);
-    fitWrap.appendChild(el('div', { style: 'font-size:11px;color:#64748b;margin-top:6px;line-height:1.4;' },
-        'Genişliği yazının yan tutamaçlarını sürükleyerek ayarlayın. Metin bu genişliğe sarılır ve yüksekliğe sığana kadar küçülür.'));
-    wrap.appendChild(fitWrap);
-
-    const delBtn = el('button', { type: 'button', style: BTN + 'margin-top:14px;width:100%;border-color:#fecaca;color:#b91c1c;background:#fef2f2;' }, 'Katmanı sil');
+    const delBtn = el('button', { type: 'button', style: BTN + 'margin-top:14px;width:100%;border-color:#fecaca;color:#b91c1c;background:#fef2f2;' }, 'Kutuyu sil');
     wrap.appendChild(delBtn);
 
     panel.innerHTML = '';
     panel.append(empty, wrap);
 
-    const getActive = () => pc.canvas.getActiveObject();
+    const getActive = () => {
+        const o = pc.canvas.getActiveObject();
+        return o && o.bkdRole === 'box' ? o : null;
+    };
 
     function refresh() {
-        const o = getActive();
-        if (!o || o.type !== 'textbox') {
+        const box = getActive();
+        if (!box) {
             wrap.style.display = 'none';
             empty.style.display = 'block';
             return;
         }
+        const t = box.bkdText;
         empty.style.display = 'none';
         wrap.style.display = 'block';
 
         if (bindingSel) {
-            bindingSel.value = o.bkdBinding || '';
-            textArea.disabled = !!o.bkdBinding;
-            textArea.value = o.bkdBinding ? `{${o.bkdBinding}}` : (o.text || '');
+            bindingSel.value = t.bkdBinding || '';
+            textArea.disabled = !!t.bkdBinding;
+            textArea.value = t.bkdBinding ? `{${t.bkdBinding}}` : (t.text || '');
         } else {
-            textArea.value = o.text || '';
+            textArea.value = t.text || '';
         }
-        fontSel.value = o.fontFamily || 'Inter';
-        sizeInput.value = Math.round(o.bkdBaseFontSize ?? o.fontSize);
-        colorInput.value = toHex(o.fill);
-        lineInput.value = o.lineHeight ?? 1.16;
-        fitToggle.checked = !!o.bkdAutofit;
-        boxHeightInput.value = o.bkdBoxHeight ?? '';
-        boxHeightInput.disabled = !o.bkdAutofit;
-        boldBtn.style.background = o.fontWeight === 'bold' ? '#e2e8f0' : '#fff';
-        italicBtn.style.background = o.fontStyle === 'italic' ? '#e2e8f0' : '#fff';
-        underlineBtn.style.background = o.underline ? '#e2e8f0' : '#fff';
+        fontSel.value = t.fontFamily || 'Inter';
+        sizeInput.value = Math.round(t.bkdBaseFontSize ?? t.fontSize);
+        colorInput.value = toHex(t.fill);
+        lineInput.value = t.lineHeight ?? 1.16;
+        boldBtn.style.background = t.fontWeight === 'bold' ? '#e2e8f0' : '#fff';
+        italicBtn.style.background = t.fontStyle === 'italic' ? '#e2e8f0' : '#fff';
+        underlineBtn.style.background = t.underline ? '#e2e8f0' : '#fff';
         alignBtns.forEach((b) => {
-            b.style.background = b.getAttribute('data-align') === o.textAlign ? '#e2e8f0' : '#fff';
+            b.style.background = b.getAttribute('data-align') === t.textAlign ? '#e2e8f0' : '#fff';
+        });
+        valignBtns.forEach((b) => {
+            b.style.background = b.getAttribute('data-valign') === (box.bkdValign || 'top') ? '#e2e8f0' : '#fff';
         });
     }
 
     const apply = (fn) => {
-        const o = getActive();
-        if (!o) return;
-        fn(o);
-        o.setCoords();
+        const box = getActive();
+        if (!box) return;
+        fn(box.bkdText, box);
+        pc.refit(box);
         pc.canvas.requestRenderAll();
     };
 
     if (bindingSel) {
-        bindingSel.addEventListener('change', () => apply((o) => {
-            const val = bindingSel.value || null;
-            o.bkdBinding = val;
-            if (val === 'tesekkur_metni' || val === 'not') {
-                o.bkdAutofit = true;
-            }
-            o.set('text', val ? `{${val}}` : 'Metin');
-            pc.applyAutofit(o);
+        bindingSel.addEventListener('change', () => {
+            apply((t) => {
+                const val = bindingSel.value || null;
+                t.bkdBinding = val;
+                t.set('text', val ? `{${val}}` : 'Metin');
+            });
             refresh();
-        }));
+        });
     }
-    textArea.addEventListener('input', () => apply((o) => {
-        if (o.bkdBinding) return;
-        o.set('text', textArea.value);
-        pc.applyAutofit(o);
+    textArea.addEventListener('input', () => apply((t) => {
+        if (t.bkdBinding) return;
+        t.set('text', textArea.value);
     }));
-    fontSel.addEventListener('change', () => apply((o) => { o.set('fontFamily', fontSel.value); pc.applyAutofit(o); }));
-    sizeInput.addEventListener('input', () => apply((o) => {
+    fontSel.addEventListener('change', () => apply((t) => t.set('fontFamily', fontSel.value)));
+    sizeInput.addEventListener('input', () => apply((t) => {
         const v = parseInt(sizeInput.value, 10) || 12;
-        o.bkdBaseFontSize = v;
-        o.set('fontSize', v);
-        pc.applyAutofit(o);
+        t.bkdBaseFontSize = v;
+        t.set('fontSize', v);
     }));
-    colorInput.addEventListener('input', () => apply((o) => o.set('fill', colorInput.value)));
-    lineInput.addEventListener('input', () => apply((o) => { o.set('lineHeight', parseFloat(lineInput.value) || 1.16); pc.applyAutofit(o); }));
-    boldBtn.addEventListener('click', () => { apply((o) => { o.set('fontWeight', o.fontWeight === 'bold' ? 'normal' : 'bold'); pc.applyAutofit(o); }); refresh(); });
-    italicBtn.addEventListener('click', () => { apply((o) => { o.set('fontStyle', o.fontStyle === 'italic' ? 'normal' : 'italic'); pc.applyAutofit(o); }); refresh(); });
-    underlineBtn.addEventListener('click', () => { apply((o) => o.set('underline', !o.underline)); refresh(); });
-    fitToggle.addEventListener('change', () => { apply((o) => {
-        o.bkdAutofit = fitToggle.checked;
-        if (fitToggle.checked && !o.bkdBoxHeight) {
-            o.bkdBoxHeight = Math.round(o.height);
-        }
-        pc.applyAutofit(o);
-    }); refresh(); });
-    boxHeightInput.addEventListener('input', () => apply((o) => {
-        o.bkdBoxHeight = parseInt(boxHeightInput.value, 10) || null;
-        pc.applyAutofit(o);
-    }));
+    colorInput.addEventListener('input', () => apply((t) => t.set('fill', colorInput.value)));
+    lineInput.addEventListener('input', () => apply((t) => t.set('lineHeight', parseFloat(lineInput.value) || 1.16)));
+    boldBtn.addEventListener('click', () => { apply((t) => t.set('fontWeight', t.fontWeight === 'bold' ? 'normal' : 'bold')); refresh(); });
+    italicBtn.addEventListener('click', () => { apply((t) => t.set('fontStyle', t.fontStyle === 'italic' ? 'normal' : 'italic')); refresh(); });
+    underlineBtn.addEventListener('click', () => { apply((t) => t.set('underline', !t.underline)); refresh(); });
     alignBtns.forEach((b) => b.addEventListener('click', () => {
-        apply((o) => o.set('textAlign', b.getAttribute('data-align')));
+        apply((t) => t.set('textAlign', b.getAttribute('data-align')));
+        refresh();
+    }));
+    valignBtns.forEach((b) => b.addEventListener('click', () => {
+        apply((t, box) => { box.bkdValign = b.getAttribute('data-valign'); });
         refresh();
     }));
     delBtn.addEventListener('click', () => {
-        const o = getActive();
-        if (o) {
-            pc.canvas.remove(o);
+        const box = getActive();
+        if (box) {
+            pc.removeBox(box);
             pc.canvas.discardActiveObject();
             pc.canvas.requestRenderAll();
             refresh();
@@ -767,6 +835,5 @@ document.addEventListener('livewire:navigated', () => {
     registerLivewireListener();
 });
 
-// Modül geç yüklenirse (Livewire zaten hazırsa) yine de bağlan
 registerLivewireListener();
 bootEditors();
