@@ -1,25 +1,31 @@
 /*
- | BKD Afiş Motoru
+ | BKD Afiş Motoru — BkdTextFrame
  | --------------------------------------------------------------------------
- | Fabric.js tabanlı afiş tasarımcısı + stüdyosu + sessiz (offscreen) üretici.
- | Tek modül; Fabric dinamik import ile yalnızca gerektiğinde yüklenir.
+ | Her yazı katmanı tek bir "metin çerçevesi"dir (frame + text + clipPath).
+ | Yazı kutu genişliğine sarılır, yüksekliğe binary-search ile sığdırılır,
+ | clipPath ile kesinlikle kutu dışına taşmaz.
  |
- | Metin Kutusu modeli:
- |  Her yazı katmanı bir dikdörtgen KUTU'dur (Rect). Kutu her yönden ve
- |  köşelerden boyutlandırılabilir. Yazı, kutu genişliğine sarılır ve kutu
- |  yüksekliğine sığacak şekilde ölçeklenir (taşmaz/kırpılmaz), dikey olarak
- |  hizalanır. Böylece "ayrılan alan" içinde her zaman düzgün kalır.
- |
- | Modlar:
- |  - design:  Afiş şablonu tasarımı (arka plan + yer tutuculu kutular)
- |  - studio:  Üretilmiş afişi elle düzenleme (font/renk/boyut/kutu)
- |  - generate: Görünmez canvas'ta otomatik üretim (buton -> otomatik afiş)
+ | Modlar: design | studio | generate
  */
 
 const GOOGLE_FONTS = [
     'Inter', 'Lora', 'Montserrat', 'Roboto', 'Open+Sans',
     'Poppins', 'Playfair+Display', 'Merriweather', 'Oswald',
 ];
+
+/** Uzun metin önizlemesi gereken bağlantılar (şablon tasarımı) */
+const LONG_PREVIEW_BINDINGS = ['not', 'tesekkur_metni'];
+
+const LONG_PREVIEW_SAMPLES = {
+    not: '2026 Kurban Bayramı Çad Ülkesi Küçük Baş 1 adet kurban hissesi bağışlamak istiyorum. Allah kabul eylesin.',
+    tesekkur_metni: 'Sayın bağışçımız, 2026 Çad Küçükbaş Kurban Organizasyonu kapsamında yaptığınız değerli bağış için gönülden teşekkür ederiz. Destekleriniz sayesinde ihtiyaç sahiplerine ulaşıyoruz.',
+    faaliyet: '2026 Çad Küçükbaş Kurban Organizasyonu',
+    ad_soyad: 'Mehmet Ali Yılmaz',
+    ad: 'Mehmet Ali',
+    soyad: 'Yılmaz',
+};
+
+const MIN_FONT_SIZE = 8;
 
 let fontsInjected = false;
 
@@ -28,7 +34,6 @@ function injectGoogleFonts() {
         return;
     }
     fontsInjected = true;
-
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://fonts.googleapis.com/css2?'
@@ -50,6 +55,20 @@ async function ensureFontsLoaded(families) {
     }
 }
 
+async function ensureFontForText(text, size) {
+    injectGoogleFonts();
+    const family = text.fontFamily || 'Inter';
+    const weight = text.fontWeight === 'bold' ? '700' : '400';
+    const px = size || text.bkdDesiredFontSize || text.fontSize || 24;
+    try {
+        await document.fonts.load(`${weight} ${px}px "${family}"`);
+        await document.fonts.load(`italic ${weight} ${px}px "${family}"`).catch(() => {});
+        await document.fonts.ready;
+    } catch (e) {
+        /* yoksay */
+    }
+}
+
 let fabricModulePromise = null;
 function loadFabric() {
     if (!fabricModulePromise) {
@@ -62,9 +81,8 @@ function dataUrlToBlob(dataUrl) {
     const [meta, b64] = dataUrl.split(',');
     const mime = /:(.*?);/.exec(meta)?.[1] || 'image/png';
     const bin = atob(b64);
-    const len = bin.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i += 1) {
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) {
         bytes[i] = bin.charCodeAt(i);
     }
     return new Blob([bytes], { type: mime });
@@ -78,8 +96,70 @@ function padOf(width) {
     return Math.min(30, Math.max(6, Math.round(width * 0.02)));
 }
 
+function maxLineWidth(text) {
+    try {
+        const n = text.textLines ? text.textLines.length : 0;
+        let max = 0;
+        for (let i = 0; i < n; i += 1) {
+            const lw = text.getLineWidth(i);
+            if (lw > max) {
+                max = lw;
+            }
+        }
+        return max || text.width;
+    } catch (e) {
+        return text.width;
+    }
+}
+
+function textOverflows(text, innerW, innerH) {
+    if (typeof text.initDimensions === 'function') {
+        text.initDimensions();
+    }
+    return text.height > innerH + 0.5 || maxLineWidth(text) > innerW + 0.5;
+}
+
+/**
+ * Binary search ile kutuya sığan en büyük font boyutunu bulur.
+ */
+function binarySearchFontSize(text, innerW, innerH, desiredSize, minSize = MIN_FONT_SIZE) {
+    const recalc = () => {
+        if (typeof text.initDimensions === 'function') {
+            text.initDimensions();
+        }
+    };
+
+    const fits = (size) => {
+        text.set({ fontSize: size, width: innerW });
+        recalc();
+        return !textOverflows(text, innerW, innerH);
+    };
+
+    let lo = minSize;
+    let hi = Math.max(minSize, desiredSize);
+    let best = minSize;
+
+    if (fits(hi)) {
+        return hi;
+    }
+
+    while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (fits(mid)) {
+            best = mid;
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+
+    text.set('fontSize', best);
+    recalc();
+    return best;
+}
+
 /* ---------------------------------------------------------------------------
- | PosterCanvas
+ | PosterCanvas — BkdTextFrame yönetimi
  | ------------------------------------------------------------------------- */
 
 class PosterCanvas {
@@ -90,7 +170,9 @@ class PosterCanvas {
         this.naturalW = config.canvasWidth || 0;
         this.naturalH = config.canvasHeight || 0;
         this.scale = 1;
-        this.boxes = [];
+        /** @type {import('fabric').Rect[]} */
+        this.frames = [];
+        this.longPreview = config.longPreview !== false;
 
         this.canvas = new fabric.Canvas(canvasEl, {
             preserveObjectStacking: true,
@@ -101,7 +183,7 @@ class PosterCanvas {
     }
 
     async init(displayWidth) {
-        this.boxes = [];
+        this.frames = [];
 
         let bgImg = null;
         if (this.config.backgroundUrl) {
@@ -128,22 +210,22 @@ class PosterCanvas {
 
         if (bgImg) {
             bgImg.set({
-                left: 0,
-                top: 0,
-                originX: 'left',
-                originY: 'top',
-                selectable: false,
-                evented: false,
-                scaleX: 1,
-                scaleY: 1,
+                left: 0, top: 0, originX: 'left', originY: 'top',
+                selectable: false, evented: false, scaleX: 1, scaleY: 1,
             });
             this.canvas.backgroundImage = bgImg;
         }
 
-        (this.config.layout || []).forEach((layer) => this.addLayer(layer, false));
+        for (const layer of (this.config.layout || [])) {
+            // eslint-disable-next-line no-await-in-loop
+            await this.addLayer(layer, false);
+        }
 
         await ensureFontsLoaded(this.usedFonts());
-        this.boxes.forEach((box) => this.refit(box));
+        for (const frame of this.frames) {
+            // eslint-disable-next-line no-await-in-loop
+            await this.refit(frame);
+        }
         this.canvas.requestRenderAll();
     }
 
@@ -157,9 +239,36 @@ class PosterCanvas {
         this.canvas.setZoom(this.scale);
     }
 
+    async setLongPreview(enabled) {
+        this.longPreview = !!enabled;
+        if (this.mode !== 'design') {
+            return;
+        }
+        for (const frame of this.frames) {
+            const text = frame.bkdText;
+            if (!text?.bkdBinding) {
+                continue;
+            }
+            text.set('text', this.previewTextForBinding(text.bkdBinding));
+            // eslint-disable-next-line no-await-in-loop
+            await this.refit(frame);
+        }
+        this.canvas.requestRenderAll();
+    }
+
+    previewTextForBinding(binding) {
+        if (this.longPreview && LONG_PREVIEW_BINDINGS.includes(binding)) {
+            return LONG_PREVIEW_SAMPLES[binding] || `{${binding}}`;
+        }
+        return `{${binding}}`;
+    }
+
     resolveText(layer) {
         if (this.mode === 'design') {
-            return layer.binding ? `{${layer.binding}}` : (layer.text ?? 'Metin');
+            if (layer.binding) {
+                return this.previewTextForBinding(layer.binding);
+            }
+            return layer.text ?? 'Metin';
         }
         if (this.mode === 'studio') {
             return layer.text ?? '';
@@ -171,12 +280,20 @@ class PosterCanvas {
         return layer.text ?? '';
     }
 
-    addLayer(layer, select = true) {
+    /**
+     * BkdTextFrame oluşturur: seçilebilir çerçeve (Rect) + kırpılmış yazı (Textbox).
+     */
+    async addLayer(layer, select = true) {
         const fabric = this.fabric;
         const isGen = this.mode === 'generate';
+        const desiredSize = layer.desiredFontSize ?? layer.fontSize ?? 42;
+
+        const bx = layer.left ?? Math.round(this.naturalW * 0.15);
+        const by = layer.top ?? Math.round(this.naturalH * 0.4);
+        const bw = layer.width ?? Math.round(this.naturalW * 0.7);
 
         const text = new fabric.Textbox(this.resolveText(layer) || ' ', {
-            fontSize: layer.fontSize ?? 42,
+            fontSize: desiredSize,
             fontFamily: layer.fontFamily ?? 'Inter',
             fill: layer.fill ?? '#1d4ed8',
             fontWeight: layer.fontWeight ?? 'normal',
@@ -192,13 +309,9 @@ class PosterCanvas {
             splitByGrapheme: false,
         });
         text.bkdBinding = layer.binding ?? null;
-        text.bkdBaseFontSize = layer.fontSize ?? 42;
+        text.bkdDesiredFontSize = desiredSize;
 
-        const bx = layer.left ?? Math.round(this.naturalW * 0.15);
-        const by = layer.top ?? Math.round(this.naturalH * 0.4);
-        const bw = layer.width ?? Math.round(this.naturalW * 0.7);
         const pad = padOf(bw);
-
         text.set('width', Math.max(20, bw - 2 * pad));
         if (typeof text.initDimensions === 'function') {
             text.initDimensions();
@@ -206,11 +319,11 @@ class PosterCanvas {
 
         let bh = layer.height;
         if (!bh || bh < 10) {
-            // Eski şablonlar (yükseklik yok): içeriğe göre otomatik yükseklik
-            bh = Math.round(text.height + 2 * pad);
+            bh = Math.round(text.height + 2 * pad + 8);
+            bh = Math.max(bh, Math.round(this.naturalH * 0.08));
         }
 
-        const box = new fabric.Rect({
+        const frame = new fabric.Rect({
             left: bx,
             top: by,
             width: bw,
@@ -228,143 +341,139 @@ class PosterCanvas {
             objectCaching: false,
             hasBorders: true,
         });
-        box.bkdRole = 'box';
-        box.bkdText = text;
-        box.bkdValign = layer.valign ?? 'top';
+        frame.bkdRole = 'frame';
+        frame.bkdText = text;
+        frame.bkdValign = layer.valign ?? 'top';
+        frame.bkdDesiredFontSize = desiredSize;
         if (!isGen) {
-            box.setControlsVisibility({ mtr: false });
+            frame.setControlsVisibility({ mtr: false });
         }
 
-        this.canvas.add(box);
+        this.canvas.add(frame);
         this.canvas.add(text);
-        this.boxes.push(box);
-        this.refit(box);
+        this.frames.push(frame);
+        await this.refit(frame);
 
         if (select && !isGen) {
-            this.canvas.setActiveObject(box);
+            this.canvas.setActiveObject(frame);
         }
-        return box;
+        return frame;
+    }
+
+    frameDimensions(frame) {
+        const w = Math.max(20, frame.width * (frame.scaleX || 1));
+        const h = Math.max(20, frame.height * (frame.scaleY || 1));
+        return { w, h, left: frame.left, top: frame.top };
     }
 
     /**
-     * Yazıyı kutusuna sığdırır: genişliğe sarar, yüksekliğe sığacak kadar
-     * ölçekler, dikey hizalar. Taşma/kırpma olmaz.
+     * Yazıyı kutuya sığdırır (binary search) + clipPath ile kesin kırpma.
      */
-    refit(box) {
-        const text = box?.bkdText;
+    async refit(frame) {
+        const text = frame?.bkdText;
         if (!text) {
             return;
         }
 
-        const w = box.width * (box.scaleX || 1);
-        const h = box.height * (box.scaleY || 1);
-        const left = box.left;
-        const top = box.top;
+        const { w, h, left, top } = this.frameDimensions(frame);
         const pad = padOf(w);
         const innerW = Math.max(20, w - 2 * pad);
         const innerH = Math.max(20, h - 2 * pad);
+        const desired = text.bkdDesiredFontSize || frame.bkdDesiredFontSize || text.fontSize;
 
-        const recalc = () => {
-            if (typeof text.initDimensions === 'function') {
-                text.initDimensions();
-            }
-        };
+        await ensureFontForText(text, desired);
 
-        if (text.splitByGrapheme) {
-            text.set('splitByGrapheme', false);
-        }
-        text.set('width', innerW);
+        text.set({ splitByGrapheme: false, width: innerW });
 
-        let size = text.bkdBaseFontSize || text.fontSize;
-        const minSize = Math.max(8, Math.round(size * 0.25));
-        text.set('fontSize', size);
-        recalc();
+        let fitted = binarySearchFontSize(text, innerW, innerH, desired, MIN_FONT_SIZE);
 
-        let guard = 0;
-        const overflowing = () => text.height > innerH || this.maxLineWidth(text) > innerW + 0.5;
-        while (overflowing() && size > minSize && guard < 1000) {
-            size -= 1;
-            text.set('fontSize', size);
-            recalc();
-            guard += 1;
-        }
-
-        // Son çare: tek kelime hâlâ genişliğe sığmıyorsa harf bazında böl
-        if (this.maxLineWidth(text) > innerW + 0.5) {
+        if (maxLineWidth(text) > innerW + 0.5) {
             text.set('splitByGrapheme', true);
-            recalc();
+            fitted = binarySearchFontSize(text, innerW, innerH, fitted, MIN_FONT_SIZE);
         }
+
+        if (textOverflows(text, innerW, innerH)) {
+            text.set('splitByGrapheme', true);
+            fitted = binarySearchFontSize(text, innerW, innerH, MIN_FONT_SIZE, MIN_FONT_SIZE);
+        }
+
+        text.bkdFittedFontSize = fitted;
+        frame.bkdDesiredFontSize = desired;
 
         const th = text.height;
         let ty = top + pad;
-        if (box.bkdValign === 'middle') {
+        if (frame.bkdValign === 'middle') {
             ty = top + (h - th) / 2;
-        } else if (box.bkdValign === 'bottom') {
+        } else if (frame.bkdValign === 'bottom') {
             ty = top + h - pad - th;
         }
 
         text.set({ left: left + pad, top: ty });
         text.setCoords();
+
+        const clip = new this.fabric.Rect({
+            left: left + pad,
+            top: top + pad,
+            width: innerW,
+            height: innerH,
+            originX: 'left',
+            originY: 'top',
+            absolutePositioned: true,
+        });
+        text.clipPath = clip;
     }
 
-    /**
-     * Ölçeklemeyi (scaleX/scaleY) genişlik/yükseklik değerine yazar.
-     */
-    normalizeBox(box) {
-        if ((box.scaleX && box.scaleX !== 1) || (box.scaleY && box.scaleY !== 1)) {
-            box.width = Math.max(20, box.width * box.scaleX);
-            box.height = Math.max(20, box.height * box.scaleY);
-            box.scaleX = 1;
-            box.scaleY = 1;
-            box.setCoords();
+    normalizeFrame(frame) {
+        if ((frame.scaleX && frame.scaleX !== 1) || (frame.scaleY && frame.scaleY !== 1)) {
+            frame.width = Math.max(20, frame.width * frame.scaleX);
+            frame.height = Math.max(20, frame.height * frame.scaleY);
+            frame.scaleX = 1;
+            frame.scaleY = 1;
+            frame.setCoords();
         }
     }
 
-    maxLineWidth(text) {
-        try {
-            const n = text.textLines ? text.textLines.length : 0;
-            let max = 0;
-            for (let i = 0; i < n; i += 1) {
-                const lw = text.getLineWidth(i);
-                if (lw > max) {
-                    max = lw;
-                }
-            }
-            return max || text.width;
-        } catch (e) {
-            return text.width;
-        }
+    setFrameSize(frame, width, height) {
+        this.normalizeFrame(frame);
+        frame.set({
+            width: Math.max(40, Math.round(width)),
+            height: Math.max(30, Math.round(height)),
+        });
+        frame.setCoords();
     }
 
     usedFonts() {
         const set = new Set(['Inter']);
-        this.boxes.forEach((box) => {
-            if (box.bkdText?.fontFamily) {
-                set.add(box.bkdText.fontFamily);
+        this.frames.forEach((frame) => {
+            if (frame.bkdText?.fontFamily) {
+                set.add(frame.bkdText.fontFamily);
             }
         });
         return [...set];
     }
 
-    removeBox(box) {
-        this.canvas.remove(box.bkdText);
-        this.canvas.remove(box);
-        this.boxes = this.boxes.filter((b) => b !== box);
+    removeFrame(frame) {
+        this.canvas.remove(frame.bkdText);
+        this.canvas.remove(frame);
+        this.frames = this.frames.filter((f) => f !== frame);
     }
 
     serialize(bakeText = false) {
-        return this.boxes.map((box) => {
-            this.normalizeBox(box);
-            const t = box.bkdText;
+        return this.frames.map((frame) => {
+            this.normalizeFrame(frame);
+            const t = frame.bkdText;
+            const desired = frame.bkdDesiredFontSize ?? t.bkdDesiredFontSize ?? t.fontSize;
             return {
                 type: 'text',
                 binding: t.bkdBinding ?? null,
                 text: t.bkdBinding && !bakeText ? '' : t.text,
-                left: Math.round(box.left),
-                top: Math.round(box.top),
-                width: Math.round(box.width),
-                height: Math.round(box.height),
-                fontSize: Math.round(this.mode === 'design' ? (t.bkdBaseFontSize ?? t.fontSize) : t.fontSize),
+                left: Math.round(frame.left),
+                top: Math.round(frame.top),
+                width: Math.round(frame.width),
+                height: Math.round(frame.height),
+                fontSize: Math.round(desired),
+                desiredFontSize: Math.round(desired),
+                fittedFontSize: Math.round(t.bkdFittedFontSize ?? t.fontSize),
                 fontFamily: t.fontFamily,
                 fill: t.fill,
                 fontWeight: t.fontWeight,
@@ -373,24 +482,25 @@ class PosterCanvas {
                 textAlign: t.textAlign,
                 lineHeight: t.lineHeight,
                 angle: 0,
-                valign: box.bkdValign || 'top',
+                valign: frame.bkdValign || 'top',
             };
         });
     }
 
     async exportDataUrl() {
         await ensureFontsLoaded(this.usedFonts());
-        this.boxes.forEach((box) => {
-            this.normalizeBox(box);
-            this.refit(box);
-        });
+        for (const frame of this.frames) {
+            this.normalizeFrame(frame);
+            // eslint-disable-next-line no-await-in-loop
+            await this.refit(frame);
+        }
         this.canvas.discardActiveObject();
 
         const hidden = [];
-        this.boxes.forEach((box) => {
-            if (box.visible) {
-                hidden.push(box);
-                box.visible = false;
+        this.frames.forEach((frame) => {
+            if (frame.visible) {
+                hidden.push(frame);
+                frame.visible = false;
             }
         });
         this.canvas.requestRenderAll();
@@ -400,7 +510,7 @@ class PosterCanvas {
             multiplier: this.scale ? 1 / this.scale : 1,
         });
 
-        hidden.forEach((box) => { box.visible = true; });
+        hidden.forEach((frame) => { frame.visible = true; });
         this.canvas.requestRenderAll();
 
         return url;
@@ -416,7 +526,7 @@ class PosterCanvas {
 }
 
 /* ---------------------------------------------------------------------------
- | Interaktif editör arayüzü (design + studio)
+ | UI
  | ------------------------------------------------------------------------- */
 
 function el(tag, attrs = {}, children = []) {
@@ -435,9 +545,11 @@ function el(tag, attrs = {}, children = []) {
 }
 
 const BTN = 'display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05);';
+const BTN_ACTIVE = BTN + 'background:#e0f2fe;border-color:#38bdf8;color:#0369a1;';
 const BTN_PRIMARY = 'display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.08);';
 const FIELD = 'width:100%;padding:7px 9px;border-radius:8px;border:1px solid #cbd5e1;font-size:13px;background:#fff;color:#0f172a;';
 const LABEL = 'display:block;font-size:12px;font-weight:600;color:#475569;margin:10px 0 4px;';
+const HINT = 'font-size:11px;color:#64748b;margin-top:4px;line-height:1.4;';
 
 function initEditor(root) {
     if (root.dataset.posterInit === '1') {
@@ -480,19 +592,19 @@ function initEditor(root) {
         pc.canvas.on('selection:cleared', refreshProps);
 
         pc.canvas.on('object:moving', (e) => {
-            if (e.target?.bkdRole === 'box') {
+            if (e.target?.bkdRole === 'frame') {
                 pc.refit(e.target);
             }
         });
         pc.canvas.on('object:scaling', (e) => {
-            if (e.target?.bkdRole === 'box') {
+            if (e.target?.bkdRole === 'frame') {
                 pc.refit(e.target);
             }
         });
-        pc.canvas.on('object:modified', (e) => {
-            if (e.target?.bkdRole === 'box') {
-                pc.normalizeBox(e.target);
-                pc.refit(e.target);
+        pc.canvas.on('object:modified', async (e) => {
+            if (e.target?.bkdRole === 'frame') {
+                pc.normalizeFrame(e.target);
+                await pc.refit(e.target);
                 pc.canvas.requestRenderAll();
                 refreshProps();
             }
@@ -511,8 +623,8 @@ function initEditor(root) {
 function buildToolbar(toolbar, pc, config) {
     toolbar.innerHTML = '';
 
-    const addBtn = el('button', { type: 'button', style: BTN, onclick: () => {
-        pc.addLayer({
+    const addBtn = el('button', { type: 'button', style: BTN, onclick: async () => {
+        await pc.addLayer({
             binding: null,
             text: 'Yeni metin',
             left: Math.round(pc.naturalW * 0.2),
@@ -530,6 +642,18 @@ function buildToolbar(toolbar, pc, config) {
     toolbar.appendChild(addBtn);
 
     if (config.mode === 'design') {
+        let previewOn = pc.longPreview;
+        const previewBtn = el('button', {
+            type: 'button',
+            style: previewOn ? BTN_ACTIVE : BTN,
+            onclick: async () => {
+                previewOn = !previewOn;
+                previewBtn.setAttribute('style', previewOn ? BTN_ACTIVE : BTN);
+                await pc.setLongPreview(previewOn);
+            },
+        }, 'Uzun metin önizlemesi');
+        toolbar.appendChild(previewBtn);
+
         const saveBtn = el('button', { type: 'button', style: BTN_PRIMARY, onclick: () => {
             const layout = pc.serialize(false);
             window.dispatchEvent(new CustomEvent('poster-save', {
@@ -579,7 +703,7 @@ function buildPropsPanel(panel, pc, config) {
     const fonts = config.fonts || ['Inter'];
 
     const empty = el('div', { style: 'color:#64748b;font-size:13px;padding:8px 0;line-height:1.5;' },
-        'Düzenlemek için bir yazı kutusuna tıklayın. Kutuyu her yönden ve köşelerden sürükleyerek alanı belirleyin; yazı bu alana göre otomatik sığar.');
+        'Bir yazı kutusuna tıklayın. Kutuyu sürükleyerek veya sağ panelden genişlik/yükseklik girerek alanı belirleyin. Yazı bu alana otomatik sığar ve dışarı taşmaz.');
 
     const wrap = el('div', { style: 'display:none;' });
 
@@ -598,6 +722,22 @@ function buildPropsPanel(panel, pc, config) {
     wrap.appendChild(el('label', { style: LABEL }, 'Metin'));
     wrap.appendChild(textArea);
 
+    const boxSizeRow = el('div', { style: 'display:flex;gap:8px;' });
+    const widthInput = el('input', { type: 'number', min: '40', style: FIELD });
+    const heightInput = el('input', { type: 'number', min: '30', style: FIELD });
+    boxSizeRow.append(
+        el('div', { style: 'flex:1;' }, [
+            el('label', { style: LABEL + 'margin-top:0;' }, 'Kutu genişliği (px)'),
+            widthInput,
+        ]),
+        el('div', { style: 'flex:1;' }, [
+            el('label', { style: LABEL + 'margin-top:0;' }, 'Kutu yüksekliği (px)'),
+            heightInput,
+        ]),
+    );
+    wrap.appendChild(boxSizeRow);
+    wrap.appendChild(el('div', { style: HINT }, 'Kutuyu tuvalde sürükleyerek de boyutlandırabilirsiniz.'));
+
     const fontSel = el('select', { style: FIELD }, fonts.map((f) => el('option', { value: f }, f)));
     wrap.appendChild(el('label', { style: LABEL }, 'Yazı tipi'));
     wrap.appendChild(fontSel);
@@ -605,6 +745,10 @@ function buildPropsPanel(panel, pc, config) {
     const sizeInput = el('input', { type: 'number', min: '6', max: '400', style: FIELD });
     wrap.appendChild(el('label', { style: LABEL }, 'İstenen yazı boyutu (px)'));
     wrap.appendChild(sizeInput);
+    wrap.appendChild(el('div', { style: HINT }, 'Yazı bu boyuta kadar büyür; kutuya sığmazsa otomatik küçülür.'));
+
+    const fittedHint = el('div', { style: HINT + 'color:#0369a1;' }, '');
+    wrap.appendChild(fittedHint);
 
     const colorInput = el('input', { type: 'color', style: 'width:100%;height:38px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;' });
     wrap.appendChild(el('label', { style: LABEL }, 'Renk'));
@@ -646,29 +790,42 @@ function buildPropsPanel(panel, pc, config) {
 
     const getActive = () => {
         const o = pc.canvas.getActiveObject();
-        return o && o.bkdRole === 'box' ? o : null;
+        return o && o.bkdRole === 'frame' ? o : null;
     };
 
     function refresh() {
-        const box = getActive();
-        if (!box) {
+        const frame = getActive();
+        if (!frame) {
             wrap.style.display = 'none';
             empty.style.display = 'block';
             return;
         }
-        const t = box.bkdText;
+        const t = frame.bkdText;
         empty.style.display = 'none';
         wrap.style.display = 'block';
+
+        pc.normalizeFrame(frame);
+        widthInput.value = Math.round(frame.width);
+        heightInput.value = Math.round(frame.height);
 
         if (bindingSel) {
             bindingSel.value = t.bkdBinding || '';
             textArea.disabled = !!t.bkdBinding;
-            textArea.value = t.bkdBinding ? `{${t.bkdBinding}}` : (t.text || '');
+            textArea.value = t.bkdBinding
+                ? (pc.longPreview && LONG_PREVIEW_BINDINGS.includes(t.bkdBinding)
+                    ? pc.previewTextForBinding(t.bkdBinding)
+                    : `{${t.bkdBinding}}`)
+                : (t.text || '');
         } else {
             textArea.value = t.text || '';
         }
         fontSel.value = t.fontFamily || 'Inter';
-        sizeInput.value = Math.round(t.bkdBaseFontSize ?? t.fontSize);
+        const desired = frame.bkdDesiredFontSize ?? t.bkdDesiredFontSize ?? t.fontSize;
+        sizeInput.value = Math.round(desired);
+        const fitted = t.bkdFittedFontSize ?? t.fontSize;
+        fittedHint.textContent = fitted < desired
+            ? `Kutuya sığan gerçek boyut: ${Math.round(fitted)} px`
+            : '';
         colorInput.value = toHex(t.fill);
         lineInput.value = t.lineHeight ?? 1.16;
         boldBtn.style.background = t.fontWeight === 'bold' ? '#e2e8f0' : '#fff';
@@ -678,55 +835,62 @@ function buildPropsPanel(panel, pc, config) {
             b.style.background = b.getAttribute('data-align') === t.textAlign ? '#e2e8f0' : '#fff';
         });
         valignBtns.forEach((b) => {
-            b.style.background = b.getAttribute('data-valign') === (box.bkdValign || 'top') ? '#e2e8f0' : '#fff';
+            b.style.background = b.getAttribute('data-valign') === (frame.bkdValign || 'top') ? '#e2e8f0' : '#fff';
         });
     }
 
-    const apply = (fn) => {
-        const box = getActive();
-        if (!box) return;
-        fn(box.bkdText, box);
-        pc.refit(box);
+    const apply = async (fn) => {
+        const frame = getActive();
+        if (!frame) return;
+        fn(frame.bkdText, frame);
+        await pc.refit(frame);
         pc.canvas.requestRenderAll();
+        refresh();
     };
 
     if (bindingSel) {
         bindingSel.addEventListener('change', () => {
-            apply((t) => {
+            apply((t, frame) => {
                 const val = bindingSel.value || null;
                 t.bkdBinding = val;
-                t.set('text', val ? `{${val}}` : 'Metin');
+                const sample = val ? pc.previewTextForBinding(val) : 'Metin';
+                t.set('text', sample);
+                frame.bkdDesiredFontSize = t.bkdDesiredFontSize;
             });
-            refresh();
         });
     }
     textArea.addEventListener('input', () => apply((t) => {
         if (t.bkdBinding) return;
         t.set('text', textArea.value);
     }));
+    widthInput.addEventListener('change', () => apply((t, frame) => {
+        pc.setFrameSize(frame, parseInt(widthInput.value, 10) || frame.width, frame.height);
+    }));
+    heightInput.addEventListener('change', () => apply((t, frame) => {
+        pc.setFrameSize(frame, frame.width, parseInt(heightInput.value, 10) || frame.height);
+    }));
     fontSel.addEventListener('change', () => apply((t) => t.set('fontFamily', fontSel.value)));
-    sizeInput.addEventListener('input', () => apply((t) => {
+    sizeInput.addEventListener('input', () => apply((t, frame) => {
         const v = parseInt(sizeInput.value, 10) || 12;
-        t.bkdBaseFontSize = v;
+        t.bkdDesiredFontSize = v;
+        frame.bkdDesiredFontSize = v;
         t.set('fontSize', v);
     }));
     colorInput.addEventListener('input', () => apply((t) => t.set('fill', colorInput.value)));
     lineInput.addEventListener('input', () => apply((t) => t.set('lineHeight', parseFloat(lineInput.value) || 1.16)));
-    boldBtn.addEventListener('click', () => { apply((t) => t.set('fontWeight', t.fontWeight === 'bold' ? 'normal' : 'bold')); refresh(); });
-    italicBtn.addEventListener('click', () => { apply((t) => t.set('fontStyle', t.fontStyle === 'italic' ? 'normal' : 'italic')); refresh(); });
-    underlineBtn.addEventListener('click', () => { apply((t) => t.set('underline', !t.underline)); refresh(); });
+    boldBtn.addEventListener('click', () => { apply((t) => t.set('fontWeight', t.fontWeight === 'bold' ? 'normal' : 'bold')); });
+    italicBtn.addEventListener('click', () => { apply((t) => t.set('fontStyle', t.fontStyle === 'italic' ? 'normal' : 'italic')); });
+    underlineBtn.addEventListener('click', () => { apply((t) => t.set('underline', !t.underline)); });
     alignBtns.forEach((b) => b.addEventListener('click', () => {
         apply((t) => t.set('textAlign', b.getAttribute('data-align')));
-        refresh();
     }));
     valignBtns.forEach((b) => b.addEventListener('click', () => {
-        apply((t, box) => { box.bkdValign = b.getAttribute('data-valign'); });
-        refresh();
+        apply((t, frame) => { frame.bkdValign = b.getAttribute('data-valign'); });
     }));
     delBtn.addEventListener('click', () => {
-        const box = getActive();
-        if (box) {
-            pc.removeBox(box);
+        const frame = getActive();
+        if (frame) {
+            pc.removeFrame(frame);
             pc.canvas.discardActiveObject();
             pc.canvas.requestRenderAll();
             refresh();
@@ -752,7 +916,7 @@ function toHex(fill) {
 }
 
 /* ---------------------------------------------------------------------------
- | Sessiz (offscreen) üretim
+ | Sessiz üretim
  | ------------------------------------------------------------------------- */
 
 async function runGenerateJob(job) {

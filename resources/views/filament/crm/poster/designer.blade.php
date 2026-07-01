@@ -38,11 +38,11 @@
     <x-filament::section class="mt-4">
         <x-slot name="heading">Nasıl çalışır?</x-slot>
         <ul class="text-sm text-gray-600 list-disc ps-5 space-y-1">
-            <li><strong>+ Yazı kutusu ekle</strong> ile bir kutu ekleyin. Kutuyu <strong>her yönden ve köşelerden</strong> sürükleyerek yazının kalacağı alanı belirleyin.</li>
-            <li>Yazı bu alana otomatik sığar: kutu genişliğine göre satırlara bölünür, yüksekliğine sığacak şekilde ölçeklenir. <strong>Taşma ve kırpılma olmaz.</strong></li>
-            <li>Sağ panelden <strong>İçerik kaynağı</strong> seçin: sabit metin ya da bağıştan gelen bir alan (ör. Bağışçı ad soyad, Proje / Faaliyet, Tarih).</li>
-            <li>Yazı tipi, istenen boyut, renk, yatay/dikey hizalamayı ayarlayıp <strong>Şablonu kaydet</strong> deyin.</li>
-            <li>Afiş üretildiğinde bağlı alanlar ilgili bağışın verisiyle otomatik doldurulur ve aynı kurallarla kutuya sığdırılır.</li>
+            <li><strong>+ Yazı kutusu ekle</strong> ile kutu oluşturun. Kutuyu tuvalde veya sağ paneldeki <strong>genişlik / yükseklik</strong> alanlarından boyutlandırın.</li>
+            <li><strong>Uzun metin önizlemesi</strong> açıkken bağış notu ve teşekkür metni gerçek uzunlukta gösterilir; kutuyu buna göre ayarlayın.</li>
+            <li>Yazı kutu içinde kalır: satırlara bölünür, sığacak şekilde ölçeklenir ve <strong>clipPath ile kesinlikle dışarı taşmaz</strong>.</li>
+            <li>Sağ panelden içerik kaynağı, yazı tipi, istenen boyut, renk ve hizalamayı ayarlayıp <strong>Şablonu kaydet</strong> deyin.</li>
+            <li>Afiş üretildiğinde veriler aynı kurallarla kutuya sığdırılır; bağış sayfasındaki düzenleme ekranı da aynı motoru kullanır.</li>
         </ul>
     </x-filament::section>
 </x-filament-panels::page>
