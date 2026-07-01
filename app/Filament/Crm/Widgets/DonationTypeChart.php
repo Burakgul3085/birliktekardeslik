@@ -14,7 +14,7 @@ class DonationTypeChart extends ChartWidget
 
     protected ?string $heading = 'Bağış Türlerine Göre Dağılım';
 
-    protected ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '260px';
 
     protected int | string | array $columnSpan = [
         'default' => 'full',

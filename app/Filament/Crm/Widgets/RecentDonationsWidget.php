@@ -15,7 +15,10 @@ class RecentDonationsWidget extends TableWidget
 
     protected static ?int $sort = 5;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'lg' => 1,
+    ];
 
     protected static ?string $heading = 'Son Bağışlar';
 

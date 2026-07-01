@@ -17,6 +17,27 @@
         overflow: visible;
     }
 
+    /* Dashboard widget düzeni */
+    .fi-page-dashboard .fi-wi {
+        height: 100%;
+    }
+
+    .fi-page-dashboard .fi-wi-widget {
+        height: 100%;
+    }
+
+    .fi-page-dashboard .fi-wi-stats-overview-stat {
+        min-height: 5.5rem;
+    }
+
+    .fi-page-dashboard .fi-section-header-heading {
+        font-size: 0.95rem;
+    }
+
+    .crm-dashboard-filters > .fi-section {
+        margin-bottom: 0.25rem;
+    }
+
     /* Afiş tasarımcısı */
     .bkd-poster-layout {
         display: flex;

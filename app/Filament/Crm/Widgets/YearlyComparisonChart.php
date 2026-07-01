@@ -6,6 +6,7 @@ use App\Filament\Crm\Widgets\Concerns\InteractsWithCrmDashboardFilters;
 use App\Models\Donation;
 use App\Support\Crm\DonationDateFilter;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Contracts\View\View;
 
 class YearlyComparisonChart extends ChartWidget
 {
@@ -15,9 +16,25 @@ class YearlyComparisonChart extends ChartWidget
 
     protected ?string $heading = 'Yıllık Karşılaştırma';
 
-    protected ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '280px';
 
     protected int | string | array $columnSpan = 'full';
+
+    public function render(): View
+    {
+        if (! $this->yearlyComparisonIsRelevant()) {
+            return view('filament.crm.widgets.hidden-widget');
+        }
+
+        return parent::render();
+    }
+
+    protected function yearlyComparisonIsRelevant(): bool
+    {
+        $period = (string) ($this->dashboardFilters()['period'] ?? 'this_month');
+
+        return in_array($period, ['this_year', 'last_year', 'all_time'], true);
+    }
 
     protected function getType(): string
     {

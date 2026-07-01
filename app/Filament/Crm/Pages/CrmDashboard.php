@@ -47,7 +47,7 @@ class CrmDashboard extends BaseDashboard
         return $schema
             ->components([
                 Section::make('Filtreler')
-                    ->description('Özet kartlar, grafikler ve tablolar seçtiğiniz dönem ve faaliyete göre güncellenir.')
+                    ->description('Dönem ve faaliyet seçimi tüm özetleri günceller.')
                     ->columnSpanFull()
                     ->schema([
                         Grid::make([
@@ -95,7 +95,7 @@ class CrmDashboard extends BaseDashboard
                         ]),
                     ])
                     ->collapsible()
-                    ->collapsed(false),
+                    ->collapsed(),
             ]);
     }
 
