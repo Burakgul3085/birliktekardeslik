@@ -35,11 +35,13 @@ class DonorsTable
                 TextColumn::make('email')
                     ->label('E-posta')
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('city')
                     ->label('Şehir')
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('donations_count')
                     ->label('Bağış')
                     ->counts('donations')

@@ -30,7 +30,7 @@ class DonationsTable
     {
         return $table
             ->defaultSort('donated_at', 'desc')
-            ->filtersFormColumns(2)
+            ->filtersFormColumns(['default' => 1, 'md' => 2])
             ->columns([
                 TextColumn::make('donation_number')
                     ->label('Bağış No')
@@ -39,7 +39,8 @@ class DonationsTable
                 TextColumn::make('receipt_number')
                     ->label('Makbuz No')
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('donor.full_name')
                     ->label('Bağışçı')
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
@@ -61,7 +62,7 @@ class DonationsTable
                         fn (Builder $donorQuery) => $donorQuery->where('phone', 'like', "%{$search}%"),
                     ))
                     ->placeholder('-')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('donor.city')
                     ->label('Şehir')
                     ->searchable()
@@ -74,7 +75,8 @@ class DonationsTable
                 TextColumn::make('paymentMethod.name')
                     ->label('Ödeme')
                     ->placeholder('-')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('amount')
                     ->label('Tutar')
                     ->money(fn ($record) => $record->currency ?? 'TRY')

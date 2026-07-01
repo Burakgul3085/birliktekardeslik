@@ -98,7 +98,7 @@ class NotesTable
                     ->toggleable(isToggledHiddenByDefault: true) : null,
             ]))
             ->filters($compact ? [] : self::filters())
-            ->filtersFormColumns(3)
+            ->filtersFormColumns(['default' => 1, 'md' => 2, 'xl' => 3])
             ->recordActions([
                 Action::make('togglePin')
                     ->label(fn (CrmNote $record): string => $record->is_pinned ? 'Sabiti kaldır' : 'Sabitle')

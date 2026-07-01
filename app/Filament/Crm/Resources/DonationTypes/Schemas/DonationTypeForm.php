@@ -13,7 +13,7 @@ class DonationTypeForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Grid::make(2)->schema([
+            Grid::make(['default' => 1, 'lg' => 2])->schema([
                 TextInput::make('name')
                     ->label('Bağış Türü Adı')
                     ->required()

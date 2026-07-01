@@ -25,7 +25,7 @@ class DonationForm
         $guard = app(LookupDeletionGuard::class);
 
         return $schema->components([
-            Grid::make(2)->schema([
+            Grid::make(['default' => 1, 'lg' => 2])->schema([
                 Select::make('donor_id')
                     ->label('Bağışçı')
                     ->relationship('donor', 'first_name')

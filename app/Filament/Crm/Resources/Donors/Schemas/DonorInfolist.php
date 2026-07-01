@@ -14,7 +14,7 @@ class DonorInfolist
         return $schema->components([
             Section::make('Bağışçı Profili')
                 ->schema([
-                    Grid::make(3)->schema([
+                    Grid::make(['default' => 1, 'md' => 2, 'lg' => 3])->schema([
                         TextEntry::make('full_name')->label('Ad Soyad'),
                         TextEntry::make('phone')->label('Telefon')->placeholder('-'),
                         TextEntry::make('email')->label('E-posta')->placeholder('-'),
@@ -27,7 +27,7 @@ class DonorInfolist
                 ]),
             Section::make('Bağış Özeti')
                 ->schema([
-                    Grid::make(4)->schema([
+                    Grid::make(['default' => 1, 'sm' => 2, 'lg' => 4])->schema([
                         TextEntry::make('total_donation_count')->label('Bağış Sayısı'),
                         TextEntry::make('total_donation_amount')
                             ->label('Toplam Tutar')

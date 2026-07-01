@@ -25,7 +25,7 @@ class NoteForm
         return $schema->components([
             Section::make('Not içeriği')
                 ->schema([
-                    Grid::make(2)->schema([
+                    Grid::make(['default' => 1, 'lg' => 2])->schema([
                         Select::make('scope')
                             ->label('Not türü')
                             ->options(CrmNote::SCOPES)

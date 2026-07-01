@@ -34,8 +34,14 @@ class RecentDonationsWidget extends TableWidget
                     ->label('Bağış No')
                     ->url(fn (Donation $record): string => DonationResource::getUrl('edit', ['record' => $record])),
                 TextColumn::make('donor.full_name')->label('Bağışçı'),
-                TextColumn::make('project.title')->label('Faaliyet')->placeholder('-'),
-                TextColumn::make('donationType.name')->label('Tür')->placeholder('-'),
+                TextColumn::make('project.title')
+                    ->label('Faaliyet')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('donationType.name')
+                    ->label('Tür')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('amount')->label('Tutar')->money(fn (Donation $record) => $record->currency ?? 'TRY'),
                 TextColumn::make('donated_at')->label('Tarih')->dateTime('d.m.Y H:i'),
             ]);

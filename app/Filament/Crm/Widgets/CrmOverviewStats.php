@@ -17,9 +17,13 @@ class CrmOverviewStats extends StatsOverviewWidget
 
     protected int | string | array $columnSpan = 'full';
 
-    protected function getColumns(): int
+    protected function getColumns(): int | array
     {
-        return 4;
+        return [
+            'default' => 1,
+            'sm' => 2,
+            'lg' => 4,
+        ];
     }
 
     protected function getStats(): array

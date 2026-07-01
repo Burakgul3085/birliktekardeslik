@@ -52,15 +52,18 @@ class RecentNotesWidget extends TableWidget
                 TextColumn::make('scope')
                     ->label('Tür')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => CrmNote::SCOPES[$state] ?? $state),
+                    ->formatStateUsing(fn (string $state): string => CrmNote::SCOPES[$state] ?? $state)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('category')
                     ->label('Kategori')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => CrmNote::CATEGORIES[$state] ?? $state)
-                    ->color('gray'),
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('author.name')
                     ->label('Yazan')
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Tarih')
                     ->dateTime('d.m.Y H:i'),

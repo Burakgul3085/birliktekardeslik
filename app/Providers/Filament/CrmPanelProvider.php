@@ -13,6 +13,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -56,6 +57,8 @@ class CrmPanelProvider extends PanelProvider
                 'warning' => Color::Amber,
                 'danger' => Color::Rose,
             ])
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Crm/Resources'), for: 'App\Filament\Crm\Resources')
             ->discoverPages(in: app_path('Filament/Crm/Pages'), for: 'App\Filament\Crm\Pages')
             ->pages([
@@ -71,7 +74,9 @@ class CrmPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn (): string => view('filament.crm.partials.poster-assets')->render(),
+                fn (): string => self::shouldLoadPosterAssets()
+                    ? view('filament.crm.partials.poster-assets')->render()
+                    : '',
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
@@ -100,5 +105,24 @@ class CrmPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    private static function shouldLoadPosterAssets(): bool
+    {
+        if (! auth('crm')->check()) {
+            return false;
+        }
+
+        $path = request()->path();
+
+        if (str_contains($path, 'poster-templates') && str_contains($path, 'design')) {
+            return true;
+        }
+
+        if (preg_match('#^crm/donations(?:/\d+)?/edit$#', $path) || $path === 'crm/donations/create') {
+            return true;
+        }
+
+        return false;
     }
 }

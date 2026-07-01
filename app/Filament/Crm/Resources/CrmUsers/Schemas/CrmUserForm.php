@@ -14,7 +14,7 @@ class CrmUserForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Grid::make(2)->schema([
+            Grid::make(['default' => 1, 'lg' => 2])->schema([
                 TextInput::make('name')
                     ->label('Ad Soyad')
                     ->required()

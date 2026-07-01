@@ -20,17 +20,11 @@
         <div data-poster-editor>
             <script type="application/json" data-poster-config>@json($config)</script>
 
-            <div data-poster-toolbar style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;"></div>
+            <div data-poster-toolbar class="bkd-poster-toolbar"></div>
 
-            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;">
-                <div
-                    data-poster-stage
-                    style="flex:1 1 520px;min-width:300px;background:#f1f5f9;border-radius:14px;padding:14px;overflow:auto;display:flex;justify-content:center;"
-                ></div>
-                <div
-                    data-poster-props
-                    style="width:300px;flex:0 0 300px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;"
-                ></div>
+            <div class="bkd-poster-layout">
+                <div data-poster-stage class="bkd-poster-stage"></div>
+                <div data-poster-props class="bkd-poster-props"></div>
             </div>
         </div>
     </div>
