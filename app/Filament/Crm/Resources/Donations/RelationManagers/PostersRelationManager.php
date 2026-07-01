@@ -6,6 +6,7 @@ use App\Models\Donation;
 use App\Models\PosterTemplate;
 use App\Support\Crm\DonationDocumentGenerator;
 use App\Support\Crm\PosterDataResolver;
+use App\Support\Crm\PosterWhatsAppLinkBuilder;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -68,6 +69,13 @@ class PostersRelationManager extends RelationManager
                     ->action(fn () => $this->generateAll()),
             ])
             ->recordActions([
+                Action::make('sendWhatsApp')
+                    ->label('WhatsApp ile Gönder')
+                    ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                    ->color('success')
+                    ->visible(fn ($record): bool => app(PosterWhatsAppLinkBuilder::class)->donorHasPhone($record))
+                    ->url(fn ($record): string => app(PosterWhatsAppLinkBuilder::class)->build($record) ?? '#')
+                    ->openUrlInNewTab(),
                 Action::make('preview')
                     ->label('Görüntüle')
                     ->icon(Heroicon::OutlinedEye)

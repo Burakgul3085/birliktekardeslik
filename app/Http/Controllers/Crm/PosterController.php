@@ -122,6 +122,19 @@ class PosterController extends Controller
         return response()->json(['ok' => true, 'image_url' => $poster->image_url]);
     }
 
+    /**
+     * WhatsApp ile paylaşılan imzalı genel görüntüleme linki (kimlik doğrulama gerektirmez).
+     */
+    public function publicShow(PosterDocument $poster)
+    {
+        abort_unless(
+            $poster->image_path && Storage::disk('public')->exists($poster->image_path),
+            404,
+        );
+
+        return response()->file(Storage::disk('public')->path($poster->image_path));
+    }
+
     public function downloadPng(PosterDocument $poster): StreamedResponse
     {
         abort_unless(auth('crm')->check(), 403);

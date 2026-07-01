@@ -40,6 +40,10 @@ Route::get('/sayfa/{slug}', [HomeController::class, 'page'])->name('pages.show')
 Route::get('/belge-dogrula/{code}', [CrmDocumentController::class, 'verify'])->name('crm.document.verify');
 Route::get('/makbuz-indir/{code}', [CrmDocumentController::class, 'downloadByCode'])->name('crm.document.download.public');
 
+Route::get('/afis-goster/{poster}', [PosterController::class, 'publicShow'])
+    ->middleware('signed')
+    ->name('crm.posters.public');
+
 Route::middleware('auth:crm')->group(function (): void {
     Route::get('/belge-indir/{document}', [CrmDocumentController::class, 'download'])->name('crm.documents.download');
 
