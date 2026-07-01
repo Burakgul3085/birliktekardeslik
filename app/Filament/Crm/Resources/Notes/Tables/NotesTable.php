@@ -8,12 +8,13 @@ use App\Models\CrmNote;
 use App\Models\CrmUser;
 use App\Models\Donation;
 use App\Models\Donor;
+use App\Support\Crm\CrmRecordDeleteActions;
 use App\Support\Crm\DonationDateFilter;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -24,6 +25,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class NotesTable
 {
@@ -109,15 +111,51 @@ class NotesTable
                 EditAction::make()
                     ->label('Düzenle')
                     ->visible(fn (CrmNote $record): bool => auth('crm')->user()?->canEditNote($record) ?? false),
-                DeleteAction::make()
-                    ->label('Sil')
-                    ->visible(fn (CrmNote $record): bool => auth('crm')->user()?->canDeleteNote($record) ?? false),
+                CrmRecordDeleteActions::make(
+                    authorize: fn (CrmNote $record): bool => auth('crm')->user()?->canDeleteNote($record) ?? false,
+                    visible: fn (CrmNote $record): bool => auth('crm')->user()?->canDeleteNote($record) ?? false,
+                    heading: 'Notu sil',
+                    description: 'Bu not kalıcı olarak silinecek. Bu işlem geri alınamaz.',
+                    successTitle: 'Not silindi',
+                ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->label('Seçilenleri sil')
-                        ->visible(fn (): bool => auth('crm')->user()?->canDeleteRecords() ?? false),
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Seçilen notları sil')
+                        ->modalDescription('Yetkiniz olan notlar kalıcı olarak silinecek.')
+                        ->visible(fn (): bool => auth('crm')->user()?->canWriteNotes() ?? false)
+                        ->authorize(fn (): bool => auth('crm')->user()?->canWriteNotes() ?? false)
+                        ->action(function (Collection $records): void {
+                            $user = auth('crm')->user();
+                            $deleted = 0;
+
+                            foreach ($records as $record) {
+                                if ($user?->canDeleteNote($record)) {
+                                    $record->delete();
+                                    $deleted++;
+                                }
+                            }
+
+                            if ($deleted === 0) {
+                                Notification::make()
+                                    ->title('Silinemedi')
+                                    ->body('Seçili notların hiçbiri için silme yetkiniz yok.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            Notification::make()
+                                ->title($deleted === 1 ? '1 not silindi' : "{$deleted} not silindi")
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ]);
     }

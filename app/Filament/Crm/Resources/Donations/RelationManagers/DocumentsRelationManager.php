@@ -2,12 +2,11 @@
 
 namespace App\Filament\Crm\Resources\Donations\RelationManagers;
 
+use App\Support\Crm\CrmRecordDeleteActions;
 use App\Support\Crm\DonationDocumentGenerator;
 use App\Support\Crm\ReceiptWhatsAppLinkBuilder;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -60,8 +59,8 @@ class DocumentsRelationManager extends RelationManager
                             return;
                         }
 
-                        return Storage::disk('public')->download(
-                            $record->pdf_path,
+                        return response()->download(
+                            Storage::disk('public')->path($record->pdf_path),
                             'makbuz-' . $record->verification_code . '.pdf',
                         );
                     }),
@@ -70,17 +69,22 @@ class DocumentsRelationManager extends RelationManager
                     ->icon('heroicon-o-qr-code')
                     ->url(fn ($record): string => $record->verification_url)
                     ->openUrlInNewTab(),
-                DeleteAction::make()
-                    ->label('Sil')
-                    ->visible(fn (): bool => $this->canManageDocuments())
-                    ->requiresConfirmation(),
+                CrmRecordDeleteActions::make(
+                    authorize: fn (): bool => $this->canManageDocuments(),
+                    heading: 'Makbuzu sil',
+                    description: 'Bu makbuz ve ilişkili PDF dosyası kalıcı olarak silinecek.',
+                    successTitle: 'Makbuz silindi',
+                ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->label('Seçilen makbuzları sil')
-                        ->visible(fn (): bool => $this->canManageDocuments())
-                        ->requiresConfirmation(),
+                    CrmRecordDeleteActions::makeBulk(
+                        authorize: fn (): bool => $this->canManageDocuments(),
+                        label: 'Seçilen makbuzları sil',
+                        heading: 'Seçilen makbuzları sil',
+                        description: 'Seçili makbuzlar ve PDF dosyaları kalıcı olarak silinecek.',
+                        successTitle: 'Makbuzlar silindi',
+                    ),
                 ]),
             ]);
     }

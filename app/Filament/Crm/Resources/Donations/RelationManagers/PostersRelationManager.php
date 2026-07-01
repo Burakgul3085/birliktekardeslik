@@ -4,20 +4,18 @@ namespace App\Filament\Crm\Resources\Donations\RelationManagers;
 
 use App\Models\Donation;
 use App\Models\PosterTemplate;
+use App\Support\Crm\CrmRecordDeleteActions;
 use App\Support\Crm\DonationDocumentGenerator;
 use App\Support\Crm\PosterDataResolver;
 use App\Support\Crm\PosterWhatsAppLinkBuilder;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 
 class PostersRelationManager extends RelationManager
@@ -41,7 +39,7 @@ class PostersRelationManager extends RelationManager
                 ImageColumn::make('image_path')
                     ->label('Önizleme')
                     ->disk('public')
-                    ->height(80),
+                    ->imageHeight(80),
                 TextColumn::make('type')
                     ->label('Tür')
                     ->badge()
@@ -98,17 +96,21 @@ class PostersRelationManager extends RelationManager
                     ->icon(Heroicon::OutlinedDocument)
                     ->url(fn ($record): string => route('crm.posters.download.pdf', $record))
                     ->openUrlInNewTab(),
-                DeleteAction::make()
-                    ->label('Sil')
-                    ->visible(fn (): bool => $this->canManage())
-                    ->requiresConfirmation(),
+                CrmRecordDeleteActions::make(
+                    authorize: fn (): bool => $this->canManage(),
+                    heading: 'Afişi sil',
+                    description: 'Bu afiş ve ilişkili PNG/PDF dosyaları kalıcı olarak silinecek.',
+                    successTitle: 'Afiş silindi',
+                ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->label('Seçilenleri sil')
-                        ->visible(fn (): bool => $this->canManage())
-                        ->requiresConfirmation(),
+                    CrmRecordDeleteActions::makeBulk(
+                        authorize: fn (): bool => $this->canManage(),
+                        heading: 'Seçilen afişleri sil',
+                        description: 'Seçili afişler ve dosyaları kalıcı olarak silinecek.',
+                        successTitle: 'Afişler silindi',
+                    ),
                 ]),
             ]);
     }
@@ -179,7 +181,7 @@ class PostersRelationManager extends RelationManager
             'donationId' => $donation->id,
             'type' => $type,
             'templateId' => $template->id,
-            'backgroundUrl' => Storage::disk('public')->url($template->background_path),
+            'backgroundUrl' => $template->background_url,
             'canvasWidth' => $template->canvas_width ?: null,
             'canvasHeight' => $template->canvas_height ?: null,
             'layout' => $template->layout ?? [],

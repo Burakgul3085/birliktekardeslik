@@ -2,6 +2,7 @@
 
 namespace App\Filament\Crm\Resources\Donations\RelationManagers;
 
+use App\Filament\Crm\Resources\Notes\NoteResource;
 use App\Filament\Crm\Resources\Notes\Schemas\NoteForm;
 use App\Filament\Crm\Resources\Notes\Tables\NotesTable;
 use Filament\Actions\CreateAction;
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Builder;
 class NotesRelationManager extends RelationManager
 {
     protected static string $relationship = 'crmNotes';
+
+    protected static ?string $relatedResource = NoteResource::class;
 
     protected static ?string $title = 'Notlar';
 
