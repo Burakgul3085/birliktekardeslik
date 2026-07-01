@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Crm;
 
-use App\Filament\Crm\Resources\Donations\DonationResource;
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
 use App\Models\PosterDocument;
@@ -81,7 +80,9 @@ class PosterController extends Controller
             'fonts' => \App\Filament\Crm\Resources\PosterTemplates\Pages\DesignPosterTemplate::availableFonts(),
             'placeholders' => PosterDataResolver::availablePlaceholders(),
             'saveUrl' => route('crm.posters.update', $poster),
-            'returnUrl' => DonationResource::getUrl('edit', ['record' => $poster->donation_id]),
+            // Not: Filament panel bağlamı dışında olduğumuz için getUrl() yerine
+            // bağış düzenleme yolunu manuel kuruyoruz.
+            'returnUrl' => url('/crm/donations/' . $poster->donation_id . '/edit'),
         ];
 
         return view('crm.poster.studio', [
