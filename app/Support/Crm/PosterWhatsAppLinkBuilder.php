@@ -32,6 +32,7 @@ class PosterWhatsAppLinkBuilder
         $faaliyet = $donation->project?->title ?? ($donation->donationType?->name ?? '');
 
         $publicUrl = URL::signedRoute('crm.posters.public', ['poster' => $poster->id]);
+        $downloadUrl = URL::signedRoute('crm.posters.public.download', ['poster' => $poster->id]);
 
         if ($poster->type === PosterTemplate::TYPE_THANKS) {
             $lines = [
@@ -55,6 +56,7 @@ class PosterWhatsAppLinkBuilder
 
         $lines[] = '';
         $lines[] = "Afişi görüntüleyin: {$publicUrl}";
+        $lines[] = "Afişi indirin: {$downloadUrl}";
         $lines[] = '';
         $lines[] = 'Teşekkür ederiz.';
 

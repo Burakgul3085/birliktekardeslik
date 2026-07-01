@@ -43,6 +43,9 @@ Route::get('/makbuz-indir/{code}', [CrmDocumentController::class, 'downloadByCod
 Route::get('/afis-goster/{poster}', [PosterController::class, 'publicShow'])
     ->middleware('signed')
     ->name('crm.posters.public');
+Route::get('/afis-indir/{poster}', [PosterController::class, 'publicDownload'])
+    ->middleware('signed')
+    ->name('crm.posters.public.download');
 
 Route::middleware('auth:crm')->group(function (): void {
     Route::get('/belge-indir/{document}', [CrmDocumentController::class, 'download'])->name('crm.documents.download');
