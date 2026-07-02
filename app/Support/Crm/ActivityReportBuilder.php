@@ -4,6 +4,7 @@ namespace App\Support\Crm;
 
 use App\Models\Donation;
 use App\Models\DonationType;
+use App\Models\Donor;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -24,24 +25,22 @@ class ActivityReportBuilder
 
         $projectRows = $this->buildProjectRows($baseQuery);
         $typeRows = $this->buildTypeRows($baseQuery);
+        $donorRows = $this->buildDonorRows($baseQuery);
 
-        $hasDetailSheet = filled($filters['project_id'] ?? null);
-        $detailRows = [];
-        $detailTotalCount = 0;
+        // Detay listesi artık her zaman üretilir (proje seçilmiş olsun olmasın).
+        $showProjectColumn = ! filled($filters['project_id'] ?? null);
 
-        if ($hasDetailSheet) {
-            $details = (clone $baseQuery)
-                ->with(['donor', 'donationType'])
-                ->orderByDesc('donated_at')
-                ->get();
+        $details = (clone $baseQuery)
+            ->with(['donor', 'donationType', 'project'])
+            ->orderByDesc('donated_at')
+            ->get();
 
-            $detailTotalCount = $details->count();
-            $detailRows = $details
-                ->take(10)
-                ->map(fn (Donation $donation): array => $this->mapDetailRow($donation))
-                ->values()
-                ->all();
-        }
+        $detailTotalCount = $details->count();
+        $detailRows = $details
+            ->take(10)
+            ->map(fn (Donation $donation): array => $this->mapDetailRow($donation))
+            ->values()
+            ->all();
 
         $user = auth('crm')->user();
 
@@ -52,7 +51,8 @@ class ActivityReportBuilder
                 'generated_at' => now()->format('d.m.Y H:i'),
                 'generated_by' => $user?->name ?? 'CRM',
                 'project_id' => $filters['project_id'] ?? null,
-                'has_detail_sheet' => $hasDetailSheet,
+                'has_detail_sheet' => $detailTotalCount > 0,
+                'show_project_column' => $showProjectColumn,
                 'project_slug' => $this->projectSlug($filters),
             ],
             summary: [
@@ -61,6 +61,7 @@ class ActivityReportBuilder
             ],
             projectRows: $projectRows,
             typeRows: $typeRows,
+            donorRows: $donorRows,
             detailRows: $detailRows,
             detailTotalCount: $detailTotalCount,
         );
@@ -154,10 +155,52 @@ class ActivityReportBuilder
     }
 
     /**
+     * @return array<int, array{label: string, donation_count: int, total_amount: float, average_amount: float}>
+     */
+    private function buildDonorRows(Builder $baseQuery): array
+    {
+        $aggregates = (clone $baseQuery)
+            ->reorder()
+            ->select('donor_id')
+            ->selectRaw('COUNT(*) as donations_count')
+            ->selectRaw('COALESCE(SUM(amount), 0) as total_amount')
+            ->groupBy('donor_id')
+            ->orderByDesc('total_amount')
+            ->get();
+
+        $donorIds = $aggregates->pluck('donor_id')->filter()->all();
+        $donors = Donor::query()
+            ->whereIn('id', $donorIds)
+            ->get(['id', 'first_name', 'last_name'])
+            ->keyBy('id');
+
+        return $aggregates
+            ->map(function ($row) use ($donors): array {
+                $count = (int) $row->donations_count;
+                $total = (float) $row->total_amount;
+                $donor = $donors[$row->donor_id] ?? null;
+                $label = $donor
+                    ? trim($donor->first_name . ' ' . $donor->last_name)
+                    : 'Bilinmeyen bağışçı';
+
+                return [
+                    'label' => $label !== '' ? $label : 'Bilinmeyen bağışçı',
+                    'donation_count' => $count,
+                    'total_amount' => $total,
+                    'average_amount' => $count > 0 ? $total / $count : 0.0,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array{
      *     donation_number: string,
      *     receipt_number: string,
      *     donor_name: string,
+     *     phone: string,
+     *     project: string,
      *     amount: float,
      *     currency: string,
      *     donated_at: string,
@@ -167,10 +210,14 @@ class ActivityReportBuilder
      */
     private function mapDetailRow(Donation $donation): array
     {
+        $donorName = trim(($donation->donor?->first_name ?? '') . ' ' . ($donation->donor?->last_name ?? ''));
+
         return [
             'donation_number' => (string) ($donation->donation_number ?? ''),
             'receipt_number' => (string) ($donation->receipt_number ?? ''),
-            'donor_name' => trim(($donation->donor?->first_name ?? '') . ' ' . ($donation->donor?->last_name ?? '')),
+            'donor_name' => $donorName !== '' ? $donorName : 'Bilinmeyen bağışçı',
+            'phone' => (string) ($donation->donor?->phone ?? ''),
+            'project' => (string) ($donation->project?->title ?? 'Proje atanmamış'),
             'amount' => (float) $donation->amount,
             'currency' => (string) ($donation->currency ?? 'TRY'),
             'donated_at' => $donation->donated_at?->format('d.m.Y H:i') ?? '',
@@ -200,12 +247,8 @@ class ActivityReportBuilder
     {
         $filters = ActivityReportFilterResolver::normalize($filters);
 
-        if (! filled($filters['project_id'] ?? null)) {
-            return collect();
-        }
-
         return $this->baseQuery($filters)
-            ->with(['donor', 'donationType'])
+            ->with(['donor', 'donationType', 'project'])
             ->orderByDesc('donated_at')
             ->get();
     }

@@ -7,28 +7,21 @@ use App\Models\Setting;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\CellAlignment;
-use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ActivitySpreadsheetExporter extends CorporateSpreadsheet
 {
+    private const SUMMARY_SHEET = 0;
+
+    private const DETAIL_SHEET = 1;
+
     private const PROJECT_HEADERS = ['Sıra', 'Proje / Faaliyet', 'Bağış Adedi', 'Toplam Tutar (TRY)', 'Ort. Bağış (TRY)'];
 
-    private const TYPE_HEADERS = ['Sıra', 'Bağış Türü', 'Bağış Adedi', 'Toplam Tutar (TRY)'];
+    private const DONOR_HEADERS = ['Sıra', 'Bağışçı', 'Bağış Adedi', 'Toplam Tutar (TRY)', 'Ort. Bağış (TRY)'];
 
-    private const DETAIL_HEADERS = [
-        'Sıra',
-        'Bağış No',
-        'Makbuz No',
-        'Bağışçı',
-        'Tutar',
-        'Para Birimi',
-        'Bağış Tarihi',
-        'Bağış Türü',
-        'Açıklama',
-    ];
+    private const TYPE_HEADERS = ['Sıra', 'Bağış Türü', 'Bağış Adedi', 'Toplam Tutar (TRY)'];
 
     public static function download(ActivityReportResult $report, ?string $filename = null): StreamedResponse
     {
@@ -68,15 +61,11 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
     {
         $lastColumn = count(self::PROJECT_HEADERS) - 1;
 
-        foreach (self::PROJECT_HEADERS as $i => $width) {
-            $options->setColumnWidth(match ($i) {
-                0 => 6.0,
-                1 => 34.0,
-                2 => 14.0,
-                3 => 18.0,
-                default => 16.0,
-            }, $i + 1);
+        foreach ([6.0, 34.0, 14.0, 18.0, 16.0] as $i => $width) {
+            $options->setColumnWidth($width, $i + 1);
         }
+
+        $rowNum = 0;
 
         $metaLine = sprintf(
             'Dönem: %s          Faaliyet: %s          Oluşturma: %s          Hazırlayan: %s',
@@ -95,34 +84,67 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
         $bands = self::titleBands(Setting::current(), 'FAALİYET RAPORU', $metaLine);
         $bands[] = [$summaryLine, self::metaStyle()];
 
-        $titleRowCount = count($bands);
-        for ($r = 1; $r <= $titleRowCount; $r++) {
-            $options->mergeCells(0, $r, $lastColumn, $r);
-        }
-
         foreach ($bands as [$value, $style]) {
             $writer->addRow(self::bandRow($value, $lastColumn, $style));
+            $rowNum++;
+            $options->mergeCells(0, $rowNum, $lastColumn, $rowNum, self::SUMMARY_SHEET);
         }
 
-        $writer->addRow(new Row([Cell::fromValue('', self::cellStyle(false))]));
+        self::spacer($writer, $rowNum);
 
-        self::writeSectionTitle($writer, 'Proje / Faaliyet Özeti', $lastColumn);
-        self::writeProjectTable($writer, $report, $lastColumn, $options);
+        self::writeSectionTitle($writer, $rowNum, 'Proje / Faaliyet Özeti', $lastColumn);
+        self::writeMetricTable(
+            $writer,
+            $rowNum,
+            $options,
+            self::PROJECT_HEADERS,
+            $report->projectRows,
+            $report->summary['donation_count'],
+            $report->summary['total_amount'],
+        );
 
-        $writer->addRow(new Row([Cell::fromValue('', self::cellStyle(false))]));
+        self::spacer($writer, $rowNum);
 
-        self::writeSectionTitle($writer, 'Bağış Türü Özeti (bilgi)', $lastColumn);
-        self::writeTypeTable($writer, $report, $lastColumn);
+        self::writeSectionTitle($writer, $rowNum, 'Bağışçı Bazlı Özet', $lastColumn);
+        self::writeMetricTable(
+            $writer,
+            $rowNum,
+            $options,
+            self::DONOR_HEADERS,
+            $report->donorRows,
+            $report->summary['donation_count'],
+            $report->summary['total_amount'],
+        );
+
+        self::spacer($writer, $rowNum);
+
+        self::writeSectionTitle($writer, $rowNum, 'Bağış Türü Özeti (bilgi)', $lastColumn);
+        self::writeTypeTable($writer, $rowNum, $report, $lastColumn);
     }
 
     private static function writeDetailSheet(Writer $writer, ActivityReportResult $report, Options $options): void
     {
-        $lastColumn = count(self::DETAIL_HEADERS) - 1;
-        $amountColumn = 4;
+        $showProject = (bool) ($report->meta['show_project_column'] ?? false);
 
-        foreach ([8.0, 18.0, 16.0, 24.0, 14.0, 12.0, 18.0, 18.0, 30.0] as $i => $width) {
+        $headers = ['Sıra', 'Bağış No', 'Makbuz No', 'Bağışçı', 'Telefon'];
+        $widths = [8.0, 18.0, 16.0, 24.0, 16.0];
+
+        if ($showProject) {
+            $headers[] = 'Proje / Faaliyet';
+            $widths[] = 26.0;
+        }
+
+        $headers = array_merge($headers, ['Tutar', 'Para Birimi', 'Bağış Tarihi', 'Bağış Türü', 'Açıklama']);
+        $widths = array_merge($widths, [14.0, 12.0, 18.0, 18.0, 30.0]);
+
+        $lastColumn = count($headers) - 1;
+        $amountColumn = array_search('Tutar', $headers, true);
+
+        foreach ($widths as $i => $width) {
             $options->setColumnWidth($width, $i + 1);
         }
+
+        $rowNum = 0;
 
         $metaLine = sprintf(
             'Faaliyet: %s          Dönem: %s          Toplam kayıt: %d',
@@ -132,21 +154,19 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
         );
 
         $bands = self::titleBands(Setting::current(), 'BAĞIŞ DETAY LİSTESİ', $metaLine);
-        $titleRowCount = count($bands);
-
-        for ($r = 1; $r <= $titleRowCount; $r++) {
-            $options->mergeCells(0, $r, $lastColumn, $r);
-        }
 
         foreach ($bands as [$value, $style]) {
             $writer->addRow(self::bandRow($value, $lastColumn, $style));
+            $rowNum++;
+            $options->mergeCells(0, $rowNum, $lastColumn, $rowNum, self::DETAIL_SHEET);
         }
 
         $headerCells = [];
-        foreach (self::DETAIL_HEADERS as $header) {
+        foreach ($headers as $header) {
             $headerCells[] = Cell::fromValue($header, self::headerStyle());
         }
         $writer->addRow(new Row($headerCells));
+        $rowNum++;
 
         $builder = app(ActivityReportBuilder::class);
         $filters = ActivityReportFilterResolver::get();
@@ -160,28 +180,39 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
         foreach ($builder->detailDonations($filters) as $donation) {
             /** @var Donation $donation */
             $index++;
+            $rowNum++;
             $zebra = ($index % 2) === 0;
             $text = self::cellStyle($zebra);
             $center = self::cellStyle($zebra, CellAlignment::CENTER);
             $amountStyle = self::amountStyle($zebra);
             $totalAmount += (float) $donation->amount;
 
-            $writer->addRow(new Row([
+            $donorName = trim(($donation->donor?->first_name ?? '') . ' ' . ($donation->donor?->last_name ?? ''));
+
+            $cells = [
                 Cell::fromValue($index, $center),
                 Cell::fromValue($donation->donation_number ?? '', $text),
                 Cell::fromValue($donation->receipt_number ?? '', $text),
-                Cell::fromValue(trim(($donation->donor?->first_name ?? '') . ' ' . ($donation->donor?->last_name ?? '')), $text),
+                Cell::fromValue($donorName !== '' ? $donorName : 'Bilinmeyen bağışçı', $text),
+                Cell::fromValue($donation->donor?->phone ?? '', $text),
+            ];
+
+            if ($showProject) {
+                $cells[] = Cell::fromValue($donation->project?->title ?? 'Proje atanmamış', $text);
+            }
+
+            $cells = array_merge($cells, [
                 Cell::fromValue((float) $donation->amount, $amountStyle),
                 Cell::fromValue($donation->currency ?? 'TRY', $center),
                 Cell::fromValue($donation->donated_at?->format('d.m.Y H:i') ?? '', $center),
                 Cell::fromValue($donation->donationType?->name ?? '', $text),
                 Cell::fromValue($donation->description ?? '', $text),
-            ]));
+            ]);
+
+            $writer->addRow(new Row($cells));
         }
 
-        $totalsRow = $titleRowCount + 2 + max($index, 0);
-        $options->mergeCells(0, $totalsRow, $amountColumn - 1, $totalsRow);
-
+        $rowNum++;
         $cells = [Cell::fromValue('GENEL TOPLAM', self::totalsLabelStyle())];
         for ($i = 1; $i < $amountColumn; $i++) {
             $cells[] = Cell::fromValue('', self::totalsLabelStyle());
@@ -190,26 +221,46 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
         for ($i = $amountColumn + 1; $i <= $lastColumn; $i++) {
             $cells[] = Cell::fromValue('', self::totalsCellStyle());
         }
-
         $writer->addRow(new Row($cells));
+        $options->mergeCells(0, $rowNum, $amountColumn - 1, $rowNum, self::DETAIL_SHEET);
     }
 
-    private static function writeSectionTitle(Writer $writer, string $title, int $lastColumn): void
+    private static function spacer(Writer $writer, int &$rowNum): void
+    {
+        $writer->addRow(new Row([Cell::fromValue('', self::cellStyle(false))]));
+        $rowNum++;
+    }
+
+    private static function writeSectionTitle(Writer $writer, int &$rowNum, string $title, int $lastColumn): void
     {
         $writer->addRow(self::bandRow($title, $lastColumn, self::subtitleStyle()));
+        $rowNum++;
     }
 
-    private static function writeProjectTable(Writer $writer, ActivityReportResult $report, int $lastColumn, Options $options): void
-    {
+    /**
+     * @param  array<int, string>  $headers
+     * @param  array<int, array{label: string, donation_count: int, total_amount: float, average_amount: float}>  $rows
+     */
+    private static function writeMetricTable(
+        Writer $writer,
+        int &$rowNum,
+        Options $options,
+        array $headers,
+        array $rows,
+        int $summaryCount,
+        float $summaryTotal,
+    ): void {
         $headerCells = [];
-        foreach (self::PROJECT_HEADERS as $header) {
+        foreach ($headers as $header) {
             $headerCells[] = Cell::fromValue($header, self::headerStyle());
         }
         $writer->addRow(new Row($headerCells));
+        $rowNum++;
 
         $index = 0;
-        foreach ($report->projectRows as $row) {
+        foreach ($rows as $row) {
             $index++;
+            $rowNum++;
             $zebra = ($index % 2) === 0;
             $writer->addRow(new Row([
                 Cell::fromValue($index, self::cellStyle($zebra, CellAlignment::CENTER)),
@@ -220,30 +271,30 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
             ]));
         }
 
-        $totalsRow = count($report->projectRows) + 8;
-        $options->mergeCells(0, $totalsRow, 2, $totalsRow);
-
-        $cells = [
+        $rowNum++;
+        $writer->addRow(new Row([
             Cell::fromValue('GENEL TOPLAM', self::totalsLabelStyle()),
             Cell::fromValue('', self::totalsLabelStyle()),
-            Cell::fromValue($report->summary['donation_count'], self::totalsCellStyle()),
-            Cell::fromValue($report->summary['total_amount'], self::totalsAmountStyle()),
+            Cell::fromValue($summaryCount, self::totalsCellStyle()),
+            Cell::fromValue($summaryTotal, self::totalsAmountStyle()),
             Cell::fromValue('', self::totalsCellStyle()),
-        ];
-        $writer->addRow(new Row($cells));
+        ]));
+        $options->mergeCells(0, $rowNum, 1, $rowNum, self::SUMMARY_SHEET);
     }
 
-    private static function writeTypeTable(Writer $writer, ActivityReportResult $report, int $lastColumn): void
+    private static function writeTypeTable(Writer $writer, int &$rowNum, ActivityReportResult $report, int $lastColumn): void
     {
         $headerCells = [];
         foreach (self::TYPE_HEADERS as $header) {
             $headerCells[] = Cell::fromValue($header, self::headerStyle());
         }
         $writer->addRow(new Row($headerCells));
+        $rowNum++;
 
         $index = 0;
         foreach ($report->typeRows as $row) {
             $index++;
+            $rowNum++;
             $zebra = ($index % 2) === 0;
             $cells = [
                 Cell::fromValue($index, self::cellStyle($zebra, CellAlignment::CENTER)),

@@ -9,6 +9,8 @@ namespace App\Support\Crm;
  *     donation_number: string,
  *     receipt_number: string,
  *     donor_name: string,
+ *     phone: string,
+ *     project: string,
  *     amount: float,
  *     currency: string,
  *     donated_at: string,
@@ -22,6 +24,7 @@ namespace App\Support\Crm;
  *     generated_by: string,
  *     project_id: int|null,
  *     has_detail_sheet: bool,
+ *     show_project_column: bool,
  * }
  */
 class ActivityReportResult
@@ -30,6 +33,7 @@ class ActivityReportResult
      * @param  SummaryArray  $summary
      * @param  array<int, RowArray>  $projectRows
      * @param  array<int, RowArray>  $typeRows
+     * @param  array<int, RowArray>  $donorRows
      * @param  array<int, DetailRowArray>  $detailRows
      */
     public function __construct(
@@ -37,6 +41,7 @@ class ActivityReportResult
         public readonly array $summary,
         public readonly array $projectRows,
         public readonly array $typeRows,
+        public readonly array $donorRows,
         public readonly array $detailRows,
         public readonly int $detailTotalCount,
     ) {}
@@ -51,6 +56,7 @@ class ActivityReportResult
             'summary' => $this->summary,
             'project_rows' => $this->projectRows,
             'type_rows' => $this->typeRows,
+            'donor_rows' => $this->donorRows,
             'detail_rows' => $this->detailRows,
             'detail_total_count' => $this->detailTotalCount,
         ];
