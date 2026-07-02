@@ -248,7 +248,7 @@ class ActivityReportBuilder
         $filters = ActivityReportFilterResolver::normalize($filters);
 
         return $this->baseQuery($filters)
-            ->with(['donor', 'donationType', 'project'])
+            ->with(['donor', 'donationType', 'project', 'paymentMethod'])
             ->orderByDesc('donated_at')
             ->get();
     }
