@@ -15,9 +15,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Faaliyet raporu için kapsamlı, çok sayfalı kurumsal Excel üretir.
  *
+ * Uygulanan filtre (dönem + faaliyet) ne olursa olsun, aşağıdaki sayfalarda
+ * o filtreye giren TÜM bağışların eksiksiz dökümü yer alır:
+ *
  * Sayfa 1 - Özet: proje, bağışçı ve tür bazlı özet tabloları.
  * Sayfa 2 - Bağış Detayları: tüm bağışların tek listede satır satır dökümü.
  * Sayfa 3 - Proje Bazlı Kırılım: her faaliyet altında kim ne kadar bağış yapmış.
+ * Sayfa 4 - Bağışçı Bazlı Kırılım: her bağışçının yaptığı tüm bağışların detayı.
  */
 class ActivitySpreadsheetExporter extends CorporateSpreadsheet
 {
@@ -25,7 +29,9 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
 
     private const SHEET_DETAIL = 1;
 
-    private const SHEET_GROUPED = 2;
+    private const SHEET_BY_PROJECT = 2;
+
+    private const SHEET_BY_DONOR = 3;
 
     /** @var array<int, string> */
     private const METRIC_HEADERS_PROJECT = ['Sıra', 'Proje / Faaliyet', 'Bağış Adedi', 'Toplam Tutar (TRY)', 'Ort. Bağış (TRY)'];
@@ -35,6 +41,9 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
 
     /** @var array<int, string> */
     private const METRIC_HEADERS_TYPE = ['Sıra', 'Bağış Türü', 'Bağış Adedi', 'Toplam Tutar (TRY)', 'Ort. Bağış (TRY)'];
+
+    /** @var array<int, float> */
+    private const SUMMARY_WIDTHS = [6.0, 40.0, 14.0, 20.0, 18.0];
 
     /** @var array<int, string> */
     private const DETAIL_HEADERS = [
@@ -49,18 +58,26 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
     private const DETAIL_AMOUNT_COL = 8;
 
     /** @var array<int, string> */
-    private const GROUPED_HEADERS = [
+    private const BY_PROJECT_HEADERS = [
         'Sıra', 'Bağışçı', 'Telefon', 'Bağış Türü', 'Ödeme Türü',
         'Tutar (TRY)', 'Bağış Tarihi', 'Makbuz No', 'Açıklama',
     ];
 
     /** @var array<int, float> */
-    private const GROUPED_WIDTHS = [6.0, 24.0, 15.0, 18.0, 16.0, 15.0, 18.0, 16.0, 34.0];
+    private const BY_PROJECT_WIDTHS = [6.0, 24.0, 15.0, 18.0, 16.0, 15.0, 18.0, 16.0, 34.0];
 
-    private const GROUPED_AMOUNT_COL = 5;
+    private const BY_PROJECT_AMOUNT_COL = 5;
+
+    /** @var array<int, string> */
+    private const BY_DONOR_HEADERS = [
+        'Sıra', 'Bağış No', 'Makbuz No', 'Proje / Faaliyet', 'Bağış Türü',
+        'Ödeme Türü', 'Tutar (TRY)', 'Bağış Tarihi', 'Açıklama',
+    ];
 
     /** @var array<int, float> */
-    private const SUMMARY_WIDTHS = [6.0, 40.0, 14.0, 20.0, 18.0];
+    private const BY_DONOR_WIDTHS = [6.0, 16.0, 16.0, 26.0, 18.0, 16.0, 15.0, 18.0, 34.0];
+
+    private const BY_DONOR_AMOUNT_COL = 6;
 
     public static function download(ActivityReportResult $report, ?string $filename = null): StreamedResponse
     {
@@ -93,7 +110,7 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
         self::applyWidths($writer, self::SUMMARY_WIDTHS);
         self::writeSummarySheet($writer, $report, $options);
 
-        // Sayfa 2 — Bağış Detayları
+        // Sayfa 2 — Bağış Detayları (düz liste)
         $writer->addNewSheetAndMakeItCurrent();
         $writer->getCurrentSheet()->setName('Bağış Detayları');
         self::applyWidths($writer, self::DETAIL_WIDTHS);
@@ -102,8 +119,14 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
         // Sayfa 3 — Proje Bazlı Kırılım
         $writer->addNewSheetAndMakeItCurrent();
         $writer->getCurrentSheet()->setName('Proje Bazlı Kırılım');
-        self::applyWidths($writer, self::GROUPED_WIDTHS);
-        self::writeGroupedSheet($writer, $report, $options, $donations);
+        self::applyWidths($writer, self::BY_PROJECT_WIDTHS);
+        self::writeByProjectSheet($writer, $report, $options, $donations);
+
+        // Sayfa 4 — Bağışçı Bazlı Kırılım
+        $writer->addNewSheetAndMakeItCurrent();
+        $writer->getCurrentSheet()->setName('Bağışçı Bazlı Kırılım');
+        self::applyWidths($writer, self::BY_DONOR_WIDTHS);
+        self::writeByDonorSheet($writer, $report, $options, $donations);
 
         $writer->close();
     }
@@ -284,36 +307,107 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
     }
 
     // ---------------------------------------------------------------------
-    // Sayfa 3 — Proje Bazlı Kırılım (gruplu)
+    // Sayfa 3 — Proje Bazlı Kırılım
     // ---------------------------------------------------------------------
 
     /**
      * @param  Collection<int, Donation>  $donations
      */
-    private static function writeGroupedSheet(Writer $writer, ActivityReportResult $report, Options $options, Collection $donations): void
+    private static function writeByProjectSheet(Writer $writer, ActivityReportResult $report, Options $options, Collection $donations): void
     {
-        $lastColumn = count(self::GROUPED_HEADERS) - 1;
-        $amountColumn = self::GROUPED_AMOUNT_COL;
+        self::writeGroupedSheet(
+            $writer,
+            $options,
+            self::SHEET_BY_PROJECT,
+            'PROJE / FAALİYET BAZLI KIRILIM',
+            sprintf('Her faaliyet altında kimin ne kadar bağış yaptığı gösterilir.          Dönem: %s', $report->meta['period_label']),
+            $donations,
+            self::BY_PROJECT_HEADERS,
+            self::BY_PROJECT_AMOUNT_COL,
+            fn (Donation $donation): string => $donation->project?->title ?? 'Proje atanmamış',
+            fn (Donation $donation, bool $zebra): array => [
+                Cell::fromValue(self::donorName($donation), self::cellStyle($zebra)),
+                Cell::fromValue($donation->donor?->phone ?? '', self::cellStyle($zebra)),
+                Cell::fromValue($donation->donationType?->name ?? '', self::cellStyle($zebra)),
+                Cell::fromValue($donation->paymentMethod?->name ?? '', self::cellStyle($zebra)),
+                Cell::fromValue((float) $donation->amount, self::amountStyle($zebra)),
+                Cell::fromValue($donation->donated_at?->format('d.m.Y H:i') ?? '', self::cellStyle($zebra, CellAlignment::CENTER)),
+                Cell::fromValue($donation->receipt_number ?? '', self::cellStyle($zebra)),
+                Cell::fromValue($donation->description ?? '', self::cellStyle($zebra)),
+            ],
+        );
+    }
+
+    // ---------------------------------------------------------------------
+    // Sayfa 4 — Bağışçı Bazlı Kırılım
+    // ---------------------------------------------------------------------
+
+    /**
+     * @param  Collection<int, Donation>  $donations
+     */
+    private static function writeByDonorSheet(Writer $writer, ActivityReportResult $report, Options $options, Collection $donations): void
+    {
+        self::writeGroupedSheet(
+            $writer,
+            $options,
+            self::SHEET_BY_DONOR,
+            'BAĞIŞÇI BAZLI KIRILIM',
+            sprintf('Her bağışçının yaptığı tüm bağışların detayı gösterilir.          Dönem: %s', $report->meta['period_label']),
+            $donations,
+            self::BY_DONOR_HEADERS,
+            self::BY_DONOR_AMOUNT_COL,
+            fn (Donation $donation): string => self::donorName($donation)
+                . ($donation->donor?->phone ? ' (' . $donation->donor->phone . ')' : ''),
+            fn (Donation $donation, bool $zebra): array => [
+                Cell::fromValue($donation->donation_number ?? '', self::cellStyle($zebra)),
+                Cell::fromValue($donation->receipt_number ?? '', self::cellStyle($zebra)),
+                Cell::fromValue($donation->project?->title ?? 'Proje atanmamış', self::cellStyle($zebra)),
+                Cell::fromValue($donation->donationType?->name ?? '', self::cellStyle($zebra)),
+                Cell::fromValue($donation->paymentMethod?->name ?? '', self::cellStyle($zebra)),
+                Cell::fromValue((float) $donation->amount, self::amountStyle($zebra)),
+                Cell::fromValue($donation->donated_at?->format('d.m.Y H:i') ?? '', self::cellStyle($zebra, CellAlignment::CENTER)),
+                Cell::fromValue($donation->description ?? '', self::cellStyle($zebra)),
+            ],
+        );
+    }
+
+    /**
+     * Bağışları verilen anahtara göre gruplayıp, her grup için alt-başlık,
+     * tablo başlığı, satırlar ve ara toplam yazar. En sonda genel toplam.
+     *
+     * @param  Collection<int, Donation>  $donations
+     * @param  array<int, string>  $headers
+     * @param  callable(Donation): string  $groupKey
+     * @param  callable(Donation, bool): array<int, Cell>  $rowCells  Sıra sütunu HARİÇ hücreler (zebra durumuna göre stillenmiş).
+     */
+    private static function writeGroupedSheet(
+        Writer $writer,
+        Options $options,
+        int $sheetIndex,
+        string $title,
+        string $metaLine,
+        Collection $donations,
+        array $headers,
+        int $amountColumn,
+        callable $groupKey,
+        callable $rowCells,
+    ): void {
+        $lastColumn = count($headers) - 1;
         $rowNum = 0;
 
-        $metaLine = sprintf(
-            'Her faaliyet altında kimin ne kadar bağış yaptığı gösterilir.          Dönem: %s',
-            $report->meta['period_label'],
-        );
-
-        foreach (self::titleBands(Setting::current(), 'PROJE / FAALİYET BAZLI KIRILIM', $metaLine) as [$value, $style]) {
+        foreach (self::titleBands(Setting::current(), $title, $metaLine) as [$value, $style]) {
             $writer->addRow(self::bandRow($value, $lastColumn, $style));
             $rowNum++;
-            $options->mergeCells(0, $rowNum, $lastColumn, $rowNum, self::SHEET_GROUPED);
+            $options->mergeCells(0, $rowNum, $lastColumn, $rowNum, $sheetIndex);
         }
 
         $groups = $donations
-            ->groupBy(fn (Donation $donation): string => $donation->project?->title ?? 'Proje atanmamış')
+            ->groupBy($groupKey)
             ->sortByDesc(fn (Collection $group): float => (float) $group->sum('amount'));
 
         $grandTotal = 0.0;
 
-        foreach ($groups as $projectTitle => $group) {
+        foreach ($groups as $groupLabel => $group) {
             /** @var Collection<int, Donation> $group */
             $groupTotal = (float) $group->sum('amount');
             $grandTotal += $groupTotal;
@@ -322,16 +416,16 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
 
             $groupHeader = sprintf(
                 '%s  —  %d bağış • %s TRY',
-                $projectTitle,
+                $groupLabel,
                 $group->count(),
                 self::money($groupTotal),
             );
             $writer->addRow(self::bandRow($groupHeader, $lastColumn, self::subtitleStyle()));
             $rowNum++;
-            $options->mergeCells(0, $rowNum, $lastColumn, $rowNum, self::SHEET_GROUPED);
+            $options->mergeCells(0, $rowNum, $lastColumn, $rowNum, $sheetIndex);
 
             $headerCells = [];
-            foreach (self::GROUPED_HEADERS as $header) {
+            foreach ($headers as $header) {
                 $headerCells[] = Cell::fromValue($header, self::headerStyle());
             }
             $writer->addRow(new Row($headerCells));
@@ -342,31 +436,25 @@ class ActivitySpreadsheetExporter extends CorporateSpreadsheet
                 $index++;
                 $rowNum++;
                 $zebra = ($index % 2) === 0;
-                $text = self::cellStyle($zebra);
-                $center = self::cellStyle($zebra, CellAlignment::CENTER);
 
-                $writer->addRow(new Row([
-                    Cell::fromValue($index, $center),
-                    Cell::fromValue(self::donorName($donation), $text),
-                    Cell::fromValue($donation->donor?->phone ?? '', $text),
-                    Cell::fromValue($donation->donationType?->name ?? '', $text),
-                    Cell::fromValue($donation->paymentMethod?->name ?? '', $text),
-                    Cell::fromValue((float) $donation->amount, self::amountStyle($zebra)),
-                    Cell::fromValue($donation->donated_at?->format('d.m.Y H:i') ?? '', $center),
-                    Cell::fromValue($donation->receipt_number ?? '', $text),
-                    Cell::fromValue($donation->description ?? '', $text),
-                ]));
+                $cells = [Cell::fromValue($index, self::cellStyle($zebra, CellAlignment::CENTER))];
+
+                foreach ($rowCells($donation, $zebra) as $cell) {
+                    $cells[] = $cell;
+                }
+
+                $writer->addRow(new Row($cells));
             }
 
             $rowNum++;
             self::totalsRow($writer, $lastColumn, $amountColumn, 'ARA TOPLAM', $groupTotal);
-            $options->mergeCells(0, $rowNum, $amountColumn - 1, $rowNum, self::SHEET_GROUPED);
+            $options->mergeCells(0, $rowNum, $amountColumn - 1, $rowNum, $sheetIndex);
         }
 
         self::spacer($writer, $rowNum);
         $rowNum++;
         self::totalsRow($writer, $lastColumn, $amountColumn, 'GENEL TOPLAM', $grandTotal);
-        $options->mergeCells(0, $rowNum, $amountColumn - 1, $rowNum, self::SHEET_GROUPED);
+        $options->mergeCells(0, $rowNum, $amountColumn - 1, $rowNum, $sheetIndex);
     }
 
     // ---------------------------------------------------------------------
