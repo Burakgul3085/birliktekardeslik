@@ -24,13 +24,13 @@ class DonationTypeResource extends Resource
 
     protected static ?string $navigationLabel = 'Bağış Türleri';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Bağış Yönetimi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Liste Tanımları';
 
     protected static ?string $modelLabel = 'Bağış Türü';
 
     protected static ?string $pluralModelLabel = 'Bağış Türleri';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     protected static function crmUser(): ?CrmUser
     {

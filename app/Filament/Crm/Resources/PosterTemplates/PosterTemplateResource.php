@@ -31,13 +31,13 @@ class PosterTemplateResource extends Resource
 
     protected static ?string $navigationLabel = 'Afiş Şablonları';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Bağış Yönetimi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Afiş Yönetimi';
 
     protected static ?string $modelLabel = 'Afiş Şablonu';
 
     protected static ?string $pluralModelLabel = 'Afiş Şablonları';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     protected static function crmUser(): ?CrmUser
     {

@@ -23,6 +23,8 @@ class CrmDashboard extends BaseDashboard
 
     protected static ?string $title = 'Genel Bakış';
 
+    protected static ?int $navigationSort = -2;
+
     public function mount(): void
     {
         $this->filters = DashboardFilterResolver::store($this->filters ?? []);

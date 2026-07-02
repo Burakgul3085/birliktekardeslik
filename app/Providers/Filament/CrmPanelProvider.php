@@ -10,6 +10,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -58,6 +59,13 @@ class CrmPanelProvider extends PanelProvider
             ])
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
+            ->navigationGroups([
+                NavigationGroup::make('Bağış Kayıtları'),
+                NavigationGroup::make('Liste Tanımları'),
+                NavigationGroup::make('Notlar'),
+                NavigationGroup::make('Afiş Yönetimi'),
+                NavigationGroup::make('Sistem'),
+            ])
             ->discoverResources(in: app_path('Filament/Crm/Resources'), for: 'App\Filament\Crm\Resources')
             ->discoverPages(in: app_path('Filament/Crm/Pages'), for: 'App\Filament\Crm\Pages')
             ->pages([

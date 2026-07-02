@@ -24,13 +24,13 @@ class CrmProjectResource extends Resource
 
     protected static ?string $navigationLabel = 'Proje / Faaliyetler';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Bağış Yönetimi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Liste Tanımları';
 
     protected static ?string $modelLabel = 'Proje / Faaliyet';
 
     protected static ?string $pluralModelLabel = 'Proje / Faaliyetler';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $slug = 'faaliyetler';
 

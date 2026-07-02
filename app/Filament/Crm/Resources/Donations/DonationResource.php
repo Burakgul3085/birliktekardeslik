@@ -26,7 +26,7 @@ class DonationResource extends Resource
 
     protected static ?string $navigationLabel = 'Bağışlar';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Bağış Yönetimi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Bağış Kayıtları';
 
     protected static ?string $modelLabel = 'Bağış';
 
