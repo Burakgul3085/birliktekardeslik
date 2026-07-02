@@ -64,6 +64,7 @@ class CrmPanelProvider extends PanelProvider
                 NavigationGroup::make('Liste Tanımları'),
                 NavigationGroup::make('Notlar'),
                 NavigationGroup::make('Afiş Yönetimi'),
+                NavigationGroup::make('Raporlar'),
                 NavigationGroup::make('Sistem'),
             ])
             ->discoverResources(in: app_path('Filament/Crm/Resources'), for: 'App\Filament\Crm\Resources')

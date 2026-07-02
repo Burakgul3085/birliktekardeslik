@@ -97,6 +97,133 @@
         -webkit-overflow-scrolling: touch;
     }
 
+    /* Faaliyet raporları */
+    .crm-activity-report {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .crm-activity-report__meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+        padding: 1rem 1.1rem;
+        background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+        border: 1px solid #99f6e4;
+        border-radius: 14px;
+    }
+
+    .crm-activity-report__meta-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 0.2rem;
+    }
+
+    .crm-activity-report__stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .crm-activity-report__stat-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 1rem 1.1rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .crm-activity-report__stat-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+    }
+
+    .crm-activity-report__stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #0f766e;
+        line-height: 1.2;
+    }
+
+    .crm-activity-report__section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.65rem;
+    }
+
+    .crm-activity-report__hint {
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: #64748b;
+    }
+
+    .crm-activity-report__table-wrap {
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #fff;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .crm-activity-report__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+    .crm-activity-report__table th,
+    .crm-activity-report__table td {
+        padding: 0.65rem 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .crm-activity-report__table th {
+        background: #0f766e;
+        color: #fff;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .crm-activity-report__table tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+
+    .crm-activity-report__table tbody tr:hover {
+        background: #f0fdfa;
+    }
+
+    .crm-activity-report__table td.is-amount,
+    .crm-activity-report__table tfoot td {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .crm-activity-report__table tfoot td {
+        background: #e2e8f0;
+        font-weight: 700;
+        color: #0f766e;
+        border-bottom: none;
+    }
+
+    .crm-activity-report__table td.is-empty {
+        text-align: center;
+        color: #94a3b8;
+        padding: 1.25rem;
+    }
+
+    .crm-activity-report-filters > .fi-section {
+        margin-bottom: 0.25rem;
+    }
+
     @media (max-width: 768px) {
         #bkd-live-clock {
             display: none !important;
