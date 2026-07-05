@@ -96,6 +96,19 @@ function padOf(width) {
     return Math.min(30, Math.max(6, Math.round(width * 0.02)));
 }
 
+/** Aynı origin için crossOrigin gönderme; farklı origin'de canvas export için anonymous. */
+function imageLoadOptions(url) {
+    try {
+        const resolved = new URL(url, window.location.origin);
+        if (resolved.origin !== window.location.origin) {
+            return { crossOrigin: 'anonymous' };
+        }
+    } catch (e) {
+        /* yoksay */
+    }
+    return {};
+}
+
 function maxLineWidth(text) {
     try {
         const n = text.textLines ? text.textLines.length : 0;
@@ -190,13 +203,14 @@ class PosterCanvas {
             try {
                 bgImg = await this.fabric.FabricImage.fromURL(
                     this.config.backgroundUrl,
-                    { crossOrigin: 'anonymous' },
+                    imageLoadOptions(this.config.backgroundUrl),
                 );
                 if (!this.naturalW || !this.naturalH) {
                     this.naturalW = bgImg.width;
                     this.naturalH = bgImg.height;
                 }
             } catch (e) {
+                console.error('Afiş arka planı yüklenemedi:', this.config.backgroundUrl, e);
                 bgImg = null;
             }
         }

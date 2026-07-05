@@ -51,9 +51,12 @@ class PosterTemplate extends Model
 
     public function getBackgroundUrlAttribute(): ?string
     {
-        return $this->background_path
-            ? Storage::disk('public')->url($this->background_path)
-            : null;
+        if (! $this->background_path) {
+            return null;
+        }
+
+        // Göreli yol: görsel her zaman bulunulan domain'den yüklenir (www / non-www CORS uyuşmazlığını önler).
+        return '/storage/' . ltrim($this->background_path, '/');
     }
 
     /**
