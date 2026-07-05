@@ -27,6 +27,12 @@ const LONG_PREVIEW_SAMPLES = {
 
 const MIN_FONT_SIZE = 8;
 
+/** Fabric ölçüm yuvarlama payı (px). */
+const FIT_TOLERANCE = 3;
+
+/** Binary search son çare minimum punto. */
+const ABSOLUTE_MIN_FONT_SIZE = 6;
+
 let fontsInjected = false;
 
 function injectGoogleFonts() {
@@ -125,26 +131,38 @@ function maxLineWidth(text) {
     }
 }
 
-function textOverflows(text, innerW, innerH) {
+/**
+ * Fabric Textbox genişliği uzun kelimede otomatik büyüyebilir; kutuya kilitle.
+ */
+function lockTextWidth(text, innerW) {
+    if ('dynamicMinWidth' in text) {
+        text.dynamicMinWidth = 0;
+    }
+    text.set('width', innerW);
     if (typeof text.initDimensions === 'function') {
         text.initDimensions();
     }
-    return text.height > innerH + 0.5 || maxLineWidth(text) > innerW + 0.5;
+    if ('dynamicMinWidth' in text) {
+        text.dynamicMinWidth = 0;
+    }
+    if (Math.abs(text.width - innerW) > 0.5) {
+        text.set('width', innerW);
+    }
+}
+
+function textOverflows(text, innerW, innerH) {
+    lockTextWidth(text, innerW);
+    return text.height > innerH + FIT_TOLERANCE
+        || maxLineWidth(text) > innerW + FIT_TOLERANCE;
 }
 
 /**
  * Binary search ile kutuya sığan en büyük font boyutunu bulur.
  */
 function binarySearchFontSize(text, innerW, innerH, desiredSize, minSize = MIN_FONT_SIZE) {
-    const recalc = () => {
-        if (typeof text.initDimensions === 'function') {
-            text.initDimensions();
-        }
-    };
-
     const fits = (size) => {
-        text.set({ fontSize: size, width: innerW });
-        recalc();
+        text.set('fontSize', size);
+        lockTextWidth(text, innerW);
         return !textOverflows(text, innerW, innerH);
     };
 
@@ -167,7 +185,7 @@ function binarySearchFontSize(text, innerW, innerH, desiredSize, minSize = MIN_F
     }
 
     text.set('fontSize', best);
-    recalc();
+    lockTextWidth(text, innerW);
     return best;
 }
 
@@ -394,25 +412,32 @@ class PosterCanvas {
         const innerW = Math.max(20, w - 2 * pad);
         const innerH = Math.max(20, h - 2 * pad);
         const desired = text.bkdDesiredFontSize || frame.bkdDesiredFontSize || text.fontSize;
+        const baseLineHeight = text.bkdBaseLineHeight ?? text.lineHeight ?? 1.16;
+        if (text.bkdBaseLineHeight == null) {
+            text.bkdBaseLineHeight = baseLineHeight;
+        }
 
         await ensureFontForText(text, desired);
 
-        text.set({ splitByGrapheme: false, width: innerW });
+        let fitted = MIN_FONT_SIZE;
+        const strategies = [
+            { grapheme: false, min: MIN_FONT_SIZE, lh: baseLineHeight },
+            { grapheme: true, min: MIN_FONT_SIZE, lh: baseLineHeight },
+            { grapheme: true, min: MIN_FONT_SIZE, lh: Math.max(1.0, baseLineHeight - 0.14) },
+            { grapheme: true, min: ABSOLUTE_MIN_FONT_SIZE, lh: Math.max(0.95, baseLineHeight - 0.2) },
+        ];
 
-        let fitted = binarySearchFontSize(text, innerW, innerH, desired, MIN_FONT_SIZE);
-
-        if (maxLineWidth(text) > innerW + 0.5) {
-            text.set('splitByGrapheme', true);
-            fitted = binarySearchFontSize(text, innerW, innerH, fitted, MIN_FONT_SIZE);
-        }
-
-        if (textOverflows(text, innerW, innerH)) {
-            text.set('splitByGrapheme', true);
-            fitted = binarySearchFontSize(text, innerW, innerH, MIN_FONT_SIZE, MIN_FONT_SIZE);
+        for (const { grapheme, min, lh } of strategies) {
+            text.set({ splitByGrapheme: grapheme, lineHeight: lh });
+            fitted = binarySearchFontSize(text, innerW, innerH, desired, min);
+            if (!textOverflows(text, innerW, innerH)) {
+                break;
+            }
         }
 
         text.bkdFittedFontSize = fitted;
         frame.bkdDesiredFontSize = desired;
+        frame.bkdFitWarning = textOverflows(text, innerW, innerH);
 
         const th = text.height;
         let ty = top + pad;
@@ -837,9 +862,15 @@ function buildPropsPanel(panel, pc, config) {
         const desired = frame.bkdDesiredFontSize ?? t.bkdDesiredFontSize ?? t.fontSize;
         sizeInput.value = Math.round(desired);
         const fitted = t.bkdFittedFontSize ?? t.fontSize;
-        fittedHint.textContent = fitted < desired
-            ? `Kutuya sığan gerçek boyut: ${Math.round(fitted)} px`
-            : '';
+        if (frame.bkdFitWarning) {
+            fittedHint.textContent = 'Metin kutuya sığmıyor — kutu yüksekliğini artırın veya istenen puntoyu küçültün.';
+            fittedHint.style.color = '#b45309';
+        } else {
+            fittedHint.style.color = '#0369a1';
+            fittedHint.textContent = fitted < desired
+                ? `Kutuya sığan gerçek boyut: ${Math.round(fitted)} px`
+                : '';
+        }
         colorInput.value = toHex(t.fill);
         lineInput.value = t.lineHeight ?? 1.16;
         boldBtn.style.background = t.fontWeight === 'bold' ? '#e2e8f0' : '#fff';
@@ -891,7 +922,11 @@ function buildPropsPanel(panel, pc, config) {
         t.set('fontSize', v);
     }));
     colorInput.addEventListener('input', () => apply((t) => t.set('fill', colorInput.value)));
-    lineInput.addEventListener('input', () => apply((t) => t.set('lineHeight', parseFloat(lineInput.value) || 1.16)));
+    lineInput.addEventListener('input', () => apply((t) => {
+        const lh = parseFloat(lineInput.value) || 1.16;
+        t.bkdBaseLineHeight = lh;
+        t.set('lineHeight', lh);
+    }));
     boldBtn.addEventListener('click', () => { apply((t) => t.set('fontWeight', t.fontWeight === 'bold' ? 'normal' : 'bold')); });
     italicBtn.addEventListener('click', () => { apply((t) => t.set('fontStyle', t.fontStyle === 'italic' ? 'normal' : 'italic')); });
     underlineBtn.addEventListener('click', () => { apply((t) => t.set('underline', !t.underline)); });
