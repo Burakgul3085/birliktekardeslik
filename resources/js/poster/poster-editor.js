@@ -1,9 +1,9 @@
 /*
  | BKD Afiş Motoru — BkdTextFrame
  | --------------------------------------------------------------------------
- | Her yazı katmanı tek bir "metin çerçevesi"dir (frame + text + clipPath).
- | Yazı kutu genişliğine sarılır, yüksekliğe binary-search ile sığdırılır,
- | clipPath ile kesinlikle kutu dışına taşmaz.
+ | Her yazı katmanı seçilebilir çerçeve + Textbox'dur.
+ | Metin yalnızca kelime sınırlarında alt satıra geçer; punto binary-search
+ | ile kutuya sığdırılır (harf bazlı bölme yok).
  |
  | Modlar: design | studio | generate
  */
@@ -131,14 +131,133 @@ function maxLineWidth(text) {
     }
 }
 
+/** Canvas 2D ile kelime genişliği ölçer (Fabric ile uyumlu font dizesi). */
+function buildWordMeasurer(text) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const family = text.fontFamily || 'Inter';
+    const weight = text.fontWeight === 'bold' ? 'bold' : 'normal';
+    const style = text.fontStyle === 'italic' ? 'italic' : 'normal';
+
+    return (str, fontSize) => {
+        ctx.font = `${style} ${weight} ${fontSize}px "${family}"`;
+        return ctx.measureText(str).width;
+    };
+}
+
 /**
- * Fabric Textbox genişliği uzun kelimede otomatik büyüyebilir; kutuya kilitle.
+ * Metni yalnızca kelime sınırlarında sarar. Tek kelime kutudan genişse null döner.
+ *
+ * @param {string} source
+ * @param {number} maxWidth
+ * @param {(s: string) => number} measureFn
+ * @returns {string[] | null}
+ */
+function wordWrapAtSpaces(source, maxWidth, measureFn) {
+    const usable = Math.max(10, maxWidth - FIT_TOLERANCE);
+    const paragraphs = String(source).replace(/\r\n/g, '\n').split('\n');
+    const lines = [];
+
+    for (const paragraph of paragraphs) {
+        const trimmed = paragraph.trim();
+        if (!trimmed) {
+            lines.push('');
+            continue;
+        }
+
+        const words = trimmed.split(/\s+/);
+        let current = '';
+
+        for (const word of words) {
+            if (measureFn(word) > usable) {
+                return null;
+            }
+
+            const candidate = current ? `${current} ${word}` : word;
+            if (measureFn(candidate) <= usable) {
+                current = candidate;
+            } else {
+                lines.push(current);
+                current = word;
+            }
+        }
+
+        if (current) {
+            lines.push(current);
+        }
+    }
+
+    return lines.length ? lines : [''];
+}
+
+function blockHeight(lineCount, fontSize, lineHeight) {
+    if (lineCount <= 0) {
+        return 0;
+    }
+    return lineCount * fontSize * lineHeight;
+}
+
+/**
+ * Kelime sarmalı + binary search: kutuya sığan en büyük puntoyu bulur.
+ *
+ * @returns {{ size: number, lines: string[], lineHeight: number, fits: boolean }}
+ */
+function fitWordWrappedText(source, innerW, innerH, textStyle, desiredSize, minSize, lineHeight) {
+    const measureAt = buildWordMeasurer(textStyle);
+
+    const trySize = (size) => {
+        const measure = (s) => measureAt(s, size);
+        const lines = wordWrapAtSpaces(source, innerW, measure);
+        if (!lines) {
+            return null;
+        }
+        const h = blockHeight(lines.length, size, lineHeight);
+        if (h > innerH + FIT_TOLERANCE) {
+            return null;
+        }
+        return { size, lines, lineHeight, fits: true };
+    };
+
+    let lo = minSize;
+    let hi = Math.max(minSize, desiredSize);
+    let best = trySize(minSize);
+
+    if (trySize(hi)) {
+        return trySize(hi);
+    }
+
+    while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        const attempt = trySize(mid);
+        if (attempt) {
+            best = attempt;
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+
+    if (best?.fits) {
+        return best;
+    }
+
+    const fallbackLines = wordWrapAtSpaces(source, innerW, (s) => measureAt(s, minSize)) || [source];
+    return {
+        size: minSize,
+        lines: fallbackLines,
+        lineHeight,
+        fits: false,
+    };
+}
+
+/**
+ * Fabric Textbox genişliğini sabitler (otomatik genişlemeyi kapatır).
  */
 function lockTextWidth(text, innerW) {
     if ('dynamicMinWidth' in text) {
         text.dynamicMinWidth = 0;
     }
-    text.set('width', innerW);
+    text.set({ width: innerW, splitByGrapheme: false });
     if (typeof text.initDimensions === 'function') {
         text.initDimensions();
     }
@@ -156,37 +275,15 @@ function textOverflows(text, innerW, innerH) {
         || maxLineWidth(text) > innerW + FIT_TOLERANCE;
 }
 
-/**
- * Binary search ile kutuya sığan en büyük font boyutunu bulur.
- */
-function binarySearchFontSize(text, innerW, innerH, desiredSize, minSize = MIN_FONT_SIZE) {
-    const fits = (size) => {
-        text.set('fontSize', size);
-        lockTextWidth(text, innerW);
-        return !textOverflows(text, innerW, innerH);
-    };
-
-    let lo = minSize;
-    let hi = Math.max(minSize, desiredSize);
-    let best = minSize;
-
-    if (fits(hi)) {
-        return hi;
-    }
-
-    while (lo <= hi) {
-        const mid = Math.floor((lo + hi) / 2);
-        if (fits(mid)) {
-            best = mid;
-            lo = mid + 1;
-        } else {
-            hi = mid - 1;
-        }
-    }
-
-    text.set('fontSize', best);
+function applyWordWrapResult(text, innerW, result) {
+    text.set({
+        text: result.lines.join('\n'),
+        fontSize: result.size,
+        lineHeight: result.lineHeight,
+        width: innerW,
+        splitByGrapheme: false,
+    });
     lockTextWidth(text, innerW);
-    return best;
 }
 
 /* ---------------------------------------------------------------------------
@@ -313,18 +410,19 @@ class PosterCanvas {
     }
 
     /**
-     * BkdTextFrame oluşturur: seçilebilir çerçeve (Rect) + kırpılmış yazı (Textbox).
+     * BkdTextFrame oluşturur: seçilebilir çerçeve (Rect) + kelime sarmalı yazı (Textbox).
      */
     async addLayer(layer, select = true) {
         const fabric = this.fabric;
         const isGen = this.mode === 'generate';
         const desiredSize = layer.desiredFontSize ?? layer.fontSize ?? 42;
+        const rawContent = this.resolveText(layer) || ' ';
 
         const bx = layer.left ?? Math.round(this.naturalW * 0.15);
         const by = layer.top ?? Math.round(this.naturalH * 0.4);
         const bw = layer.width ?? Math.round(this.naturalW * 0.7);
 
-        const text = new fabric.Textbox(this.resolveText(layer) || ' ', {
+        const text = new fabric.Textbox(rawContent, {
             fontSize: desiredSize,
             fontFamily: layer.fontFamily ?? 'Inter',
             fill: layer.fill ?? '#1d4ed8',
@@ -342,6 +440,7 @@ class PosterCanvas {
         });
         text.bkdBinding = layer.binding ?? null;
         text.bkdDesiredFontSize = desiredSize;
+        text.bkdSourceText = rawContent;
 
         const pad = padOf(bw);
         text.set('width', Math.max(20, bw - 2 * pad));
@@ -399,7 +498,7 @@ class PosterCanvas {
     }
 
     /**
-     * Yazıyı kutuya sığdırır (binary search) + clipPath ile kesin kırpma.
+     * Yazıyı kutuya kelime sınırlarında sarar; punto binary-search ile sığdırır.
      */
     async refit(frame) {
         const text = frame?.bkdText;
@@ -417,27 +516,59 @@ class PosterCanvas {
             text.bkdBaseLineHeight = baseLineHeight;
         }
 
+        const source = text.bkdBinding
+            ? this.resolveText({ binding: text.bkdBinding })
+            : (text.bkdSourceText ?? String(text.text || '').replace(/\n/g, ' '));
+        text.bkdSourceText = source;
+
         await ensureFontForText(text, desired);
 
-        let fitted = MIN_FONT_SIZE;
-        const strategies = [
-            { grapheme: false, min: MIN_FONT_SIZE, lh: baseLineHeight },
-            { grapheme: true, min: MIN_FONT_SIZE, lh: baseLineHeight },
-            { grapheme: true, min: MIN_FONT_SIZE, lh: Math.max(1.0, baseLineHeight - 0.14) },
-            { grapheme: true, min: ABSOLUTE_MIN_FONT_SIZE, lh: Math.max(0.95, baseLineHeight - 0.2) },
+        const lineHeights = [
+            baseLineHeight,
+            Math.max(1.0, baseLineHeight - 0.12),
+            Math.max(0.95, baseLineHeight - 0.2),
         ];
 
-        for (const { grapheme, min, lh } of strategies) {
-            text.set({ splitByGrapheme: grapheme, lineHeight: lh });
-            fitted = binarySearchFontSize(text, innerW, innerH, desired, min);
-            if (!textOverflows(text, innerW, innerH)) {
+        let result = null;
+        for (const lh of lineHeights) {
+            result = fitWordWrappedText(source, innerW, innerH, text, desired, MIN_FONT_SIZE, lh);
+            applyWordWrapResult(text, innerW, result);
+            if (result.fits && !textOverflows(text, innerW, innerH)) {
                 break;
             }
         }
 
-        text.bkdFittedFontSize = fitted;
+        if (!result?.fits || textOverflows(text, innerW, innerH)) {
+            result = fitWordWrappedText(
+                source,
+                innerW,
+                innerH,
+                text,
+                desired,
+                ABSOLUTE_MIN_FONT_SIZE,
+                lineHeights[lineHeights.length - 1],
+            );
+            applyWordWrapResult(text, innerW, result);
+        }
+
+        let guard = result.size;
+        while (guard > ABSOLUTE_MIN_FONT_SIZE && textOverflows(text, innerW, innerH)) {
+            guard -= 1;
+            result = fitWordWrappedText(
+                source,
+                innerW,
+                innerH,
+                text,
+                guard,
+                guard,
+                result.lineHeight,
+            );
+            applyWordWrapResult(text, innerW, result);
+        }
+
+        text.bkdFittedFontSize = result.size;
         frame.bkdDesiredFontSize = desired;
-        frame.bkdFitWarning = textOverflows(text, innerW, innerH);
+        frame.bkdFitWarning = !result.fits || textOverflows(text, innerW, innerH);
 
         const th = text.height;
         let ty = top + pad;
@@ -449,17 +580,7 @@ class PosterCanvas {
 
         text.set({ left: left + pad, top: ty });
         text.setCoords();
-
-        const clip = new this.fabric.Rect({
-            left: left + pad,
-            top: top + pad,
-            width: innerW,
-            height: innerH,
-            originX: 'left',
-            originY: 'top',
-            absolutePositioned: true,
-        });
-        text.clipPath = clip;
+        text.clipPath = null;
     }
 
     normalizeFrame(frame) {
@@ -784,7 +905,7 @@ function buildPropsPanel(panel, pc, config) {
     const sizeInput = el('input', { type: 'number', min: '6', max: '400', style: FIELD });
     wrap.appendChild(el('label', { style: LABEL }, 'İstenen yazı boyutu (px)'));
     wrap.appendChild(sizeInput);
-    wrap.appendChild(el('div', { style: HINT }, 'Yazı bu boyuta kadar büyür; kutuya sığmazsa otomatik küçülür.'));
+    wrap.appendChild(el('div', { style: HINT }, 'Yazı yalnızca kelime sınırlarında alt satıra geçer; kutuya sığmazsa punto otomatik küçülür.'));
 
     const fittedHint = el('div', { style: HINT + 'color:#0369a1;' }, '');
     wrap.appendChild(fittedHint);
@@ -899,6 +1020,7 @@ function buildPropsPanel(panel, pc, config) {
                 const val = bindingSel.value || null;
                 t.bkdBinding = val;
                 const sample = val ? pc.previewTextForBinding(val) : 'Metin';
+                t.bkdSourceText = sample;
                 t.set('text', sample);
                 frame.bkdDesiredFontSize = t.bkdDesiredFontSize;
             });
@@ -906,6 +1028,7 @@ function buildPropsPanel(panel, pc, config) {
     }
     textArea.addEventListener('input', () => apply((t) => {
         if (t.bkdBinding) return;
+        t.bkdSourceText = textArea.value;
         t.set('text', textArea.value);
     }));
     widthInput.addEventListener('change', () => apply((t, frame) => {
