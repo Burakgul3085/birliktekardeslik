@@ -186,6 +186,7 @@
                 </span>
             </button>
             <a href="{{ route('donations') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full bg-cyan-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700">{{ __('app.nav.donate_short') }}</a>
+            <a href="{{ route('zakat.index') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-800 shadow-sm transition hover:border-cyan-300">{{ __('app.nav.zakat_short') }}</a>
             <a href="{{ route('volunteer') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-white px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50">{{ __('app.nav.volunteer_short') }}</a>
         </div>
 
@@ -287,6 +288,12 @@
                     class="inline-flex min-h-[2.5rem] items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700"
                 >{{ __('app.nav.donate') }}</a>
 
+                <a
+                    href="{{ route('zakat.index') }}"
+                    class="hidden items-center rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-2 text-xs font-bold uppercase tracking-wide text-cyan-800 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-100 xl:inline-flex"
+                    title="{{ __('app.nav.zakat_calculate') }}"
+                >{{ __('app.nav.zakat_calculate') }}</a>
+
                 {{-- Dil Seçici --}}
                 <div
                     class="relative"
@@ -373,6 +380,10 @@
                 href="{{ route('contact') }}"
                 class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
             >{{ __('app.nav.contact') }}</a>
+            <a
+                href="{{ route('zakat.index') }}"
+                class="shrink-0 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-[11px] font-semibold text-cyan-800 transition hover:border-cyan-400 hover:bg-cyan-100"
+            >{{ __('app.nav.zakat_short') }}</a>
 
             {{-- Mobil dil seçici --}}
             @foreach($langList as $lang)
