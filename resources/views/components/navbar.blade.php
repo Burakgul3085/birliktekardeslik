@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <div class="mx-auto hidden max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs md:flex md:px-6">
+        <div class="mx-auto hidden max-w-7xl items-center justify-between gap-3 px-4 py-1.5 text-xs md:flex md:px-6">
             <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
                 @if(!empty($siteSettings->email))
                     <span class="inline-flex items-center gap-1.5">
@@ -137,13 +137,13 @@
         </div>
     </div>
 
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 md:px-6 md:py-3">
-        <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2.5">
-            <img src="{{ $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg') }}" alt="Logo" class="h-11 w-11 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-slate-200">
-            <span class="max-w-[150px] truncate text-[15px] font-semibold tracking-tight text-slate-900 md:max-w-none md:text-[1.05rem]">{{ $siteSettings->site_title }}</span>
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:px-4 md:gap-3 md:px-6 md:py-2.5">
+        <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2 sm:gap-2.5">
+            <img src="{{ $siteSettings->logo ? asset('storage/' . $siteSettings->logo) : asset('images/default-logo.svg') }}" alt="Logo" class="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-slate-200 sm:h-10 sm:w-10 md:h-11 md:w-11">
+            <span class="max-w-[120px] truncate text-sm font-semibold tracking-tight text-slate-900 sm:max-w-[150px] md:max-w-none md:text-[1.05rem]">{{ $siteSettings->site_title }}</span>
         </a>
 
-        <div class="flex shrink-0 items-center gap-1.5 md:hidden">
+        <div class="flex shrink-0 items-center gap-1 sm:gap-1.5 md:hidden">
             <div class="relative" x-data="{ mobileLangOpen: false }" @click.outside="mobileLangOpen = false">
                 <button
                     type="button"
@@ -185,9 +185,9 @@
                     <span class="h-2 w-2 rounded-sm bg-cyan-700/90"></span>
                 </span>
             </button>
-            <a href="{{ route('donations') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full bg-cyan-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700">{{ __('app.nav.donate_short') }}</a>
-            <a href="{{ route('zakat.index') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-800 shadow-sm transition hover:border-cyan-300">{{ __('app.nav.zakat_short') }}</a>
-            <a href="{{ route('volunteer') }}" class="inline-flex min-h-[2.4rem] items-center rounded-full border border-cyan-200 bg-white px-3 text-[11px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50">{{ __('app.nav.volunteer_short') }}</a>
+            <a href="{{ route('donations') }}" class="inline-flex h-9 items-center rounded-full bg-cyan-600 px-2.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700 sm:px-3 sm:text-[11px]">{{ __('app.nav.donate_short') }}</a>
+            <a href="{{ route('volunteer') }}" class="hidden h-9 items-center rounded-full border border-cyan-200 bg-white px-2.5 text-[10px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50 sm:inline-flex sm:px-3 sm:text-[11px]">{{ __('app.nav.volunteer_short') }}</a>
+            <a href="{{ route('zakat.index') }}" class="inline-flex h-9 items-center rounded-full border border-cyan-200 bg-cyan-50 px-2.5 text-[10px] font-bold uppercase tracking-wide text-cyan-800 shadow-sm transition hover:border-cyan-300 sm:px-3 sm:text-[11px]" title="{{ __('app.nav.zakat_calculate') }}">{{ __('app.nav.zakat_short') }}</a>
         </div>
 
         @php
@@ -203,7 +203,7 @@
                 ->whereNotNull('parent_id')
                 ->groupBy('parent_id');
         @endphp
-        <nav class="hidden items-center gap-0.5 md:flex">
+        <nav class="hidden items-center gap-0.5 md:flex lg:gap-1">
             <a href="{{ route('home') }}" class="rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4">{{ __('app.nav.home') }}</a>
 
             @forelse($headerTopItems as $item)
@@ -256,13 +256,13 @@
 
             <a href="{{ route('contact') }}" class="rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-cyan-700 lg:px-4">{{ __('app.nav.contact') }}</a>
 
-            <div class="ml-1 flex items-center gap-1 pl-1">
+            <div class="ml-1 flex shrink-0 items-center gap-1 pl-1 lg:gap-1.5">
                 {{-- Galeri / Kamera ikonu --}}
                 <a
                     href="{{ route('gallery') }}"
                     title="{{ __('app.nav.gallery_title') }}"
                     aria-label="{{ __('app.nav.gallery_title') }}"
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50/90 text-slate-600 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90 hover:text-cyan-700"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50/90 text-slate-600 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90 hover:text-cyan-700 lg:h-10 lg:w-10 lg:rounded-2xl"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
@@ -272,7 +272,7 @@
                 <button
                     type="button"
                     @click="contactOpen = true"
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50/90 text-slate-700 shadow-sm transition hover:border-cyan-200 hover:bg-cyan-50/90"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50/90 text-slate-700 shadow-sm transition hover:border-cyan-200 hover:bg-cyan-50/90 lg:h-10 lg:w-10 lg:rounded-2xl"
                     :aria-expanded="contactOpen"
                     aria-label="{{ __('app.nav.quick_contact') }}"
                 >
@@ -285,14 +285,8 @@
                 </button>
                 <a
                     href="{{ route('donations') }}"
-                    class="inline-flex min-h-[2.5rem] items-center rounded-full bg-cyan-600 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700"
+                    class="inline-flex h-9 items-center rounded-full bg-cyan-600 px-3 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-cyan-700 lg:h-10 lg:px-4 lg:text-xs"
                 >{{ __('app.nav.donate') }}</a>
-
-                <a
-                    href="{{ route('zakat.index') }}"
-                    class="hidden items-center rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-2 text-xs font-bold uppercase tracking-wide text-cyan-800 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-100 xl:inline-flex"
-                    title="{{ __('app.nav.zakat_calculate') }}"
-                >{{ __('app.nav.zakat_calculate') }}</a>
 
                 {{-- Dil Seçici --}}
                 <div
@@ -303,7 +297,7 @@
                     <button
                         type="button"
                         @click="langOpen = !langOpen"
-                        class="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50/90 px-2.5 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90"
+                        class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50/90 px-2 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50/90 lg:h-10 lg:rounded-2xl lg:px-2.5"
                         aria-label="Dil seçici"
                     >
                         <img
@@ -338,6 +332,15 @@
                         @endforeach
                     </div>
                 </div>
+
+                <a
+                    href="{{ route('zakat.index') }}"
+                    class="inline-flex h-9 items-center rounded-full border border-cyan-200 bg-cyan-50 px-2.5 text-[10px] font-bold uppercase tracking-wide text-cyan-800 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-100 lg:h-10 lg:px-3.5 lg:text-xs"
+                    title="{{ __('app.nav.zakat_calculate') }}"
+                >
+                    <span class="lg:hidden">{{ __('app.nav.zakat_short') }}</span>
+                    <span class="hidden lg:inline">{{ __('app.nav.zakat_calculate') }}</span>
+                </a>
             </div>
         </nav>
     </div>
@@ -380,10 +383,6 @@
                 href="{{ route('contact') }}"
                 class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
             >{{ __('app.nav.contact') }}</a>
-            <a
-                href="{{ route('zakat.index') }}"
-                class="shrink-0 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-[11px] font-semibold text-cyan-800 transition hover:border-cyan-400 hover:bg-cyan-100"
-            >{{ __('app.nav.zakat_short') }}</a>
 
             {{-- Mobil dil seçici --}}
             @foreach($langList as $lang)
@@ -397,6 +396,11 @@
                     </a>
                 @endif
             @endforeach
+
+            <a
+                href="{{ route('zakat.index') }}"
+                class="shrink-0 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-[11px] font-semibold text-cyan-800 transition hover:border-cyan-400 hover:bg-cyan-100"
+            >{{ __('app.nav.zakat_short') }}</a>
         </div>
 
         @php
