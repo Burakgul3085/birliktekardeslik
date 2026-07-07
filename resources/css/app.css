@@ -200,6 +200,36 @@
     animation-delay: 0.3s;
 }
 
+.chad-live-enter {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.chad-live-enter--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.chad-live-stat {
+    transition: transform 200ms ease;
+}
+
+.chad-live-stat:hover {
+    transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chad-live-enter,
+    .chad-live-enter--visible,
+    .chad-live-stat,
+    .chad-live-stat:hover {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
 @keyframes page-transition-bounce {
     0%, 100% {
         transform: translateY(0) scale(0.9);

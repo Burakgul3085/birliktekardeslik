@@ -159,6 +159,43 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Çad'dan Anlık Bilgiler (ana sayfa)
+    |--------------------------------------------------------------------------
+    */
+    'chad_live' => [
+        'title'         => '🇹🇩 Çad\'dan Anlık Bilgiler',
+        'subtitle'      => 'Birlikte Kardeşlik Derneği, Çad\'da insani yardım faaliyetlerini kesintisiz sürdürmektedir.',
+        'weather'       => 'Hava Durumu',
+        'local_time'    => 'Yerel Saat',
+        'hijri'         => 'Hicri Tarih',
+        'next_prayer'   => 'Sonraki Namaz',
+        'weather_error' => 'Veri Alınamadı',
+        'donate'        => 'Bağış Yap',
+        'prayers' => [
+            'Fajr'    => 'İmsak',
+            'Dhuhr'   => 'Öğle',
+            'Asr'     => 'İkindi',
+            'Maghrib' => 'Akşam',
+            'Isha'    => 'Yatsı',
+        ],
+        'hijri_months' => [
+            '1'  => 'Muharrem',
+            '2'  => 'Safer',
+            '3'  => 'Rebiülevvel',
+            '4'  => 'Rebiülahir',
+            '5'  => 'Cemaziyelevvel',
+            '6'  => 'Cemaziyelahir',
+            '7'  => 'Recep',
+            '8'  => 'Şaban',
+            '9'  => 'Ramazan',
+            '10' => 'Şevval',
+            '11' => 'Zilkade',
+            '12' => 'Zilhicce',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Ana sayfa — odak kartları
     |--------------------------------------------------------------------------
     */

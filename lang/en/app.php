@@ -159,6 +159,43 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Live Updates from Chad (homepage)
+    |--------------------------------------------------------------------------
+    */
+    'chad_live' => [
+        'title'         => '🇹🇩 Live Updates from Chad',
+        'subtitle'      => 'Birlikte Kardeşlik Association continues its humanitarian aid activities in Chad without interruption.',
+        'weather'       => 'Weather',
+        'local_time'    => 'Local Time',
+        'hijri'         => 'Hijri Date',
+        'next_prayer'   => 'Next Prayer',
+        'weather_error' => 'Data Unavailable',
+        'donate'        => 'Donate Now',
+        'prayers' => [
+            'Fajr'    => 'Fajr',
+            'Dhuhr'   => 'Dhuhr',
+            'Asr'     => 'Asr',
+            'Maghrib' => 'Maghrib',
+            'Isha'    => 'Isha',
+        ],
+        'hijri_months' => [
+            '1'  => 'Muharram',
+            '2'  => 'Safar',
+            '3'  => 'Rabi al-awwal',
+            '4'  => 'Rabi al-thani',
+            '5'  => 'Jumada al-awwal',
+            '6'  => 'Jumada al-thani',
+            '7'  => 'Rajab',
+            '8'  => 'Sha\'ban',
+            '9'  => 'Ramadan',
+            '10' => 'Shawwal',
+            '11' => 'Dhu al-Qi\'dah',
+            '12' => 'Dhu al-Hijjah',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Home — focus cards
     |--------------------------------------------------------------------------
     */

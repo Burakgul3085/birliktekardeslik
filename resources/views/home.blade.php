@@ -1,6 +1,8 @@
 <x-layouts.app>
     <x-home-hero-slider :slides="$heroSlidesPayload" />
 
+    <x-chad-live-info />
+
     @php
         $isTr = app()->getLocale() === 'tr';
         $focusCards = [
