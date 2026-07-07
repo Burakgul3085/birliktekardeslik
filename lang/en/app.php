@@ -171,6 +171,7 @@ return [
         'source_forex'  => 'CBRT (Central Bank of the Republic of Türkiye)',
         'source_metals' => 'GenelPara (market data, not an official rate)',
         'source_note'   => 'Exchange rates are from the CBRT official feed; gold and silver prices are third-party market data for information only.',
+        'metals_via_client' => 'Gold and silver prices were fetched directly from GenelPara via your browser because the server could not reach the source.',
         'last_update'   => 'Last update',
         'nisap_label'   => 'Nisab Threshold',
         'assets_title'  => 'Your Assets',

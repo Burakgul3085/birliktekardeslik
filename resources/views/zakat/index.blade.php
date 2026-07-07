@@ -11,6 +11,7 @@
             'source_forex' => __('app.zakat.source_forex'),
             'source_metals' => __('app.zakat.source_metals'),
             'source_note' => __('app.zakat.source_note'),
+            'metals_via_client' => __('app.zakat.metals_via_client'),
             'last_update' => __('app.zakat.last_update'),
             'nisap_label' => __('app.zakat.nisap_label'),
             'assets_title' => __('app.zakat.assets_title'),
@@ -119,6 +120,13 @@
 
                         <p class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-relaxed text-slate-500">
                             {{ __('app.zakat.source_note') }}
+                        </p>
+                        <p
+                            x-show="prices.metals_via_client"
+                            x-cloak
+                            class="rounded-xl border border-cyan-100 bg-cyan-50/70 px-3 py-2 text-[11px] leading-relaxed text-cyan-900"
+                        >
+                            {{ __('app.zakat.metals_via_client') }}
                         </p>
                     </div>
                 </div>

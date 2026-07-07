@@ -1,11 +1,12 @@
 const API_URL = '/api/zekat/fiyatlar';
+const GENELPARA_URL = 'https://api.genelpara.com/json';
 const CACHE_KEY = 'bkd_zakat_prices';
 const CACHE_TTL = 60_000;
 
 export async function fetchZakatPrices() {
     try {
         const cached = readCache();
-        if (cached) {
+        if (cached?.has_metals) {
             return cached;
         }
     } catch {
@@ -20,10 +21,127 @@ export async function fetchZakatPrices() {
         throw new Error(`Fiyat API hatası: ${response.status}`);
     }
 
-    const payload = await response.json();
+    let payload = await response.json();
+    payload = await ensureMetals(payload);
     writeCache(payload);
 
     return payload;
+}
+
+async function ensureMetals(payload) {
+    if (payload?.has_metals) {
+        return payload;
+    }
+
+    const clientMetals = await fetchGenelParaMetalsFromClient();
+
+    if (!clientMetals) {
+        return payload;
+    }
+
+    return mergeMetalsIntoPayload(payload, clientMetals);
+}
+
+async function fetchGenelParaMetalsFromClient() {
+    const symbolSets = ['GA,GAG,22,18,14', 'all'];
+
+    for (const symbols of symbolSets) {
+        try {
+            const url = `${GENELPARA_URL}?${new URLSearchParams({
+                list: 'altin',
+                sembol: symbols,
+            }).toString()}`;
+
+            const response = await fetch(url, {
+                headers: { Accept: 'application/json' },
+                mode: 'cors',
+            });
+
+            if (!response.ok) {
+                continue;
+            }
+
+            const payload = await response.json();
+
+            if (!payload?.success || !payload?.data) {
+                continue;
+            }
+
+            const metals = parseMetalsFromGenelPara(payload.data);
+
+            if (metals) {
+                return metals;
+            }
+        } catch {
+            // try next symbol set
+        }
+    }
+
+    return null;
+}
+
+function parseMetalsFromGenelPara(data) {
+    const gold24 = parseGenelParaPrice(data.GA);
+    const silver = parseGenelParaPrice(data.GAG);
+
+    if (!gold24 || !silver) {
+        return null;
+    }
+
+    return {
+        gold_24_per_gram: gold24,
+        gold_22_per_gram: parseGenelParaPrice(data['22']) || roundPrice(gold24 * 0.916),
+        gold_18_per_gram: parseGenelParaPrice(data['18']) || roundPrice(gold24 * 0.75),
+        gold_14_per_gram: parseGenelParaPrice(data['14']) || roundPrice(gold24 * 0.585),
+        silver_per_gram: silver,
+    };
+}
+
+function parseGenelParaPrice(row) {
+    if (!row || typeof row !== 'object') {
+        return 0;
+    }
+
+    const satis = row.satis ?? row.alis ?? null;
+
+    if (satis === null) {
+        return 0;
+    }
+
+    const value = Number(String(satis).replace(',', '.'));
+
+    return Number.isFinite(value) && value > 0 ? roundPrice(value) : 0;
+}
+
+function roundPrice(value) {
+    return Math.round(value * 100) / 100;
+}
+
+function mergeMetalsIntoPayload(payload, metals) {
+    const nisapGrams = Number(payload.nisap_grams) || 80;
+    const fetchedAt = new Date().toISOString();
+
+    return {
+        ...payload,
+        ...metals,
+        nisap_threshold_try: metals.gold_24_per_gram > 0
+            ? roundPrice(nisapGrams * metals.gold_24_per_gram)
+            : 0,
+        has_metals: true,
+        has_data: Boolean(payload.has_forex) && metals.gold_24_per_gram > 0 && metals.silver_per_gram > 0,
+        metals_via_client: true,
+        sources: {
+            ...(payload.sources ?? {}),
+            metals: {
+                ...(payload.sources?.metals ?? {}),
+                name: 'GenelPara',
+                label: 'GenelPara (piyasa verisi)',
+                url: 'https://www.genelpara.com',
+                fetched_at: fetchedAt,
+                via_client: true,
+            },
+        },
+    };
 }
 
 function readCache() {

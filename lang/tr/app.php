@@ -176,6 +176,7 @@ return [
         'source_forex'  => 'TCMB (Türkiye Cumhuriyet Merkez Bankası)',
         'source_metals' => 'GenelPara (piyasa verisi, resmi kur değildir)',
         'source_note'   => 'Döviz kurları TCMB resmi yayınından; altın ve gümüş fiyatları üçüncü taraf piyasa verisinden alınır. Fiyatlar bilgilendirme amaçlıdır, yatırım tavsiyesi değildir.',
+        'metals_via_client' => 'Altın ve gümüş fiyatları sunucu erişimi başarısız olduğu için tarayıcınız üzerinden doğrudan GenelPara kaynağından alındı.',
         'last_update'   => 'Son güncelleme',
         'nisap_label'   => 'Nisap Eşiği',
         'assets_title'  => 'Varlıklarınız',
