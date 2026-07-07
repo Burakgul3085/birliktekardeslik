@@ -6,16 +6,27 @@ export function calculateZakat(form, prices, settings) {
     const gold18 = parseAmount(form.gold18) * (prices.gold_18_per_gram || 0);
     const gold14 = parseAmount(form.gold14) * (prices.gold_14_per_gram || 0);
     const silver = parseAmount(form.silver) * (prices.silver_per_gram || 0);
+    const coinQuarter = parseAmount(form.coinQuarter) * (prices.coin_quarter_try || 0);
+    const coinHalf = parseAmount(form.coinHalf) * (prices.coin_half_try || 0);
+    const coinFull = parseAmount(form.coinFull) * (prices.coin_full_try || 0);
+    const coinAta = parseAmount(form.coinAta) * (prices.coin_ata_try || 0);
+    const coinCmr = parseAmount(form.coinCmr) * (prices.coin_cmr_try || 0);
     const cash = parseAmount(form.cash);
     const bank = parseAmount(form.bank);
     const usd = parseAmount(form.usd) * (prices.usd_try || 0);
     const eur = parseAmount(form.eur) * (prices.eur_try || 0);
     const gbp = parseAmount(form.gbp) * (prices.gbp_try || 0);
+    const chf = parseAmount(form.chf) * (prices.chf_try || 0);
+    const sar = parseAmount(form.sar) * (prices.sar_try || 0);
+    const aed = parseAmount(form.aed) * (prices.aed_try || 0);
     const trade = parseAmount(form.trade);
     const receivables = parseAmount(form.receivables);
     const debts = parseAmount(form.debts);
 
-    const totalAssets = gold24 + gold22 + gold18 + gold14 + silver + cash + bank + usd + eur + gbp + trade + receivables;
+    const totalAssets = gold24 + gold22 + gold18 + gold14 + silver
+        + coinQuarter + coinHalf + coinFull + coinAta + coinCmr
+        + cash + bank + usd + eur + gbp + chf + sar + aed
+        + trade + receivables;
     const netWealth = Math.max(0, totalAssets - debts);
     const nisapThreshold = prices.nisap_threshold_try || 0;
     const rate = settings.zakat_rate ?? 0.025;
@@ -29,11 +40,19 @@ export function calculateZakat(form, prices, settings) {
             gold18,
             gold14,
             silver,
+            coinQuarter,
+            coinHalf,
+            coinFull,
+            coinAta,
+            coinCmr,
             cash,
             bank,
             usd,
             eur,
             gbp,
+            chf,
+            sar,
+            aed,
             trade,
             receivables,
             debts,

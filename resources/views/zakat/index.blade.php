@@ -2,6 +2,7 @@
     $zakatConfig = [
         'locale' => app()->getLocale(),
         'settings' => $settings,
+        'faqItems' => $faqItems,
         'donateUrl' => route('donations'),
         'activitiesUrl' => route('activities.index'),
         'labels' => [
@@ -10,17 +11,21 @@
             'prices_error' => __('app.zakat.prices_error'),
             'source_forex' => __('app.zakat.source_forex'),
             'source_metals' => __('app.zakat.source_metals'),
+            'source_supplemental_forex' => __('app.zakat.source_supplemental_forex'),
             'source_note' => __('app.zakat.source_note'),
             'metals_via_client' => __('app.zakat.metals_via_client'),
             'last_update' => __('app.zakat.last_update'),
             'nisap_label' => __('app.zakat.nisap_label'),
             'assets_title' => __('app.zakat.assets_title'),
             'gold_section' => __('app.zakat.gold_section'),
+            'coins_section' => __('app.zakat.coins_section'),
             'money_section' => __('app.zakat.money_section'),
             'other_section' => __('app.zakat.other_section'),
             'debts_section' => __('app.zakat.debts_section'),
             'gram' => __('app.zakat.gram'),
+            'piece' => __('app.zakat.piece'),
             'summary_title' => __('app.zakat.summary_title'),
+            'breakdown_title' => __('app.zakat.breakdown_title'),
             'total_assets' => __('app.zakat.total_assets'),
             'net_wealth' => __('app.zakat.net_wealth'),
             'zakat_amount' => __('app.zakat.zakat_amount'),
@@ -29,8 +34,33 @@
             'donate' => __('app.zakat.donate'),
             'activities' => __('app.zakat.activities'),
             'reset' => __('app.zakat.reset'),
+            'print' => __('app.zakat.print'),
             'legal_title' => __('app.zakat.legal_title'),
-            'legal_text' => __('app.zakat.legal_text'),
+            'legal_text' => $settings['legal_text'] ?? __('app.zakat.legal_text'),
+            'faq_title' => __('app.zakat.faq_title'),
+            'activities_title' => __('app.zakat.activities_title'),
+            'activities_desc' => __('app.zakat.activities_desc'),
+            'sticky_estimate' => __('app.zakat.sticky_estimate'),
+            'breakdown_gold24' => __('app.zakat.breakdown_gold24'),
+            'breakdown_gold22' => __('app.zakat.breakdown_gold22'),
+            'breakdown_gold18' => __('app.zakat.breakdown_gold18'),
+            'breakdown_gold14' => __('app.zakat.breakdown_gold14'),
+            'breakdown_silver' => __('app.zakat.breakdown_silver'),
+            'breakdown_coin_quarter' => __('app.zakat.breakdown_coin_quarter'),
+            'breakdown_coin_half' => __('app.zakat.breakdown_coin_half'),
+            'breakdown_coin_full' => __('app.zakat.breakdown_coin_full'),
+            'breakdown_coin_ata' => __('app.zakat.breakdown_coin_ata'),
+            'breakdown_coin_cmr' => __('app.zakat.breakdown_coin_cmr'),
+            'breakdown_cash' => __('app.zakat.breakdown_cash'),
+            'breakdown_bank' => __('app.zakat.breakdown_bank'),
+            'breakdown_usd' => __('app.zakat.breakdown_usd'),
+            'breakdown_eur' => __('app.zakat.breakdown_eur'),
+            'breakdown_gbp' => __('app.zakat.breakdown_gbp'),
+            'breakdown_chf' => __('app.zakat.breakdown_chf'),
+            'breakdown_sar' => __('app.zakat.breakdown_sar'),
+            'breakdown_aed' => __('app.zakat.breakdown_aed'),
+            'breakdown_trade' => __('app.zakat.breakdown_trade'),
+            'breakdown_receivables' => __('app.zakat.breakdown_receivables'),
         ],
     ];
 @endphp
@@ -40,10 +70,10 @@
 
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-12">
         <p class="mx-auto mb-8 max-w-3xl text-center text-base leading-relaxed text-slate-600 md:text-lg">
-            {{ __('app.zakat.intro') }}
+            {{ $settings['intro'] ?? __('app.zakat.intro') }}
         </p>
 
-        <div
+        <div id="zakat-print-area"
             x-data="zakatCalculator(@js($zakatConfig))"
             x-init="init()"
             class="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]"
@@ -158,6 +188,31 @@
                     </div>
 
                     <div class="rounded-[18px] border border-slate-100 bg-white p-6 shadow-sm md:p-8">
+                        <h2 class="text-lg font-bold text-slate-900">{{ __('app.zakat.coins_section') }}</h2>
+                        <p class="mt-1 text-xs text-slate-500">{{ __('app.zakat.coins_hint') }}</p>
+                        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                            @foreach ([
+                                ['coinQuarter', 'coin_quarter', 'coin_quarter_try'],
+                                ['coinHalf', 'coin_half', 'coin_half_try'],
+                                ['coinFull', 'coin_full', 'coin_full_try'],
+                                ['coinAta', 'coin_ata', 'coin_ata_try'],
+                                ['coinCmr', 'coin_cmr', 'coin_cmr_try'],
+                            ] as [$field, $label, $priceKey])
+                                <label class="block">
+                                    <span class="text-sm font-medium text-slate-700">{{ __('app.zakat.' . $label) }}</span>
+                                    <p class="mt-0.5 text-[11px] text-slate-400" x-show="prices.{{ $priceKey }}" x-cloak>
+                                        {{ __('app.zakat.unit_price') }}: <span x-text="prices.{{ $priceKey }} ? money(prices.{{ $priceKey }}) : '—'"></span>
+                                    </p>
+                                    <div class="relative mt-1.5">
+                                        <input type="number" min="0" step="1" x-model="form.{{ $field }}" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-slate-900 shadow-sm focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-100" placeholder="0">
+                                        <span class="pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs text-slate-400">{{ __('app.zakat.piece') }}</span>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="rounded-[18px] border border-slate-100 bg-white p-6 shadow-sm md:p-8">
                         <h2 class="text-lg font-bold text-slate-900">{{ __('app.zakat.money_section') }}</h2>
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             <label class="block">
@@ -179,6 +234,19 @@
                             <label class="block">
                                 <span class="text-sm font-medium text-slate-700">GBP</span>
                                 <input type="number" min="0" step="0.01" x-model="form.gbp" class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-2.5 shadow-sm focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-100" placeholder="0">
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-medium text-slate-700">CHF</span>
+                                <p class="text-[11px] text-slate-400">{{ __('app.zakat.source_supplemental_forex') }}</p>
+                                <input type="number" min="0" step="0.01" x-model="form.chf" class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-2.5 shadow-sm focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-100" placeholder="0">
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-medium text-slate-700">SAR</span>
+                                <input type="number" min="0" step="0.01" x-model="form.sar" class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-2.5 shadow-sm focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-100" placeholder="0">
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-medium text-slate-700">AED</span>
+                                <input type="number" min="0" step="0.01" x-model="form.aed" class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-2.5 shadow-sm focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-100" placeholder="0">
                             </label>
                         </div>
                     </div>
@@ -230,6 +298,18 @@
                     </dl>
                     <p class="mt-3 text-xs text-slate-500" x-show="!result.meetsNisap && result.totalAssets > 0" x-cloak>{{ __('app.zakat.below_nisap') }}</p>
 
+                    <div class="mt-5" x-show="breakdownRows.length" x-cloak>
+                        <h3 class="text-sm font-bold text-slate-800">{{ __('app.zakat.breakdown_title') }}</h3>
+                        <dl class="mt-3 space-y-2 text-sm">
+                            <template x-for="row in breakdownRows" :key="row.key">
+                                <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-2">
+                                    <dt class="text-slate-600" x-text="row.label"></dt>
+                                    <dd class="font-semibold text-slate-900" x-text="money(row.value)"></dd>
+                                </div>
+                            </template>
+                        </dl>
+                    </div>
+
                     <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
                         <a
                             :href="donateLink"
@@ -248,14 +328,77 @@
                         <button type="button" @click="resetForm()" class="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:w-auto">
                             {{ __('app.zakat.reset') }}
                         </button>
+                        <button type="button" @click="printSummary()" class="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:w-auto print:hidden">
+                            {{ __('app.zakat.print') }}
+                        </button>
                     </div>
                 </div>
 
-                <div class="rounded-[18px] border border-amber-100 bg-amber-50/50 p-5 text-sm leading-relaxed text-amber-950">
+                <div class="rounded-[18px] border border-amber-100 bg-amber-50/50 p-5 text-sm leading-relaxed text-amber-950 print:block">
                     <p class="font-semibold">{{ __('app.zakat.legal_title') }}</p>
-                    <p class="mt-2">{{ __('app.zakat.legal_text') }}</p>
+                    <p class="mt-2">{{ $settings['legal_text'] ?? __('app.zakat.legal_text') }}</p>
                 </div>
+
+                @if (count($faqItems))
+                    <div class="rounded-[18px] border border-slate-100 bg-white p-6 shadow-sm md:p-8 print:hidden">
+                        <h2 class="text-lg font-bold text-slate-900">{{ __('app.zakat.faq_title') }}</h2>
+                        <div class="mt-4 space-y-3">
+                            @foreach ($faqItems as $index => $item)
+                                <div class="overflow-hidden rounded-2xl border border-cyan-100 bg-slate-50/50">
+                                    <button type="button" @click="toggleFaq({{ $index }})" class="flex w-full items-center justify-between gap-4 px-5 py-4 text-start text-sm font-semibold text-slate-900">
+                                        <span>{{ $item['question'] }}</span>
+                                        <span class="text-cyan-600" x-text="faqOpen === {{ $index }} ? '−' : '+'"></span>
+                                    </button>
+                                    <div x-show="faqOpen === {{ $index }}" x-cloak class="border-t border-cyan-100 px-5 py-4 text-sm leading-relaxed text-slate-600">
+                                        {{ $item['answer'] }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if ($featuredActivities->isNotEmpty())
+                    <div class="rounded-[18px] border border-slate-100 bg-white p-6 shadow-sm md:p-8 print:hidden">
+                        <h2 class="text-lg font-bold text-slate-900">{{ __('app.zakat.activities_title') }}</h2>
+                        <p class="mt-2 text-sm text-slate-600">{{ __('app.zakat.activities_desc') }}</p>
+                        <div class="mt-5 grid gap-4 md:grid-cols-3">
+                            @foreach ($featuredActivities as $activity)
+                                <a href="{{ route('activities.show', $activity->slug) }}" class="group rounded-2xl border border-slate-100 bg-gradient-to-br from-white to-cyan-50/40 p-4 shadow-sm transition hover:border-cyan-200 hover:shadow-md">
+                                    <p class="text-sm font-bold text-slate-900 group-hover:text-cyan-800">{{ $activity->getLocalized('title') }}</p>
+                                    <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-600">{{ $activity->getLocalized('description') }}</p>
+                                    <span class="mt-3 inline-flex text-xs font-semibold text-cyan-700">{{ __('app.zakat.donate') }} →</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div
+            x-show="showStickySummary"
+            x-cloak
+            class="fixed inset-x-0 bottom-0 z-40 border-t border-cyan-200 bg-white/95 px-4 py-3 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur md:hidden print:hidden"
+        >
+            <div class="mx-auto flex max-w-7xl items-center justify-between gap-3">
+                <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ __('app.zakat.sticky_estimate') }}</p>
+                    <p class="text-lg font-extrabold text-cyan-700" x-text="money(result.zakatAmount)"></p>
+                </div>
+                <a :href="donateLink" class="btn-primary inline-flex shrink-0 items-center rounded-full px-5 py-2.5 text-sm font-semibold shadow-md">
+                    {{ __('app.zakat.donate') }}
+                </a>
             </div>
         </div>
     </section>
+
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #zakat-print-area, #zakat-print-area * { visibility: visible; }
+            #zakat-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            aside, .print\\:hidden { display: none !important; }
+        }
+    </style>
 </x-layouts.app>

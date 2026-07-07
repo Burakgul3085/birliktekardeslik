@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ZakatController;
+use App\Http\Controllers\IslamicFinanceController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CrmDocumentController;
 use App\Http\Controllers\Crm\PosterController;
@@ -24,6 +25,7 @@ Route::get('/locale/{lang}', function (string $lang) {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/bagis-yap', [HomeController::class, 'donations'])->name('donations');
 Route::get('/zekat-hesapla', [ZakatController::class, 'index'])->name('zakat.index');
+Route::get('/islami-finans-araclari', [IslamicFinanceController::class, 'index'])->name('islamic-finance.index');
 Route::get('/api/zekat/fiyatlar', [ZakatController::class, 'prices'])
     ->middleware('throttle:60,1')
     ->name('zakat.prices');

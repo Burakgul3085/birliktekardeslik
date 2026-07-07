@@ -4,6 +4,25 @@
     <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <p class="mt-2 text-slate-600">{{ __('app.donations.page_desc') }}</p>
 
+        @if ($presetAmount || $presetNote)
+            <div class="mt-6 rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-white p-5 shadow-sm">
+                <p class="text-sm font-bold text-cyan-900">{{ __('app.donations.zakat_preset_title') }}</p>
+                <p class="mt-2 text-sm text-cyan-800">{{ __('app.donations.zakat_preset_desc') }}</p>
+                <div class="mt-4 rounded-xl border border-cyan-100 bg-white px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('app.donations.zakat_preset_example_label') }}</p>
+                    <p class="mt-1 font-mono text-sm font-medium text-slate-900" dir="ltr">
+                        @if ($presetAmount)
+                            {{ number_format($presetAmount, 0, ',', '.') }} TL
+                        @endif
+                        @if ($presetAmount && $presetNote) – @endif
+                        @if ($presetNote)
+                            {{ $presetNote }}
+                        @endif
+                    </p>
+                </div>
+            </div>
+        @endif
+
         <div
             x-data="{ visible: false }"
             x-init="setTimeout(() => visible = true, 200)"

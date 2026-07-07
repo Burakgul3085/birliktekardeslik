@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Support\Zakat\PriceService;
+use App\Support\Zakat\ZakatSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
@@ -10,13 +12,16 @@ class ZakatController extends Controller
 {
     public function index(): View
     {
+        $settings = ZakatSettings::forPage();
+
         return view('zakat.index', [
-            'settings' => [
-                'nisap_grams' => (float) config('zakat.nisap_grams', 80),
-                'nisap_karat' => (int) config('zakat.nisap_karat', 24),
-                'zakat_rate' => (float) config('zakat.rate', 0.025),
-                'karat_factors' => config('zakat.karat_factors', []),
-            ],
+            'settings' => $settings,
+            'faqItems' => $settings['faq'],
+            'featuredActivities' => Project::query()
+                ->active()
+                ->orderBy('sort_order')
+                ->take(3)
+                ->get(),
         ]);
     }
 

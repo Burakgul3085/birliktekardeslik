@@ -219,9 +219,14 @@ class HomeController extends Controller
     {
         $qrRelativePath = app(DonationQrService::class)->generate();
 
+        $presetAmount = request()->query('tutar');
+        $presetNote = request()->query('aciklama');
+
         return view('donations', [
             'bankAccounts' => BankAccount::query()->active()->orderBy('sort_order')->get(),
             'donationQrPath' => $qrRelativePath,
+            'presetAmount' => is_numeric($presetAmount) ? (float) $presetAmount : null,
+            'presetNote' => filled($presetNote) ? (string) $presetNote : null,
         ]);
     }
 

@@ -6,11 +6,13 @@ document.addEventListener('alpine:init', () => {
         locale: config.locale ?? 'tr',
         labels: config.labels ?? {},
         settings: config.settings ?? {},
+        faqItems: config.faqItems ?? [],
         donateUrl: config.donateUrl ?? '/bagis-yap',
         activitiesUrl: config.activitiesUrl ?? '/faaliyetler',
         pricesLoading: true,
         metalsError: false,
         forexError: false,
+        faqOpen: null,
         prices: {},
         sources: {},
         form: {
@@ -19,11 +21,19 @@ document.addEventListener('alpine:init', () => {
             gold18: '',
             gold14: '',
             silver: '',
+            coinQuarter: '',
+            coinHalf: '',
+            coinFull: '',
+            coinAta: '',
+            coinCmr: '',
             cash: '',
             bank: '',
             usd: '',
             eur: '',
             gbp: '',
+            chf: '',
+            sar: '',
+            aed: '',
             trade: '',
             receivables: '',
             debts: '',
@@ -66,6 +76,43 @@ document.addEventListener('alpine:init', () => {
             return calculateZakat(this.form, this.prices, this.settings);
         },
 
+        get breakdownRows() {
+            const map = [
+                ['gold24', this.labels.breakdown_gold24],
+                ['gold22', this.labels.breakdown_gold22],
+                ['gold18', this.labels.breakdown_gold18],
+                ['gold14', this.labels.breakdown_gold14],
+                ['silver', this.labels.breakdown_silver],
+                ['coinQuarter', this.labels.breakdown_coin_quarter],
+                ['coinHalf', this.labels.breakdown_coin_half],
+                ['coinFull', this.labels.breakdown_coin_full],
+                ['coinAta', this.labels.breakdown_coin_ata],
+                ['coinCmr', this.labels.breakdown_coin_cmr],
+                ['cash', this.labels.breakdown_cash],
+                ['bank', this.labels.breakdown_bank],
+                ['usd', this.labels.breakdown_usd],
+                ['eur', this.labels.breakdown_eur],
+                ['gbp', this.labels.breakdown_gbp],
+                ['chf', this.labels.breakdown_chf],
+                ['sar', this.labels.breakdown_sar],
+                ['aed', this.labels.breakdown_aed],
+                ['trade', this.labels.breakdown_trade],
+                ['receivables', this.labels.breakdown_receivables],
+            ];
+
+            return map
+                .map(([key, label]) => ({
+                    key,
+                    label,
+                    value: this.result.breakdown[key] ?? 0,
+                }))
+                .filter((row) => row.value > 0);
+        },
+
+        get showStickySummary() {
+            return this.result.totalAssets > 0 || this.result.zakatAmount > 0;
+        },
+
         money(value) {
             return formatMoney(value, resolveLocale(this.locale));
         },
@@ -82,6 +129,14 @@ document.addEventListener('alpine:init', () => {
             });
 
             return `${this.donateUrl}?${params.toString()}`;
+        },
+
+        toggleFaq(index) {
+            this.faqOpen = this.faqOpen === index ? null : index;
+        },
+
+        printSummary() {
+            window.print();
         },
 
         resetForm() {

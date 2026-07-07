@@ -199,9 +199,35 @@ return [
         'reset'         => 'Очистить форму',
         'legal_title'   => 'Важное предупреждение',
         'legal_text'    => 'Этот калькулятор только для информации. Обратитесь к компетентному религиозному авторитету по вопросам закята, нисаба и классификации активов. Ассоциация не несёт ответственности за результаты расчёта.',
+        'coins_section' => 'Gold Coins (by piece)', 'coins_hint' => 'Live unit prices from GenelPara.',
+        'coin_quarter' => 'Quarter Gold', 'coin_half' => 'Half Gold', 'coin_full' => 'Full Gold',
+        'coin_ata' => 'Ata Lira', 'coin_cmr' => 'Republic Gold', 'piece' => 'pcs', 'unit_price' => 'Unit price',
+        'source_supplemental_forex' => 'GenelPara (supplemental FX, not official)',
+        'breakdown_title' => 'Asset Breakdown', 'print' => 'Print Summary', 'faq_title' => 'FAQ',
+        'activities_title' => 'Direct Your Zakat', 'activities_desc' => 'Direct zakat to our activities.',
+        'sticky_estimate' => 'Estimated Zakat',
+        'breakdown_gold24' => '24K Gold', 'breakdown_gold22' => '22K Gold', 'breakdown_gold18' => '18K Gold', 'breakdown_gold14' => '14K Gold',
+        'breakdown_silver' => 'Silver', 'breakdown_coin_quarter' => 'Quarter Gold', 'breakdown_coin_half' => 'Half Gold',
+        'breakdown_coin_full' => 'Full Gold', 'breakdown_coin_ata' => 'Ata Lira', 'breakdown_coin_cmr' => 'Republic Gold',
+        'breakdown_cash' => 'Cash', 'breakdown_bank' => 'Bank Deposits', 'breakdown_usd' => 'USD', 'breakdown_eur' => 'EUR',
+        'breakdown_gbp' => 'GBP', 'breakdown_chf' => 'CHF', 'breakdown_sar' => 'SAR', 'breakdown_aed' => 'AED',
+        'breakdown_trade' => 'Trade Goods', 'breakdown_receivables' => 'Receivables',
+        'faq_items' => [
+            ['question' => 'What is nisab?', 'answer' => 'Minimum wealth threshold for zakat (80g 24K gold).'],
+            ['question' => 'What is hawl?', 'answer' => 'One lunar year over zakatable assets.'],
+            ['question' => 'Which assets?', 'answer' => 'Cash, gold, silver, FX, trade goods, receivables minus debts.'],
+            ['question' => 'Price sources?', 'answer' => 'CBRT for FX; GenelPara for metals and coins.'],
+        ],
     ],
 
-    /*
+    
+    'islamic_finance' => [
+        'page_title' => 'Islamic Finance Tools', 'intro' => 'Access our zakat calculator and donation guidance.',
+        'zakat_title' => 'Zakat Calculator', 'zakat_desc' => 'Calculate with live prices.', 'zakat_cta' => 'Calculate',
+        'donate_title' => 'Donate', 'donate_desc' => 'Bank transfer guide.', 'donate_cta' => 'Donation Page',
+        'activities_title' => 'Activities', 'activities_desc' => 'Support our projects.', 'activities_cta' => 'View',
+    ],
+/*
     |--------------------------------------------------------------------------
     | Прямые новости из Чада (главная страница)
     |--------------------------------------------------------------------------
@@ -473,6 +499,9 @@ return [
         'qr_note'           => 'QR-код всегда открывает страницу пожертвований.',
         'empty_title'       => 'Нет активных счетов',
         'empty_desc'        => 'Активные банковские счета, добавленные из панели администратора, появятся здесь.',
+        'zakat_preset_title' => 'Zakat donation info',
+        'zakat_preset_desc' => 'Include in transfer description.',
+        'zakat_preset_example_label' => 'Suggested format',
     ],
 
     /*

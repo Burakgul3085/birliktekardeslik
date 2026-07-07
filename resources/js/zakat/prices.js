@@ -43,7 +43,7 @@ async function ensureMetals(payload) {
 }
 
 async function fetchGenelParaMetalsFromClient() {
-    const symbolSets = ['GA,GAG,22,18,14', 'all'];
+    const symbolSets = ['GA,GAG,22,18,14,C,Y,T,ATA,CMR', 'all'];
 
     for (const symbols of symbolSets) {
         try {
@@ -94,6 +94,11 @@ function parseMetalsFromGenelPara(data) {
         gold_18_per_gram: parseGenelParaPrice(data['18']) || roundPrice(gold24 * 0.75),
         gold_14_per_gram: parseGenelParaPrice(data['14']) || roundPrice(gold24 * 0.585),
         silver_per_gram: silver,
+        coin_quarter_try: parseGenelParaPrice(data.C),
+        coin_half_try: parseGenelParaPrice(data.Y),
+        coin_full_try: parseGenelParaPrice(data.T),
+        coin_ata_try: parseGenelParaPrice(data.ATA),
+        coin_cmr_try: parseGenelParaPrice(data.CMR),
     };
 }
 

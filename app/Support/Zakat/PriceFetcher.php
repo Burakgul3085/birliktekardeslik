@@ -104,7 +104,46 @@ class PriceFetcher
             'gold_18_per_gram' => $this->parseGenelParaPrice($data['18'] ?? null) ?? round($gold24 * 0.75, 2),
             'gold_14_per_gram' => $this->parseGenelParaPrice($data['14'] ?? null) ?? round($gold24 * 0.585, 2),
             'silver_per_gram' => $silver,
+            'coin_quarter_try' => $this->parseGenelParaPrice($data['C'] ?? null) ?? 0,
+            'coin_half_try' => $this->parseGenelParaPrice($data['Y'] ?? null) ?? 0,
+            'coin_full_try' => $this->parseGenelParaPrice($data['T'] ?? null) ?? 0,
+            'coin_ata_try' => $this->parseGenelParaPrice($data['ATA'] ?? null) ?? 0,
+            'coin_cmr_try' => $this->parseGenelParaPrice($data['CMR'] ?? null) ?? 0,
         ];
+    }
+
+    public function fetchSupplementalForex(): array
+    {
+        $response = $this->client()->get('https://api.genelpara.com/json', [
+            'list' => 'doviz',
+            'sembol' => 'CHF,SAR,AED',
+        ]);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException('GenelPara ek döviz kurları alınamadı.');
+        }
+
+        $payload = $response->json();
+
+        if (! is_array($payload) || ($payload['success'] ?? false) !== true) {
+            throw new \RuntimeException('GenelPara ek döviz yanıtı geçersiz.');
+        }
+
+        $data = $payload['data'] ?? [];
+        $rates = [];
+
+        foreach (['CHF', 'SAR', 'AED'] as $code) {
+            $price = $this->parseGenelParaPrice($data[$code] ?? null);
+            if ($price !== null) {
+                $rates[$code] = $price;
+            }
+        }
+
+        if (count($rates) < 3) {
+            throw new \RuntimeException('GenelPara ek döviz verisi eksik.');
+        }
+
+        return $rates;
     }
 
     private function requestGenelParaMetals(string $symbols): ?array
@@ -174,6 +213,17 @@ class PriceFetcher
             return $this->fetchMetals();
         } catch (Throwable $exception) {
             Log::warning('Zakat metals fetch failed', ['message' => $exception->getMessage()]);
+
+            return null;
+        }
+    }
+
+    public function tryFetchSupplementalForex(): ?array
+    {
+        try {
+            return $this->fetchSupplementalForex();
+        } catch (Throwable $exception) {
+            Log::warning('Zakat supplemental forex fetch failed', ['message' => $exception->getMessage()]);
 
             return null;
         }

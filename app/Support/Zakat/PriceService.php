@@ -18,9 +18,11 @@ class PriceService
 
         $forexFetchedAt = (int) ($stored['forex_fetched_at'] ?? 0);
         $metalsFetchedAt = (int) ($stored['metals_fetched_at'] ?? 0);
+        $supplementalFetchedAt = (int) ($stored['supplemental_forex_fetched_at'] ?? 0);
 
         $forexStale = ($now->timestamp - $forexFetchedAt) >= config('zakat.cache.forex_ttl');
         $metalsStale = ($now->timestamp - $metalsFetchedAt) >= config('zakat.cache.metals_ttl');
+        $supplementalStale = ($now->timestamp - $supplementalFetchedAt) >= config('zakat.cache.forex_ttl');
 
         if ($forexStale) {
             $freshForex = $this->fetcher->tryFetchForex();
@@ -35,6 +37,14 @@ class PriceService
             if ($freshMetals !== null) {
                 $stored['metals'] = $freshMetals;
                 $stored['metals_fetched_at'] = $now->timestamp;
+            }
+        }
+
+        if ($supplementalStale) {
+            $freshSupplemental = $this->fetcher->tryFetchSupplementalForex();
+            if ($freshSupplemental !== null) {
+                $stored['supplemental_forex'] = $freshSupplemental;
+                $stored['supplemental_forex_fetched_at'] = $now->timestamp;
             }
         }
 
@@ -73,9 +83,11 @@ class PriceService
     {
         $forex = is_array($stored['forex'] ?? null) ? $stored['forex'] : [];
         $metals = is_array($stored['metals'] ?? null) ? $stored['metals'] : [];
+        $supplemental = is_array($stored['supplemental_forex'] ?? null) ? $stored['supplemental_forex'] : [];
 
+        $pageSettings = ZakatSettings::forPage();
         $gold24 = (float) ($metals['gold_24_per_gram'] ?? 0);
-        $nisapGrams = (float) config('zakat.nisap_grams', 80);
+        $nisapGrams = (float) ($pageSettings['nisap_grams'] ?? 80);
 
         $forexFetchedAt = isset($stored['forex_fetched_at'])
             ? Carbon::createFromTimestamp((int) $stored['forex_fetched_at'])->toIso8601String()
@@ -83,6 +95,10 @@ class PriceService
 
         $metalsFetchedAt = isset($stored['metals_fetched_at'])
             ? Carbon::createFromTimestamp((int) $stored['metals_fetched_at'])->toIso8601String()
+            : null;
+
+        $supplementalFetchedAt = isset($stored['supplemental_forex_fetched_at'])
+            ? Carbon::createFromTimestamp((int) $stored['supplemental_forex_fetched_at'])->toIso8601String()
             : null;
 
         $forexAge = isset($stored['forex_fetched_at'])
@@ -102,12 +118,20 @@ class PriceService
             'gold_18_per_gram' => (float) ($metals['gold_18_per_gram'] ?? 0),
             'gold_14_per_gram' => (float) ($metals['gold_14_per_gram'] ?? 0),
             'silver_per_gram' => (float) ($metals['silver_per_gram'] ?? 0),
+            'coin_quarter_try' => (float) ($metals['coin_quarter_try'] ?? 0),
+            'coin_half_try' => (float) ($metals['coin_half_try'] ?? 0),
+            'coin_full_try' => (float) ($metals['coin_full_try'] ?? 0),
+            'coin_ata_try' => (float) ($metals['coin_ata_try'] ?? 0),
+            'coin_cmr_try' => (float) ($metals['coin_cmr_try'] ?? 0),
             'usd_try' => (float) ($forex['USD'] ?? 0),
             'eur_try' => (float) ($forex['EUR'] ?? 0),
             'gbp_try' => (float) ($forex['GBP'] ?? 0),
+            'chf_try' => (float) ($supplemental['CHF'] ?? 0),
+            'sar_try' => (float) ($supplemental['SAR'] ?? 0),
+            'aed_try' => (float) ($supplemental['AED'] ?? 0),
             'nisap_threshold_try' => $gold24 > 0 ? round($nisapGrams * $gold24, 2) : 0,
             'nisap_grams' => $nisapGrams,
-            'zakat_rate' => (float) config('zakat.rate', 0.025),
+            'zakat_rate' => (float) ($pageSettings['zakat_rate'] ?? 0.025),
             'sources' => [
                 'forex' => [
                     'name' => 'TCMB',
@@ -122,6 +146,13 @@ class PriceService
                     'url' => 'https://www.genelpara.com',
                     'fetched_at' => $metalsFetchedAt,
                     'is_stale' => $metalsAge === null || $metalsAge > config('zakat.cache.metals_ttl'),
+                ],
+                'supplemental_forex' => [
+                    'name' => 'GenelPara',
+                    'label' => 'GenelPara (ek döviz, resmi kur değildir)',
+                    'url' => 'https://www.genelpara.com',
+                    'fetched_at' => $supplementalFetchedAt,
+                    'is_stale' => $supplementalFetchedAt === null,
                 ],
             ],
             'has_forex' => $hasForex,

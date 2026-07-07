@@ -198,7 +198,33 @@ return [
         'activities'    => 'See Our Activities',
         'reset'         => 'Clear Form',
         'legal_title'   => 'Important Notice',
-        'legal_text'    => 'This calculator is for information only. Please consult a qualified religious authority regarding zakat, nisab, and asset classification. Birlikte Kardeşlik Association accepts no liability for calculation results.',
+        'legal_text'    => 'This calculator is for information only. Please consult a qualified religious authority regarding zakat, nisap, and asset classification. Birlikte Kardeslik Association accepts no liability for calculation results.',
+        'coins_section' => 'Gold Coins (by piece)', 'coins_hint' => 'Live unit prices are from GenelPara.',
+        'coin_quarter' => 'Quarter Gold', 'coin_half' => 'Half Gold', 'coin_full' => 'Full Gold',
+        'coin_ata' => 'Ata Lira', 'coin_cmr' => 'Republic Gold', 'piece' => 'pcs', 'unit_price' => 'Unit price',
+        'source_supplemental_forex' => 'GenelPara (supplemental FX, not official)',
+        'breakdown_title' => 'Asset Breakdown', 'print' => 'Print Summary', 'faq_title' => 'FAQ',
+        'activities_title' => 'Direct Your Zakat', 'activities_desc' => 'You can direct your zakat to one of our activities below.',
+        'sticky_estimate' => 'Estimated Zakat',
+        'breakdown_gold24' => '24K Gold', 'breakdown_gold22' => '22K Gold', 'breakdown_gold18' => '18K Gold', 'breakdown_gold14' => '14K Gold',
+        'breakdown_silver' => 'Silver', 'breakdown_coin_quarter' => 'Quarter Gold', 'breakdown_coin_half' => 'Half Gold',
+        'breakdown_coin_full' => 'Full Gold', 'breakdown_coin_ata' => 'Ata Lira', 'breakdown_coin_cmr' => 'Republic Gold',
+        'breakdown_cash' => 'Cash', 'breakdown_bank' => 'Bank Deposits', 'breakdown_usd' => 'USD', 'breakdown_eur' => 'EUR',
+        'breakdown_gbp' => 'GBP', 'breakdown_chf' => 'CHF', 'breakdown_sar' => 'SAR', 'breakdown_aed' => 'AED',
+        'breakdown_trade' => 'Trade Goods', 'breakdown_receivables' => 'Receivables',
+        'faq_items' => [
+            ['question' => 'What is nisab?', 'answer' => 'Nisab is the minimum threshold for zakat. This calculator uses 80 grams of 24K gold.'],
+            ['question' => 'What is hawl?', 'answer' => 'A full lunar year must pass over zakatable assets.'],
+            ['question' => 'Which assets should I enter?', 'answer' => 'Cash, deposits, gold, silver, FX, trade goods and receivables minus debts.'],
+            ['question' => 'Where do prices come from?', 'answer' => 'FX from CBRT; metals and coins from GenelPara for information only.'],
+        ],
+    ],
+
+    'islamic_finance' => [
+        'page_title' => 'Islamic Finance Tools', 'intro' => 'Access our zakat calculator and donation guidance.',
+        'zakat_title' => 'Zakat Calculator', 'zakat_desc' => 'Enter your assets with live prices.', 'zakat_cta' => 'Calculate',
+        'donate_title' => 'Donate', 'donate_desc' => 'Bank accounts and transfer guide.', 'donate_cta' => 'Donation Page',
+        'activities_title' => 'Our Activities', 'activities_desc' => 'Projects you can support.', 'activities_cta' => 'View Activities',
     ],
 
     /*
@@ -473,6 +499,9 @@ return [
         'qr_note'           => 'The QR code always opens the donation page.',
         'empty_title'       => 'No active accounts',
         'empty_desc'        => 'Active bank accounts added from the admin panel will appear here.',
+        'zakat_preset_title' => 'Suggested details for zakat donation',
+        'zakat_preset_desc'  => 'You may include the following in your transfer description. Do not forget your name and phone number.',
+        'zakat_preset_example_label' => 'Suggested description format',
     ],
 
     /*
