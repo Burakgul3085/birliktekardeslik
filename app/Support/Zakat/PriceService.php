@@ -18,16 +18,15 @@ class PriceService
 
         $forexFetchedAt = (int) ($stored['forex_fetched_at'] ?? 0);
         $metalsFetchedAt = (int) ($stored['metals_fetched_at'] ?? 0);
-        $supplementalFetchedAt = (int) ($stored['supplemental_forex_fetched_at'] ?? 0);
 
         $forexStale = ($now->timestamp - $forexFetchedAt) >= config('zakat.cache.forex_ttl');
         $metalsStale = ($now->timestamp - $metalsFetchedAt) >= config('zakat.cache.metals_ttl');
-        $supplementalStale = ($now->timestamp - $supplementalFetchedAt) >= config('zakat.cache.forex_ttl');
 
         if ($forexStale) {
             $freshForex = $this->fetcher->tryFetchForex();
             if ($freshForex !== null) {
-                $stored['forex'] = $freshForex;
+                $stored['forex'] = $freshForex['rates'];
+                $stored['forex_trends'] = $freshForex['trends'];
                 $stored['forex_fetched_at'] = $now->timestamp;
             }
         }
@@ -35,16 +34,9 @@ class PriceService
         if ($metalsStale) {
             $freshMetals = $this->fetcher->tryFetchMetals();
             if ($freshMetals !== null) {
-                $stored['metals'] = $freshMetals;
+                $stored['metals'] = $freshMetals['prices'];
+                $stored['metals_trends'] = $freshMetals['trends'];
                 $stored['metals_fetched_at'] = $now->timestamp;
-            }
-        }
-
-        if ($supplementalStale) {
-            $freshSupplemental = $this->fetcher->tryFetchSupplementalForex();
-            if ($freshSupplemental !== null) {
-                $stored['supplemental_forex'] = $freshSupplemental;
-                $stored['supplemental_forex_fetched_at'] = $now->timestamp;
             }
         }
 
@@ -81,9 +73,17 @@ class PriceService
 
     private function formatResponse(array $stored, Carbon $now): array
     {
-        $forex = is_array($stored['forex'] ?? null) ? $stored['forex'] : [];
-        $metals = is_array($stored['metals'] ?? null) ? $stored['metals'] : [];
+        $forex = $this->normalizeForexRates($stored['forex'] ?? []);
+        $metals = $this->normalizeMetals($stored['metals'] ?? []);
+        $forexTrends = is_array($stored['forex_trends'] ?? null) ? $stored['forex_trends'] : [];
+        $metalsTrends = is_array($stored['metals_trends'] ?? null) ? $stored['metals_trends'] : [];
+
         $supplemental = is_array($stored['supplemental_forex'] ?? null) ? $stored['supplemental_forex'] : [];
+        foreach (['CHF', 'SAR', 'AED'] as $code) {
+            if (empty($forex[$code]) && ! empty($supplemental[$code])) {
+                $forex[$code] = (float) $supplemental[$code];
+            }
+        }
 
         $pageSettings = ZakatSettings::forPage();
         $gold24 = (float) ($metals['gold_24_per_gram'] ?? 0);
@@ -97,10 +97,6 @@ class PriceService
             ? Carbon::createFromTimestamp((int) $stored['metals_fetched_at'])->toIso8601String()
             : null;
 
-        $supplementalFetchedAt = isset($stored['supplemental_forex_fetched_at'])
-            ? Carbon::createFromTimestamp((int) $stored['supplemental_forex_fetched_at'])->toIso8601String()
-            : null;
-
         $forexAge = isset($stored['forex_fetched_at'])
             ? $now->timestamp - (int) $stored['forex_fetched_at']
             : null;
@@ -111,6 +107,10 @@ class PriceService
 
         $hasForex = ! empty($forex['USD']) && ! empty($forex['EUR']) && ! empty($forex['GBP']);
         $hasMetals = $gold24 > 0 && (float) ($metals['silver_per_gram'] ?? 0) > 0;
+
+        $fetchedAt = $forexFetchedAt && $metalsFetchedAt
+            ? (strtotime($forexFetchedAt) > strtotime($metalsFetchedAt) ? $forexFetchedAt : $metalsFetchedAt)
+            : ($forexFetchedAt ?? $metalsFetchedAt);
 
         return [
             'gold_24_per_gram' => $gold24,
@@ -126,38 +126,61 @@ class PriceService
             'usd_try' => (float) ($forex['USD'] ?? 0),
             'eur_try' => (float) ($forex['EUR'] ?? 0),
             'gbp_try' => (float) ($forex['GBP'] ?? 0),
-            'chf_try' => (float) ($supplemental['CHF'] ?? 0),
-            'sar_try' => (float) ($supplemental['SAR'] ?? 0),
-            'aed_try' => (float) ($supplemental['AED'] ?? 0),
+            'chf_try' => (float) ($forex['CHF'] ?? 0),
+            'sar_try' => (float) ($forex['SAR'] ?? 0),
+            'aed_try' => (float) ($forex['AED'] ?? 0),
             'nisap_threshold_try' => $gold24 > 0 ? round($nisapGrams * $gold24, 2) : 0,
             'nisap_grams' => $nisapGrams,
             'zakat_rate' => (float) ($pageSettings['zakat_rate'] ?? 0.025),
+            'trends' => array_merge($metalsTrends, $forexTrends),
             'sources' => [
-                'forex' => [
-                    'name' => 'TCMB',
-                    'label' => 'Türkiye Cumhuriyet Merkez Bankası (TCMB)',
-                    'url' => 'https://www.tcmb.gov.tr',
-                    'fetched_at' => $forexFetchedAt,
-                    'is_stale' => $forexAge === null || $forexAge > config('zakat.cache.forex_ttl'),
-                ],
-                'metals' => [
+                'genelpara' => [
                     'name' => 'GenelPara',
-                    'label' => 'GenelPara (piyasa verisi)',
+                    'label' => 'GenelPara (piyasa verisi, resmi kur değildir)',
                     'url' => 'https://www.genelpara.com',
-                    'fetched_at' => $metalsFetchedAt,
-                    'is_stale' => $metalsAge === null || $metalsAge > config('zakat.cache.metals_ttl'),
-                ],
-                'supplemental_forex' => [
-                    'name' => 'GenelPara',
-                    'label' => 'GenelPara (ek döviz, resmi kur değildir)',
-                    'url' => 'https://www.genelpara.com',
-                    'fetched_at' => $supplementalFetchedAt,
-                    'is_stale' => $supplementalFetchedAt === null,
+                    'fetched_at' => $fetchedAt,
+                    'forex_fetched_at' => $forexFetchedAt,
+                    'metals_fetched_at' => $metalsFetchedAt,
+                    'is_stale' => ($forexAge === null || $forexAge > config('zakat.cache.forex_ttl'))
+                        || ($metalsAge === null || $metalsAge > config('zakat.cache.metals_ttl')),
                 ],
             ],
             'has_forex' => $hasForex,
             'has_metals' => $hasMetals,
             'has_data' => $hasForex && $hasMetals,
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $raw
+     * @return array<string, float>
+     */
+    private function normalizeForexRates(array $raw): array
+    {
+        if (isset($raw['rates']) && is_array($raw['rates'])) {
+            return $raw['rates'];
+        }
+
+        $rates = [];
+        foreach (['USD', 'EUR', 'GBP', 'CHF', 'SAR', 'AED'] as $code) {
+            if (isset($raw[$code])) {
+                $rates[$code] = (float) $raw[$code];
+            }
+        }
+
+        return $rates;
+    }
+
+    /**
+     * @param  array<string, mixed>  $raw
+     * @return array<string, mixed>
+     */
+    private function normalizeMetals(array $raw): array
+    {
+        if (isset($raw['prices']) && is_array($raw['prices'])) {
+            return $raw['prices'];
+        }
+
+        return $raw;
     }
 }

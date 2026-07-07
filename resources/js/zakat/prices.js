@@ -6,7 +6,7 @@ const CACHE_TTL = 60_000;
 export async function fetchZakatPrices() {
     try {
         const cached = readCache();
-        if (cached?.has_metals) {
+        if (cached?.has_data) {
             return cached;
         }
     } catch {
@@ -22,24 +22,30 @@ export async function fetchZakatPrices() {
     }
 
     let payload = await response.json();
-    payload = await ensureMetals(payload);
+    payload = await ensurePrices(payload);
     writeCache(payload);
 
     return payload;
 }
 
-async function ensureMetals(payload) {
-    if (payload?.has_metals) {
-        return payload;
+async function ensurePrices(payload) {
+    let result = { ...payload };
+
+    if (!result.has_metals) {
+        const clientMetals = await fetchGenelParaMetalsFromClient();
+        if (clientMetals) {
+            result = mergeMetalsIntoPayload(result, clientMetals);
+        }
     }
 
-    const clientMetals = await fetchGenelParaMetalsFromClient();
-
-    if (!clientMetals) {
-        return payload;
+    if (!result.has_forex) {
+        const clientForex = await fetchGenelParaForexFromClient();
+        if (clientForex) {
+            result = mergeForexIntoPayload(result, clientForex);
+        }
     }
 
-    return mergeMetalsIntoPayload(payload, clientMetals);
+    return result;
 }
 
 async function fetchGenelParaMetalsFromClient() {
@@ -67,10 +73,10 @@ async function fetchGenelParaMetalsFromClient() {
                 continue;
             }
 
-            const metals = parseMetalsFromGenelPara(payload.data);
+            const parsed = parseMetalsFromGenelPara(payload.data);
 
-            if (metals) {
-                return metals;
+            if (parsed) {
+                return parsed;
             }
         } catch {
             // try next symbol set
@@ -80,26 +86,135 @@ async function fetchGenelParaMetalsFromClient() {
     return null;
 }
 
-function parseMetalsFromGenelPara(data) {
-    const gold24 = parseGenelParaPrice(data.GA);
-    const silver = parseGenelParaPrice(data.GAG);
+async function fetchGenelParaForexFromClient() {
+    try {
+        const url = `${GENELPARA_URL}?${new URLSearchParams({
+            list: 'doviz',
+            sembol: 'USD,EUR,GBP,CHF,SAR,AED',
+        }).toString()}`;
 
-    if (!gold24 || !silver) {
+        const response = await fetch(url, {
+            headers: { Accept: 'application/json' },
+            mode: 'cors',
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const payload = await response.json();
+
+        if (!payload?.success || !payload?.data) {
+            return null;
+        }
+
+        return parseForexFromGenelPara(payload.data);
+    } catch {
+        return null;
+    }
+}
+
+function parseMetalsFromGenelPara(data) {
+    const gold24Row = parseGenelParaRow(data.GA);
+    const silverRow = parseGenelParaRow(data.GAG);
+
+    if (!gold24Row || !silverRow) {
         return null;
     }
 
-    return {
-        gold_24_per_gram: gold24,
-        gold_22_per_gram: parseGenelParaPrice(data['22']) || roundPrice(gold24 * 0.916),
-        gold_18_per_gram: parseGenelParaPrice(data['18']) || roundPrice(gold24 * 0.75),
-        gold_14_per_gram: parseGenelParaPrice(data['14']) || roundPrice(gold24 * 0.585),
-        silver_per_gram: silver,
+    const prices = {
+        gold_24_per_gram: gold24Row.price,
+        gold_22_per_gram: parseGenelParaPrice(data['22']) || roundPrice(gold24Row.price * 0.916),
+        gold_18_per_gram: parseGenelParaPrice(data['18']) || roundPrice(gold24Row.price * 0.75),
+        gold_14_per_gram: parseGenelParaPrice(data['14']) || roundPrice(gold24Row.price * 0.585),
+        silver_per_gram: silverRow.price,
         coin_quarter_try: parseGenelParaPrice(data.C),
         coin_half_try: parseGenelParaPrice(data.Y),
         coin_full_try: parseGenelParaPrice(data.T),
         coin_ata_try: parseGenelParaPrice(data.ATA),
         coin_cmr_try: parseGenelParaPrice(data.CMR),
     };
+
+    const trends = {
+        gold_24: gold24Row.trend,
+        silver: silverRow.trend,
+        gold_22: parseGenelParaRow(data['22'])?.trend ?? flatTrend(),
+        gold_18: parseGenelParaRow(data['18'])?.trend ?? flatTrend(),
+        gold_14: parseGenelParaRow(data['14'])?.trend ?? flatTrend(),
+        coin_quarter: parseGenelParaRow(data.C)?.trend ?? flatTrend(),
+        coin_half: parseGenelParaRow(data.Y)?.trend ?? flatTrend(),
+        coin_full: parseGenelParaRow(data.T)?.trend ?? flatTrend(),
+        coin_ata: parseGenelParaRow(data.ATA)?.trend ?? flatTrend(),
+        coin_cmr: parseGenelParaRow(data.CMR)?.trend ?? flatTrend(),
+    };
+
+    return { prices, trends };
+}
+
+function parseForexFromGenelPara(data) {
+    const codes = ['USD', 'EUR', 'GBP', 'CHF', 'SAR', 'AED'];
+    const rates = {};
+    const trends = {};
+
+    for (const code of codes) {
+        const row = parseGenelParaRow(data[code]);
+        if (row) {
+            rates[code] = row.price;
+            trends[code.toLowerCase()] = row.trend;
+        }
+    }
+
+    if (!rates.USD || !rates.EUR || !rates.GBP) {
+        return null;
+    }
+
+    return { rates, trends };
+}
+
+function parseGenelParaRow(row) {
+    const price = parseGenelParaPrice(row);
+
+    if (!price) {
+        return null;
+    }
+
+    return {
+        price,
+        trend: parseGenelParaTrend(row),
+    };
+}
+
+function parseGenelParaTrend(row) {
+    if (!row || typeof row !== 'object') {
+        return flatTrend();
+    }
+
+    const change = row.degisim != null
+        ? Number(String(row.degisim).replace(',', '.'))
+        : 0;
+
+    const rate = row.oran != null
+        ? Number(String(row.oran).replace(',', '.'))
+        : 0;
+
+    const yon = String(row.yon ?? 'moneyNat');
+
+    let direction = 'flat';
+    if (yon === 'moneyUp') {
+        direction = 'up';
+    } else if (yon === 'moneyDown') {
+        direction = 'down';
+    }
+
+    return {
+        change: Number.isFinite(change) ? roundPrice(change) : 0,
+        rate: Number.isFinite(rate) ? roundPrice(rate) : 0,
+        direction,
+    };
+}
+
+function flatTrend() {
+    return { change: 0, rate: 0, direction: 'flat' };
 }
 
 function parseGenelParaPrice(row) {
@@ -122,27 +237,57 @@ function roundPrice(value) {
     return Math.round(value * 100) / 100;
 }
 
-function mergeMetalsIntoPayload(payload, metals) {
+function mergeMetalsIntoPayload(payload, { prices, trends }) {
     const nisapGrams = Number(payload.nisap_grams) || 80;
     const fetchedAt = new Date().toISOString();
 
     return {
         ...payload,
-        ...metals,
-        nisap_threshold_try: metals.gold_24_per_gram > 0
-            ? roundPrice(nisapGrams * metals.gold_24_per_gram)
+        ...prices,
+        nisap_threshold_try: prices.gold_24_per_gram > 0
+            ? roundPrice(nisapGrams * prices.gold_24_per_gram)
             : 0,
         has_metals: true,
-        has_data: Boolean(payload.has_forex) && metals.gold_24_per_gram > 0 && metals.silver_per_gram > 0,
+        has_data: Boolean(payload.has_forex) && prices.gold_24_per_gram > 0 && prices.silver_per_gram > 0,
         metals_via_client: true,
+        trends: { ...(payload.trends ?? {}), ...trends },
         sources: {
             ...(payload.sources ?? {}),
-            metals: {
-                ...(payload.sources?.metals ?? {}),
+            genelpara: {
+                ...(payload.sources?.genelpara ?? {}),
                 name: 'GenelPara',
-                label: 'GenelPara (piyasa verisi)',
+                label: 'GenelPara (piyasa verisi, resmi kur değildir)',
                 url: 'https://www.genelpara.com',
-                fetched_at: fetchedAt,
+                metals_fetched_at: fetchedAt,
+                via_client: true,
+            },
+        },
+    };
+}
+
+function mergeForexIntoPayload(payload, { rates, trends }) {
+    const fetchedAt = new Date().toISOString();
+
+    return {
+        ...payload,
+        usd_try: rates.USD ?? payload.usd_try ?? 0,
+        eur_try: rates.EUR ?? payload.eur_try ?? 0,
+        gbp_try: rates.GBP ?? payload.gbp_try ?? 0,
+        chf_try: rates.CHF ?? payload.chf_try ?? 0,
+        sar_try: rates.SAR ?? payload.sar_try ?? 0,
+        aed_try: rates.AED ?? payload.aed_try ?? 0,
+        has_forex: Boolean(rates.USD && rates.EUR && rates.GBP),
+        has_data: Boolean(payload.has_metals) && Boolean(rates.USD && rates.EUR && rates.GBP),
+        forex_via_client: true,
+        trends: { ...(payload.trends ?? {}), ...trends },
+        sources: {
+            ...(payload.sources ?? {}),
+            genelpara: {
+                ...(payload.sources?.genelpara ?? {}),
+                name: 'GenelPara',
+                label: 'GenelPara (piyasa verisi, resmi kur değildir)',
+                url: 'https://www.genelpara.com',
+                forex_fetched_at: fetchedAt,
                 via_client: true,
             },
         },
@@ -194,6 +339,16 @@ export function formatNumber(value, locale = 'tr-TR') {
     return new Intl.NumberFormat(locale, {
         maximumFractionDigits: 2,
     }).format(amount);
+}
+
+export function formatPercent(value, locale = 'tr-TR') {
+    const amount = Number(value) || 0;
+    const sign = amount > 0 ? '+' : '';
+
+    return `${sign}${new Intl.NumberFormat(locale, {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+    }).format(amount)}%`;
 }
 
 export function parseAmount(value) {

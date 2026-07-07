@@ -1,5 +1,5 @@
 import { calculateZakat } from './calculator';
-import { fetchZakatPrices, formatMoney, resolveLocale } from './prices';
+import { fetchZakatPrices, formatMoney, formatNumber, formatPercent, resolveLocale } from './prices';
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('zakatCalculator', (config = {}) => ({
@@ -14,7 +14,11 @@ document.addEventListener('alpine:init', () => {
         forexError: false,
         faqOpen: null,
         prices: {},
+        trends: {},
         sources: {},
+        priceFlashes: {},
+        _prevPrices: {},
+        _refreshTimer: null,
         form: {
             gold24: '',
             gold22: '',
@@ -39,7 +43,6 @@ document.addEventListener('alpine:init', () => {
             debts: '',
             hawl: false,
         },
-        _refreshTimer: null,
 
         init() {
             this.restoreForm();
@@ -60,7 +63,9 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 const payload = await fetchZakatPrices();
+                this.detectPriceFlashes(payload);
                 this.prices = payload;
+                this.trends = payload.trends ?? {};
                 this.sources = payload.sources ?? {};
                 this.metalsError = !payload.has_metals;
                 this.forexError = !payload.has_forex;
@@ -70,6 +75,27 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 this.pricesLoading = false;
             }
+        },
+
+        detectPriceFlashes(payload) {
+            const keys = [
+                'gold_24_per_gram', 'silver_per_gram',
+                'usd_try', 'eur_try', 'gbp_try', 'chf_try', 'sar_try', 'aed_try',
+                'coin_quarter_try', 'coin_half_try', 'coin_full_try',
+            ];
+
+            keys.forEach((key) => {
+                const prev = this._prevPrices[key];
+                const next = payload[key];
+                if (prev != null && next != null && prev !== next) {
+                    this.priceFlashes[key] = next > prev ? 'up' : 'down';
+                    window.setTimeout(() => {
+                        delete this.priceFlashes[key];
+                    }, 600);
+                }
+            });
+
+            this._prevPrices = { ...this._prevPrices, ...payload };
         },
 
         get result() {
@@ -110,11 +136,75 @@ document.addEventListener('alpine:init', () => {
         },
 
         get showStickySummary() {
-            return this.result.totalAssets > 0 || this.result.zakatAmount > 0;
+            return this.result.zakatAmount > 0;
+        },
+
+        get nisapProgress() {
+            const threshold = this.result.nisapThreshold || this.prices.nisap_threshold_try || 0;
+            if (threshold <= 0) {
+                return 0;
+            }
+
+            return Math.min(100, Math.round((this.result.netWealth / threshold) * 100));
+        },
+
+        get forexRows() {
+            return [
+                { code: 'USD', key: 'usd_try', trendKey: 'usd', flag: 'us' },
+                { code: 'EUR', key: 'eur_try', trendKey: 'eur', flag: 'eu' },
+                { code: 'GBP', key: 'gbp_try', trendKey: 'gbp', flag: 'gb' },
+                { code: 'CHF', key: 'chf_try', trendKey: 'chf', flag: 'ch' },
+                { code: 'SAR', key: 'sar_try', trendKey: 'sar', flag: 'sa' },
+                { code: 'AED', key: 'aed_try', trendKey: 'aed', flag: 'ae' },
+            ];
+        },
+
+        get coinRows() {
+            return [
+                { label: this.labels.coin_quarter, key: 'coin_quarter_try', trendKey: 'coin_quarter' },
+                { label: this.labels.coin_half, key: 'coin_half_try', trendKey: 'coin_half' },
+                { label: this.labels.coin_full, key: 'coin_full_try', trendKey: 'coin_full' },
+            ];
         },
 
         money(value) {
             return formatMoney(value, resolveLocale(this.locale));
+        },
+
+        number(value) {
+            return formatNumber(value, resolveLocale(this.locale));
+        },
+
+        percent(value) {
+            return formatPercent(value, resolveLocale(this.locale));
+        },
+
+        trend(key) {
+            return this.trends[key] ?? { change: 0, rate: 0, direction: 'flat' };
+        },
+
+        trendClass(key) {
+            const dir = this.trend(key).direction;
+            if (dir === 'up') {
+                return 'text-emerald-600';
+            }
+            if (dir === 'down') {
+                return 'text-rose-600';
+            }
+
+            return 'text-slate-400';
+        },
+
+        flashClass(priceKey) {
+            const flash = this.priceFlashes[priceKey];
+            if (flash === 'up') {
+                return 'zakat-flash-up';
+            }
+            if (flash === 'down') {
+                return 'zakat-flash-down';
+            }
+
+            return '';
         },
 
         get donateLink() {

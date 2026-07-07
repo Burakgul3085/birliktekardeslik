@@ -5,11 +5,12 @@ namespace App\Support\Zakat;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use SimpleXMLElement;
 use Throwable;
 
 class PriceFetcher
 {
+    private const FOREX_CODES = ['USD', 'EUR', 'GBP', 'CHF', 'SAR', 'AED'];
+
     private function client(): \Illuminate\Http\Client\PendingRequest
     {
         return Http::timeout(15)
@@ -25,40 +26,47 @@ class PriceFetcher
 
     public function fetchForex(): array
     {
-        $response = $this->client()
-            ->get('https://www.tcmb.gov.tr/kurlar/today.xml');
+        $response = $this->client()->get('https://api.genelpara.com/json', [
+            'list' => 'doviz',
+            'sembol' => implode(',', self::FOREX_CODES),
+        ]);
 
         if (! $response->successful()) {
-            throw new \RuntimeException('TCMB döviz kurları alınamadı.');
+            throw new \RuntimeException('GenelPara döviz kurları alınamadı.');
         }
 
-        $xml = new SimpleXMLElement($response->body());
+        $payload = $response->json();
+
+        if (! is_array($payload) || ($payload['success'] ?? false) !== true) {
+            throw new \RuntimeException('GenelPara döviz yanıtı geçersiz.');
+        }
+
+        $data = $payload['data'] ?? [];
         $rates = [];
+        $trends = [];
 
-        foreach ($xml->Currency as $currency) {
-            $code = (string) ($currency['CurrencyCode'] ?? $currency['Kod'] ?? '');
-            if (! in_array($code, ['USD', 'EUR', 'GBP'], true)) {
-                continue;
-            }
+        foreach (self::FOREX_CODES as $code) {
+            $parsed = $this->parseGenelParaRow($data[$code] ?? null);
 
-            $selling = (string) ($currency->ForexSelling ?? $currency->BanknoteSelling ?? '0');
-            $selling = (float) str_replace(',', '.', $selling);
-
-            if ($selling > 0) {
-                $rates[$code] = round($selling, 4);
+            if ($parsed !== null) {
+                $rates[$code] = $parsed['price'];
+                $trends[strtolower($code)] = $parsed['trend'];
             }
         }
 
         if (count($rates) < 3) {
-            throw new \RuntimeException('TCMB yanıtı eksik döviz verisi içeriyor.');
+            throw new \RuntimeException('GenelPara döviz verisi eksik.');
         }
 
-        return $rates;
+        return [
+            'rates' => $rates,
+            'trends' => $trends,
+        ];
     }
 
     public function fetchMetals(): array
     {
-        foreach (['GA,GAG,22,18,14', 'all'] as $symbols) {
+        foreach (['GA,GAG,22,18,14,C,Y,T,ATA,CMR', 'all'] as $symbols) {
             $data = $this->requestGenelParaMetals($symbols);
 
             if ($data === null) {
@@ -72,7 +80,7 @@ class PriceFetcher
             }
         }
 
-        $goldData = $this->requestGenelParaMetals('GA,22,18,14');
+        $goldData = $this->requestGenelParaMetals('GA,22,18,14,C,Y,T,ATA,CMR');
         $silverData = $this->requestGenelParaMetals('GAG');
         $merged = array_merge($goldData ?? [], $silverData ?? []);
 
@@ -91,14 +99,28 @@ class PriceFetcher
 
     private function parseMetalsFromGenelPara(array $data): ?array
     {
-        $gold24 = $this->parseGenelParaPrice($data['GA'] ?? null);
-        $silver = $this->parseGenelParaPrice($data['GAG'] ?? null);
+        $gold24Row = $this->parseGenelParaRow($data['GA'] ?? null);
+        $silverRow = $this->parseGenelParaRow($data['GAG'] ?? null);
 
-        if ($gold24 === null || $silver === null) {
+        if ($gold24Row === null || $silverRow === null) {
             return null;
         }
 
-        return [
+        $gold24 = $gold24Row['price'];
+        $silver = $silverRow['price'];
+
+        $trends = [
+            'gold_24' => $gold24Row['trend'],
+            'silver' => $silverRow['trend'],
+        ];
+
+        $karatMap = [
+            'gold_22' => '22',
+            'gold_18' => '18',
+            'gold_14' => '14',
+        ];
+
+        $prices = [
             'gold_24_per_gram' => $gold24,
             'gold_22_per_gram' => $this->parseGenelParaPrice($data['22'] ?? null) ?? round($gold24 * 0.916, 2),
             'gold_18_per_gram' => $this->parseGenelParaPrice($data['18'] ?? null) ?? round($gold24 * 0.75, 2),
@@ -110,40 +132,29 @@ class PriceFetcher
             'coin_ata_try' => $this->parseGenelParaPrice($data['ATA'] ?? null) ?? 0,
             'coin_cmr_try' => $this->parseGenelParaPrice($data['CMR'] ?? null) ?? 0,
         ];
-    }
 
-    public function fetchSupplementalForex(): array
-    {
-        $response = $this->client()->get('https://api.genelpara.com/json', [
-            'list' => 'doviz',
-            'sembol' => 'CHF,SAR,AED',
-        ]);
+        $coinMap = [
+            'coin_quarter' => 'C',
+            'coin_half' => 'Y',
+            'coin_full' => 'T',
+            'coin_ata' => 'ATA',
+            'coin_cmr' => 'CMR',
+        ];
 
-        if (! $response->successful()) {
-            throw new \RuntimeException('GenelPara ek döviz kurları alınamadı.');
+        foreach ($karatMap as $trendKey => $symbol) {
+            $row = $this->parseGenelParaRow($data[$symbol] ?? null);
+            $trends[$trendKey] = $row['trend'] ?? $this->flatTrend();
         }
 
-        $payload = $response->json();
-
-        if (! is_array($payload) || ($payload['success'] ?? false) !== true) {
-            throw new \RuntimeException('GenelPara ek döviz yanıtı geçersiz.');
+        foreach ($coinMap as $trendKey => $symbol) {
+            $row = $this->parseGenelParaRow($data[$symbol] ?? null);
+            $trends[$trendKey] = $row['trend'] ?? $this->flatTrend();
         }
 
-        $data = $payload['data'] ?? [];
-        $rates = [];
-
-        foreach (['CHF', 'SAR', 'AED'] as $code) {
-            $price = $this->parseGenelParaPrice($data[$code] ?? null);
-            if ($price !== null) {
-                $rates[$code] = $price;
-            }
-        }
-
-        if (count($rates) < 3) {
-            throw new \RuntimeException('GenelPara ek döviz verisi eksik.');
-        }
-
-        return $rates;
+        return [
+            'prices' => $prices,
+            'trends' => $trends,
+        ];
     }
 
     private function requestGenelParaMetals(string $symbols): ?array
@@ -180,6 +191,58 @@ class PriceFetcher
         return is_array($data) ? $data : null;
     }
 
+    private function parseGenelParaRow(mixed $row): ?array
+    {
+        $price = $this->parseGenelParaPrice($row);
+
+        if ($price === null) {
+            return null;
+        }
+
+        return [
+            'price' => $price,
+            'trend' => $this->parseGenelParaTrend($row),
+        ];
+    }
+
+    private function parseGenelParaTrend(mixed $row): array
+    {
+        if (! is_array($row)) {
+            return $this->flatTrend();
+        }
+
+        $change = isset($row['degisim'])
+            ? (float) str_replace(',', '.', (string) $row['degisim'])
+            : 0.0;
+
+        $rate = isset($row['oran'])
+            ? (float) str_replace(',', '.', (string) $row['oran'])
+            : 0.0;
+
+        $yon = (string) ($row['yon'] ?? 'moneyNat');
+
+        $direction = match ($yon) {
+            'moneyUp' => 'up',
+            'moneyDown' => 'down',
+            default => 'flat',
+        };
+
+        return [
+            'change' => round($change, 4),
+            'rate' => round($rate, 4),
+            'direction' => $direction,
+        ];
+    }
+
+    private function flatTrend(): array
+    {
+        return [
+            'change' => 0.0,
+            'rate' => 0.0,
+            'direction' => 'flat',
+        ];
+    }
+
     private function parseGenelParaPrice(mixed $row): ?float
     {
         if (! is_array($row)) {
@@ -213,17 +276,6 @@ class PriceFetcher
             return $this->fetchMetals();
         } catch (Throwable $exception) {
             Log::warning('Zakat metals fetch failed', ['message' => $exception->getMessage()]);
-
-            return null;
-        }
-    }
-
-    public function tryFetchSupplementalForex(): ?array
-    {
-        try {
-            return $this->fetchSupplementalForex();
-        } catch (Throwable $exception) {
-            Log::warning('Zakat supplemental forex fetch failed', ['message' => $exception->getMessage()]);
 
             return null;
         }
