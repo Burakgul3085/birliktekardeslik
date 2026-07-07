@@ -9,7 +9,8 @@ document.addEventListener('alpine:init', () => {
         donateUrl: config.donateUrl ?? '/bagis-yap',
         activitiesUrl: config.activitiesUrl ?? '/faaliyetler',
         pricesLoading: true,
-        pricesError: false,
+        metalsError: false,
+        forexError: false,
         prices: {},
         sources: {},
         form: {
@@ -51,9 +52,11 @@ document.addEventListener('alpine:init', () => {
                 const payload = await fetchZakatPrices();
                 this.prices = payload;
                 this.sources = payload.sources ?? {};
-                this.pricesError = !payload.has_data;
+                this.metalsError = !payload.has_metals;
+                this.forexError = !payload.has_forex;
             } catch {
-                this.pricesError = true;
+                this.metalsError = true;
+                this.forexError = true;
             } finally {
                 this.pricesLoading = false;
             }

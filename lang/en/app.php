@@ -165,6 +165,8 @@ return [
         'live_prices'   => 'Live Prices',
         'prices_loading'=> 'Loading prices…',
         'prices_error'  => 'Live prices are currently unavailable.',
+        'metals_prices_error' => 'Gold and silver prices are currently unavailable. Last recorded data may be shown.',
+        'forex_prices_error' => 'Exchange rates are currently unavailable.',
         'source_label'  => 'Source',
         'source_forex'  => 'CBRT (Central Bank of the Republic of Türkiye)',
         'source_metals' => 'GenelPara (market data, not an official rate)',

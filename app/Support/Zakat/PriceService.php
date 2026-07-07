@@ -93,6 +93,9 @@ class PriceService
             ? $now->timestamp - (int) $stored['metals_fetched_at']
             : null;
 
+        $hasForex = ! empty($forex['USD']) && ! empty($forex['EUR']) && ! empty($forex['GBP']);
+        $hasMetals = $gold24 > 0 && (float) ($metals['silver_per_gram'] ?? 0) > 0;
+
         return [
             'gold_24_per_gram' => $gold24,
             'gold_22_per_gram' => (float) ($metals['gold_22_per_gram'] ?? 0),
@@ -121,7 +124,9 @@ class PriceService
                     'is_stale' => $metalsAge === null || $metalsAge > config('zakat.cache.metals_ttl'),
                 ],
             ],
-            'has_data' => $gold24 > 0 && ! empty($forex),
+            'has_forex' => $hasForex,
+            'has_metals' => $hasMetals,
+            'has_data' => $hasForex && $hasMetals,
         ];
     }
 }

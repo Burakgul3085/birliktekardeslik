@@ -61,12 +61,12 @@
                     </div>
 
                     <div class="space-y-4 p-5" x-show="!pricesLoading" x-cloak>
-                        <template x-if="pricesError">
-                            <p class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">{{ __('app.zakat.prices_error') }}</p>
+                        <template x-if="metalsError">
+                            <p class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">{{ __('app.zakat.metals_prices_error') }}</p>
                         </template>
 
                         <div class="space-y-3 text-sm">
-                            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3" :class="metalsError ? 'border-amber-200 bg-amber-50/40' : ''">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ __('app.zakat.gold_24') }}</p>
                                 <p class="mt-1 text-lg font-bold text-slate-900" x-text="prices.gold_24_per_gram ? money(prices.gold_24_per_gram) : '—'"></p>
                                 <p class="mt-1 text-[11px] leading-relaxed text-slate-500">
@@ -88,8 +88,11 @@
                                 </p>
                             </div>
 
-                            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3" :class="forexError ? 'border-amber-200 bg-amber-50/40' : ''">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">USD / EUR / GBP</p>
+                                <template x-if="forexError">
+                                    <p class="mt-2 text-xs text-amber-800">{{ __('app.zakat.forex_prices_error') }}</p>
+                                </template>
                                 <p class="mt-1 font-semibold text-slate-900">
                                     <span x-text="prices.usd_try ? money(prices.usd_try) : '—'"></span>
                                     <span class="text-slate-300"> · </span>

@@ -9,10 +9,20 @@ use Throwable;
 
 class PriceFetcher
 {
+    private function client(): \Illuminate\Http\Client\PendingRequest
+    {
+        return Http::timeout(15)
+            ->retry(2, 300)
+            ->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'application/json, text/xml, application/xml, */*',
+                'Accept-Language' => 'tr-TR,tr;q=0.9,en;q=0.8',
+            ]);
+    }
+
     public function fetchForex(): array
     {
-        $response = Http::timeout(12)
-            ->retry(2, 200)
+        $response = $this->client()
             ->get('https://www.tcmb.gov.tr/kurlar/today.xml');
 
         if (! $response->successful()) {
@@ -45,37 +55,21 @@ class PriceFetcher
 
     public function fetchMetals(): array
     {
-        $response = Http::timeout(12)
-            ->retry(2, 200)
-            ->get('https://api.genelpara.com/json/', [
-                'list' => 'altin',
-                'sembol' => 'GA,GAG,22,18,14',
-            ]);
+        $data = $this->requestGenelParaMetals('GA,GAG,22,18,14');
 
-        if (! $response->successful()) {
+        if ($data === null) {
+            $goldData = $this->requestGenelParaMetals('GA,22,18,14');
+            $silverData = $this->requestGenelParaMetals('GAG');
+
+            $data = array_merge($goldData ?? [], $silverData ?? []);
+        }
+
+        if ($data === []) {
             throw new \RuntimeException('Altın ve gümüş fiyatları alınamadı.');
         }
 
-        $payload = $response->json();
-        $data = $payload['data'] ?? [];
-
-        $parse = static function (mixed $row): ?float {
-            if (! is_array($row)) {
-                return null;
-            }
-
-            $satis = $row['satis'] ?? $row['alis'] ?? null;
-            if ($satis === null) {
-                return null;
-            }
-
-            $value = (float) str_replace(',', '.', (string) $satis);
-
-            return $value > 0 ? round($value, 2) : null;
-        };
-
-        $gold24 = $parse($data['GA'] ?? null);
-        $silver = $parse($data['GAG'] ?? null);
+        $gold24 = $this->parseGenelParaPrice($data['GA'] ?? null);
+        $silver = $this->parseGenelParaPrice($data['GAG'] ?? null);
 
         if ($gold24 === null || $silver === null) {
             throw new \RuntimeException('GenelPara yanıtı geçersiz metal fiyatı içeriyor.');
@@ -83,11 +77,49 @@ class PriceFetcher
 
         return [
             'gold_24_per_gram' => $gold24,
-            'gold_22_per_gram' => $parse($data['22'] ?? null) ?? round($gold24 * 0.916, 2),
-            'gold_18_per_gram' => $parse($data['18'] ?? null) ?? round($gold24 * 0.75, 2),
-            'gold_14_per_gram' => $parse($data['14'] ?? null) ?? round($gold24 * 0.585, 2),
+            'gold_22_per_gram' => $this->parseGenelParaPrice($data['22'] ?? null) ?? round($gold24 * 0.916, 2),
+            'gold_18_per_gram' => $this->parseGenelParaPrice($data['18'] ?? null) ?? round($gold24 * 0.75, 2),
+            'gold_14_per_gram' => $this->parseGenelParaPrice($data['14'] ?? null) ?? round($gold24 * 0.585, 2),
             'silver_per_gram' => $silver,
         ];
+    }
+
+    private function requestGenelParaMetals(string $symbols): ?array
+    {
+        $response = $this->client()->get('https://api.genelpara.com/json/', [
+            'list' => 'altin',
+            'sembol' => $symbols,
+        ]);
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $payload = $response->json();
+
+        if (! is_array($payload) || ($payload['success'] ?? false) !== true) {
+            return null;
+        }
+
+        $data = $payload['data'] ?? [];
+
+        return is_array($data) ? $data : null;
+    }
+
+    private function parseGenelParaPrice(mixed $row): ?float
+    {
+        if (! is_array($row)) {
+            return null;
+        }
+
+        $satis = $row['satis'] ?? $row['alis'] ?? null;
+        if ($satis === null) {
+            return null;
+        }
+
+        $value = (float) str_replace(',', '.', (string) $satis);
+
+        return $value > 0 ? round($value, 2) : null;
     }
 
     public function tryFetchForex(): ?array

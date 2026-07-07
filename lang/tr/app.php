@@ -170,6 +170,8 @@ return [
         'live_prices'   => 'Canlı Fiyatlar',
         'prices_loading'=> 'Fiyatlar yükleniyor…',
         'prices_error'  => 'Canlı fiyatlar şu an alınamıyor. Son kayıtlı veriler gösteriliyor veya hesaplama bekleniyor.',
+        'metals_prices_error' => 'Altın ve gümüş fiyatları şu an alınamıyor. Son kayıtlı veriler gösteriliyor veya hesaplama bekleniyor.',
+        'forex_prices_error' => 'Döviz kurları şu an alınamıyor.',
         'source_label'  => 'Kaynak',
         'source_forex'  => 'TCMB (Türkiye Cumhuriyet Merkez Bankası)',
         'source_metals' => 'GenelPara (piyasa verisi, resmi kur değildir)',
