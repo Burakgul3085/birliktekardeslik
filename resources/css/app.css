@@ -200,6 +200,10 @@
     animation-delay: 0.3s;
 }
 
+.chad-live-card {
+    border-top: 3px solid #0891b2;
+}
+
 .chad-live-enter {
     opacity: 0;
     transform: translateY(12px);
@@ -212,11 +216,11 @@
 }
 
 .chad-live-stat {
-    transition: transform 200ms ease;
+    transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease;
 }
 
 .chad-live-stat:hover {
-    transform: scale(1.02);
+    transform: translateY(-1px);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -163,7 +163,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'chad_live' => [
-        'title'         => '🇹🇩 Çad\'dan Anlık Bilgiler',
+        'badge'         => 'Çad',
+        'title'         => 'Çad\'dan Anlık Bilgiler',
         'subtitle'      => 'Birlikte Kardeşlik Derneği, Çad\'da insani yardım faaliyetlerini kesintisiz sürdürmektedir.',
         'weather'       => 'Hava Durumu',
         'local_time'    => 'Yerel Saat',

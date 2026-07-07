@@ -163,7 +163,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'chad_live' => [
-        'title'         => '🇹🇩 Live Updates from Chad',
+        'badge'         => 'Chad',
+        'title'         => 'Live Updates from Chad',
         'subtitle'      => 'Birlikte Kardeşlik Association continues its humanitarian aid activities in Chad without interruption.',
         'weather'       => 'Weather',
         'local_time'    => 'Local Time',
