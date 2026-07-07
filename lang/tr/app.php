@@ -218,6 +218,7 @@ return [
         'unit_price'    => 'Birim fiyat',
         'breakdown_title' => 'Varlık Dökümü',
         'print'         => 'Özeti Yazdır',
+        'print_title'   => 'Zekât Hesaplama Özeti',
         'faq_title'     => 'Sıkça Sorulan Sorular',
         'activities_title' => 'Zekâtınızı Yönlendirin',
         'activities_desc'  => 'Hesapladığınız zekâtı aşağıdaki faaliyetlerimizden birine yönlendirebilirsiniz.',

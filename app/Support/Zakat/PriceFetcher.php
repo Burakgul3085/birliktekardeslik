@@ -9,7 +9,9 @@ use Throwable;
 
 class PriceFetcher
 {
-    private const FOREX_CODES = ['USD', 'EUR', 'GBP', 'CHF', 'SAR', 'AED'];
+    private const PRIMARY_FOREX = ['USD', 'EUR', 'GBP'];
+
+    private const SUPPLEMENTAL_FOREX = ['CHF', 'SAR', 'AED'];
 
     private function client(): \Illuminate\Http\Client\PendingRequest
     {
@@ -26,9 +28,29 @@ class PriceFetcher
 
     public function fetchForex(): array
     {
+        $primary = $this->requestForexSymbols(self::PRIMARY_FOREX);
+
+        if (count($primary['rates']) < 3) {
+            throw new \RuntimeException('GenelPara döviz verisi eksik.');
+        }
+
+        $supplemental = $this->tryRequestForexSymbols(self::SUPPLEMENTAL_FOREX);
+
+        return [
+            'rates' => array_merge($primary['rates'], $supplemental['rates']),
+            'trends' => array_merge($primary['trends'], $supplemental['trends']),
+        ];
+    }
+
+    /**
+     * @param  list<string>  $codes
+     * @return array{rates: array<string, float>, trends: array<string, array{change: float, rate: float, direction: string}>}
+     */
+    private function requestForexSymbols(array $codes): array
+    {
         $response = $this->client()->get('https://api.genelpara.com/json', [
             'list' => 'doviz',
-            'sembol' => implode(',', self::FOREX_CODES),
+            'sembol' => implode(',', $codes),
         ]);
 
         if (! $response->successful()) {
@@ -41,21 +63,41 @@ class PriceFetcher
             throw new \RuntimeException('GenelPara döviz yanıtı geçersiz.');
         }
 
-        $data = $payload['data'] ?? [];
+        return $this->parseForexPayload($payload['data'] ?? [], $codes);
+    }
+
+    /**
+     * @param  list<string>  $codes
+     * @return array{rates: array<string, float>, trends: array<string, array{change: float, rate: float, direction: string}>}
+     */
+    private function tryRequestForexSymbols(array $codes): array
+    {
+        try {
+            return $this->requestForexSymbols($codes);
+        } catch (Throwable $exception) {
+            Log::warning('Zakat supplemental forex fetch failed', ['message' => $exception->getMessage()]);
+
+            return ['rates' => [], 'trends' => []];
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  list<string>  $codes
+     * @return array{rates: array<string, float>, trends: array<string, array{change: float, rate: float, direction: string}>}
+     */
+    private function parseForexPayload(array $data, array $codes): array
+    {
         $rates = [];
         $trends = [];
 
-        foreach (self::FOREX_CODES as $code) {
+        foreach ($codes as $code) {
             $parsed = $this->parseGenelParaRow($data[$code] ?? null);
 
             if ($parsed !== null) {
                 $rates[$code] = $parsed['price'];
                 $trends[strtolower($code)] = $parsed['trend'];
             }
-        }
-
-        if (count($rates) < 3) {
-            throw new \RuntimeException('GenelPara döviz verisi eksik.');
         }
 
         return [
@@ -279,5 +321,13 @@ class PriceFetcher
 
             return null;
         }
+    }
+
+    /**
+     * @return array{rates: array<string, float>, trends: array<string, array{change: float, rate: float, direction: string}>}
+     */
+    public function tryFetchSupplementalForex(): array
+    {
+        return $this->tryRequestForexSymbols(self::SUPPLEMENTAL_FOREX);
     }
 }

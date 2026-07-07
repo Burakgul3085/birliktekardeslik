@@ -29,6 +29,12 @@ class PriceService
                 $stored['forex_trends'] = $freshForex['trends'];
                 $stored['forex_fetched_at'] = $now->timestamp;
             }
+        } elseif ($this->missingSupplementalForex($stored['forex'] ?? [])) {
+            $freshSupplemental = $this->fetcher->tryFetchSupplementalForex();
+            if ($freshSupplemental['rates'] !== []) {
+                $stored['forex'] = array_merge($stored['forex'] ?? [], $freshSupplemental['rates']);
+                $stored['forex_trends'] = array_merge($stored['forex_trends'] ?? [], $freshSupplemental['trends']);
+            }
         }
 
         if ($metalsStale) {
@@ -182,5 +188,19 @@ class PriceService
         }
 
         return $raw;
+    }
+
+    /**
+     * @param  array<string, mixed>  $forex
+     */
+    private function missingSupplementalForex(array $forex): bool
+    {
+        foreach (['CHF', 'SAR', 'AED'] as $code) {
+            if (empty($forex[$code])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

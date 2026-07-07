@@ -76,19 +76,18 @@
 
     <section class="overflow-x-hidden">
         <div class="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-12">
-            <p class="mx-auto mb-8 max-w-3xl text-center text-base leading-relaxed text-slate-600 md:text-lg">
+            <p class="mx-auto mb-8 max-w-3xl text-center text-base leading-relaxed text-slate-600 md:text-lg print:hidden">
                 {{ $settings['intro'] ?? __('app.zakat.intro') }}
             </p>
 
             <div
-                id="zakat-print-area"
                 x-data="zakatCalculator(@js($zakatConfig))"
                 x-init="init()"
                 class="w-full min-w-0"
             >
                 <div class="grid w-full min-w-0 gap-8 lg:grid-cols-12">
                     {{-- Canlı piyasa paneli --}}
-                    <aside class="min-w-0 lg:col-span-4 lg:sticky lg:top-28 lg:self-start">
+                    <aside class="min-w-0 print:hidden lg:col-span-4 lg:sticky lg:top-28 lg:self-start">
                         <div class="overflow-hidden rounded-[18px] border border-slate-100 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
                             <div class="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-cyan-50/90 to-white px-5 py-4">
                                 <div class="flex items-center gap-2.5">
@@ -237,7 +236,7 @@
 
                     {{-- Hesaplama formu --}}
                     <div class="min-w-0 space-y-6 lg:col-span-8">
-                        <form @input="saveForm()" class="space-y-6">
+                        <form @input="saveForm()" class="space-y-6 print:hidden">
                             <div class="rounded-[18px] border border-slate-100 bg-white p-6 shadow-sm md:p-8">
                                 <div class="flex items-center gap-3 border-b border-amber-100 pb-4">
                                     <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
@@ -373,11 +372,19 @@
                             </label>
                         </form>
 
-                        {{-- Özet --}}
-                        <div class="rounded-[18px] border border-cyan-100 bg-gradient-to-br from-cyan-50/80 to-white p-6 shadow-sm md:p-8">
+                        {{-- Özet (yazdırma hedefi) --}}
+                        <div id="zakat-print-summary" class="rounded-[18px] border border-cyan-100 bg-gradient-to-br from-cyan-50/80 to-white p-6 shadow-sm md:p-8">
+                            <div class="mb-6 hidden border-b border-slate-200 pb-4 print:block">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Birlikte Kardeşlik Derneği</p>
+                                <h2 class="mt-1 text-xl font-bold text-slate-900">{{ __('app.zakat.print_title') }}</h2>
+                                <p class="mt-2 text-xs text-slate-500">
+                                    {{ __('app.zakat.last_update') }}:
+                                    <span x-text="formatFetchedAt(sources?.genelpara?.fetched_at)"></span>
+                                </p>
+                            </div>
                             <h2 class="text-lg font-bold text-slate-900">{{ __('app.zakat.summary_title') }}</h2>
 
-                            <div class="mt-4" x-show="prices.nisap_threshold_try > 0" x-cloak>
+                            <div class="mt-4 print:hidden" x-show="prices.nisap_threshold_try > 0" x-cloak>
                                 <div class="flex items-center justify-between text-xs text-slate-500">
                                     <span>{{ __('app.zakat.nisap_progress') }}</span>
                                     <span class="font-semibold text-cyan-700" x-text="nisapProgress + '%'"></span>
@@ -415,7 +422,7 @@
                                 </dl>
                             </div>
 
-                            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+                            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center print:hidden">
                                 <a :href="donateLink" class="btn-primary inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-semibold shadow-md sm:w-auto">
                                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                     {{ __('app.zakat.donate') }}
@@ -431,11 +438,11 @@
                                     {{ __('app.zakat.print') }}
                                 </button>
                             </div>
-                        </div>
 
-                        <div class="rounded-[18px] border border-amber-100 bg-amber-50/50 p-5 text-sm leading-relaxed text-amber-950 print:block">
-                            <p class="font-semibold">{{ __('app.zakat.legal_title') }}</p>
-                            <p class="mt-2">{{ $settings['legal_text'] ?? __('app.zakat.legal_text') }}</p>
+                            <div class="mt-6 rounded-[18px] border border-amber-100 bg-amber-50/50 p-5 text-sm leading-relaxed text-amber-950">
+                                <p class="font-semibold">{{ __('app.zakat.legal_title') }}</p>
+                                <p class="mt-2">{{ $settings['legal_text'] ?? __('app.zakat.legal_text') }}</p>
+                            </div>
                         </div>
 
                         @if (count($faqItems))
@@ -512,10 +519,24 @@
             100% { background-color: transparent; }
         }
         @media print {
+            @page { margin: 1.2cm; size: A4 portrait; }
+            body { background: #fff !important; }
+            nav, footer, #page-transition { display: none !important; }
+            main > section.relative.isolate { display: none !important; }
             body * { visibility: hidden; }
-            #zakat-print-area, #zakat-print-area * { visibility: visible; }
-            #zakat-print-area { position: absolute; left: 0; top: 0; width: 100%; }
-            aside, .print\\:hidden { display: none !important; }
+            #zakat-print-summary, #zakat-print-summary * { visibility: visible; }
+            #zakat-print-summary {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 100%;
+                border: none !important;
+                box-shadow: none !important;
+                background: #fff !important;
+                padding: 0 !important;
+            }
+            .print\\:hidden { display: none !important; visibility: hidden !important; }
         }
     </style>
 </x-layouts.app>

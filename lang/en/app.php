@@ -205,7 +205,7 @@ return [
         'coins_section' => 'Gold Coins (by piece)', 'coins_hint' => 'Live unit prices are from GenelPara.',
         'coin_quarter' => 'Quarter Gold', 'coin_half' => 'Half Gold', 'coin_full' => 'Full Gold',
         'coin_ata' => 'Ata Lira', 'coin_cmr' => 'Republic Gold', 'piece' => 'pcs', 'unit_price' => 'Unit price',
-        'breakdown_title' => 'Asset Breakdown', 'print' => 'Print Summary', 'faq_title' => 'FAQ',
+        'breakdown_title' => 'Asset Breakdown', 'print' => 'Print Summary', 'print_title' => 'Zakat Calculation Summary', 'faq_title' => 'FAQ',
         'activities_title' => 'Direct Your Zakat', 'activities_desc' => 'You can direct your zakat to one of our activities below.',
         'sticky_estimate' => 'Estimated Zakat',
         'breakdown_gold24' => '24K Gold', 'breakdown_gold22' => '22K Gold', 'breakdown_gold18' => '18K Gold', 'breakdown_gold14' => '14K Gold',

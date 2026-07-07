@@ -38,7 +38,12 @@ async function ensurePrices(payload) {
         }
     }
 
-    if (!result.has_forex) {
+    const needsForex = !result.has_forex
+        || !result.chf_try
+        || !result.sar_try
+        || !result.aed_try;
+
+    if (needsForex) {
         const clientForex = await fetchGenelParaForexFromClient();
         if (clientForex) {
             result = mergeForexIntoPayload(result, clientForex);
@@ -87,10 +92,24 @@ async function fetchGenelParaMetalsFromClient() {
 }
 
 async function fetchGenelParaForexFromClient() {
+    const primary = await requestForexFromClient(['USD', 'EUR', 'GBP']);
+    const supplemental = await requestForexFromClient(['CHF', 'SAR', 'AED']);
+
+    if (!primary && !supplemental) {
+        return null;
+    }
+
+    return {
+        rates: { ...(primary?.rates ?? {}), ...(supplemental?.rates ?? {}) },
+        trends: { ...(primary?.trends ?? {}), ...(supplemental?.trends ?? {}) },
+    };
+}
+
+async function requestForexFromClient(codes) {
     try {
         const url = `${GENELPARA_URL}?${new URLSearchParams({
             list: 'doviz',
-            sembol: 'USD,EUR,GBP,CHF,SAR,AED',
+            sembol: codes.join(','),
         }).toString()}`;
 
         const response = await fetch(url, {
@@ -108,7 +127,7 @@ async function fetchGenelParaForexFromClient() {
             return null;
         }
 
-        return parseForexFromGenelPara(payload.data);
+        return parseForexFromGenelPara(payload.data, codes);
     } catch {
         return null;
     }
@@ -151,8 +170,7 @@ function parseMetalsFromGenelPara(data) {
     return { prices, trends };
 }
 
-function parseForexFromGenelPara(data) {
-    const codes = ['USD', 'EUR', 'GBP', 'CHF', 'SAR', 'AED'];
+function parseForexFromGenelPara(data, codes = ['USD', 'EUR', 'GBP', 'CHF', 'SAR', 'AED']) {
     const rates = {};
     const trends = {};
 
@@ -164,7 +182,11 @@ function parseForexFromGenelPara(data) {
         }
     }
 
-    if (!rates.USD || !rates.EUR || !rates.GBP) {
+    if (Object.keys(rates).length === 0) {
+        return null;
+    }
+
+    if (codes.includes('USD') && (!rates.USD || !rates.EUR || !rates.GBP)) {
         return null;
     }
 
