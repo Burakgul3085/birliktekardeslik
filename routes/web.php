@@ -3,6 +3,7 @@
 use App\Http\Controllers\ZakatController;
 use App\Http\Controllers\IslamicFinanceController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\CrmDocumentController;
 use App\Http\Controllers\Crm\PosterController;
 use App\Http\Controllers\NewsletterController;
@@ -41,6 +42,9 @@ Route::post('/gonullu-ol', [HomeController::class, 'submitVolunteer'])->name('vo
 Route::post('/ebulten/kayit', [NewsletterController::class, 'subscribe'])
     ->middleware('throttle:30,1')
     ->name('newsletter.subscribe');
+Route::post('/destekci-deneyimi', [TestimonialController::class, 'store'])
+    ->middleware('throttle:3,60')
+    ->name('testimonials.store');
 Route::get('/ebulten/iptal/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 Route::get('/sayfa/{slug}', [HomeController::class, 'page'])->name('pages.show');
 

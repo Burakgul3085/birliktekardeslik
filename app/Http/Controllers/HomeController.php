@@ -10,6 +10,7 @@ use App\Models\News;
 use App\Models\Page;
 use App\Models\Project;
 use App\Models\Setting;
+use App\Models\Testimonial;
 use App\Models\VolunteerApplication;
 use App\Support\DonationQrService;
 use App\Support\Mailer;
@@ -60,6 +61,12 @@ class HomeController extends Controller
             'activitySection' => ActivitySectionSetting::current(),
             'newsItems' => News::query()->active()->latest('published_at')->get(),
             'bankAccounts' => BankAccount::query()->active()->orderBy('sort_order')->get(),
+            'testimonials' => Testimonial::query()
+                ->approved()
+                ->orderByDesc('approved_at')
+                ->orderByDesc('created_at')
+                ->get(),
+            'testimonialStats' => Testimonial::approvedStats(),
         ]);
     }
 

@@ -1,6 +1,7 @@
 import './bootstrap';
 import './chad-live-info/index.js';
 import './zakat/app.js';
+import './testimonials/index.js';
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;

@@ -364,6 +364,8 @@
         @endif
     </section>
 
+    <x-home-testimonials :testimonials="$testimonials" :testimonial-stats="$testimonialStats" />
+
     <style>
         @keyframes activityMarquee {
             0%   { transform: translateX(0); }
