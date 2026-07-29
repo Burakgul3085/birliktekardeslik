@@ -1,8 +1,13 @@
-const PREFIX = 'bkd_chad_';
+const PREFIX = 'bkd_live_';
 
-export function getCacheEntry(key) {
+/* Her ülke kendi ad alanında saklanır, böylece veriler birbirine karışmaz */
+function buildKey(namespace, key) {
+    return `${PREFIX}${namespace}_${key}`;
+}
+
+export function getCacheEntry(namespace, key) {
     try {
-        const raw = localStorage.getItem(PREFIX + key);
+        const raw = localStorage.getItem(buildKey(namespace, key));
         if (!raw) {
             return null;
         }
@@ -13,13 +18,13 @@ export function getCacheEntry(key) {
     }
 }
 
-export function getCachedValue(key) {
-    return getCacheEntry(key)?.value ?? null;
+export function getCachedValue(namespace, key) {
+    return getCacheEntry(namespace, key)?.value ?? null;
 }
 
-export function setCache(key, value) {
+export function setCache(namespace, key, value) {
     try {
-        localStorage.setItem(PREFIX + key, JSON.stringify({
+        localStorage.setItem(buildKey(namespace, key), JSON.stringify({
             value,
             fetchedAt: Date.now(),
         }));
@@ -28,8 +33,8 @@ export function setCache(key, value) {
     }
 }
 
-export function isExpired(key, ttlMs) {
-    const entry = getCacheEntry(key);
+export function isExpired(namespace, key, ttlMs) {
+    const entry = getCacheEntry(namespace, key);
     if (!entry?.fetchedAt) {
         return true;
     }

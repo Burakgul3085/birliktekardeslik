@@ -1,4 +1,4 @@
-const TIMEZONE = 'Africa/Ndjamena';
+export const DEFAULT_TIMEZONE = 'Africa/Ndjamena';
 
 const localeMap = {
     tr: 'tr-TR',
@@ -11,18 +11,19 @@ export function resolveLocale(locale) {
     return localeMap[locale] ?? 'tr-TR';
 }
 
-export function formatLocalTime(locale = 'tr') {
+export function formatLocalTime(locale = 'tr', timezone = DEFAULT_TIMEZONE) {
     return new Intl.DateTimeFormat(resolveLocale(locale), {
-        timeZone: TIMEZONE,
+        timeZone: timezone,
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
     }).format(new Date());
 }
 
-export function getChadMinutesSinceMidnight() {
+/* Verilen saat diliminde gün başından bu yana geçen dakika sayısı */
+export function getMinutesSinceMidnight(timezone = DEFAULT_TIMEZONE) {
     const parts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: TIMEZONE,
+        timeZone: timezone,
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,

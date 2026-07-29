@@ -1,12 +1,21 @@
 import { getCachedValue, isExpired, setCache } from './cache';
 import { fetchAladhanData, localizeHijri, localizePrayer } from './prayer';
-import { formatLocalTime } from './time';
+import { DEFAULT_TIMEZONE, formatLocalTime } from './time';
 import { fetchWeather } from './weather';
 
 const TTL = {
     weather: 30 * 60 * 1000,
     hijri: 24 * 60 * 60 * 1000,
     prayer: 12 * 60 * 60 * 1000,
+};
+
+/* Konum bilgisi verilmezse Çad varsayılan olarak kullanılır */
+const DEFAULT_LOCATION = {
+    cacheKey: 'chad',
+    latitude: 12.1067,
+    longitude: 15.0444,
+    timezone: DEFAULT_TIMEZONE,
+    prayerMethod: 4,
 };
 
 document.addEventListener('alpine:init', () => {
@@ -18,6 +27,7 @@ document.addEventListener('alpine:init', () => {
         prayerNames: config.prayerNames ?? {},
         hijriMonths: config.hijriMonths ?? {},
         donateUrl: config.donateUrl ?? '/bagis-yap',
+        location: { ...DEFAULT_LOCATION, ...(config.location ?? {}) },
         weather: null,
         weatherError: false,
         localTime: '--',
@@ -42,6 +52,10 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        get cacheKey() {
+            return this.location.cacheKey;
+        },
+
         async bootstrap() {
             this.loading = true;
             this.applyWeatherFromCache();
@@ -62,10 +76,10 @@ document.addEventListener('alpine:init', () => {
             this.tickClock();
 
             const tasks = [];
-            if (isExpired('weather', TTL.weather)) {
+            if (isExpired(this.cacheKey, 'weather', TTL.weather)) {
                 tasks.push(this.loadWeather());
             }
-            if (isExpired('hijri', TTL.hijri) || isExpired('prayer', TTL.prayer)) {
+            if (isExpired(this.cacheKey, 'hijri', TTL.hijri) || isExpired(this.cacheKey, 'prayer', TTL.prayer)) {
                 tasks.push(this.loadAladhan());
             }
 
@@ -75,11 +89,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         tickClock() {
-            this.localTime = formatLocalTime(this.locale);
+            this.localTime = formatLocalTime(this.locale, this.location.timezone);
         },
 
         applyWeatherFromCache() {
-            const cached = getCachedValue('weather');
+            const cached = getCachedValue(this.cacheKey, 'weather');
             if (cached?.temperature != null) {
                 this.weather = `${cached.temperature}°C`;
                 this.weatherError = false;
@@ -87,14 +101,14 @@ document.addEventListener('alpine:init', () => {
         },
 
         applyHijriFromCache() {
-            const cached = getCachedValue('hijri');
+            const cached = getCachedValue(this.cacheKey, 'hijri');
             if (cached) {
                 this.hijri = localizeHijri(cached, this.hijriMonths);
             }
         },
 
         applyPrayerFromCache() {
-            const cached = getCachedValue('prayer');
+            const cached = getCachedValue(this.cacheKey, 'prayer');
             if (cached) {
                 const localized = localizePrayer(cached, this.prayerNames);
                 this.prayerName = localized.name;
@@ -103,18 +117,18 @@ document.addEventListener('alpine:init', () => {
         },
 
         async loadWeather() {
-            if (!isExpired('weather', TTL.weather)) {
+            if (!isExpired(this.cacheKey, 'weather', TTL.weather)) {
                 this.applyWeatherFromCache();
                 return;
             }
 
             try {
-                const data = await fetchWeather();
-                setCache('weather', data);
+                const data = await fetchWeather(this.location);
+                setCache(this.cacheKey, 'weather', data);
                 this.weather = `${data.temperature}°C`;
                 this.weatherError = false;
             } catch {
-                const cached = getCachedValue('weather');
+                const cached = getCachedValue(this.cacheKey, 'weather');
                 if (cached?.temperature != null) {
                     this.weather = `${cached.temperature}°C`;
                     this.weatherError = false;
@@ -126,8 +140,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         async loadAladhan() {
-            const hijriFresh = !isExpired('hijri', TTL.hijri);
-            const prayerFresh = !isExpired('prayer', TTL.prayer);
+            const hijriFresh = !isExpired(this.cacheKey, 'hijri', TTL.hijri);
+            const prayerFresh = !isExpired(this.cacheKey, 'prayer', TTL.prayer);
 
             if (hijriFresh && prayerFresh) {
                 this.applyHijriFromCache();
@@ -136,15 +150,15 @@ document.addEventListener('alpine:init', () => {
             }
 
             try {
-                const data = await fetchAladhanData();
+                const data = await fetchAladhanData(this.location);
 
-                if (!hijriFresh || !getCachedValue('hijri')) {
-                    setCache('hijri', data.hijri);
+                if (!hijriFresh || !getCachedValue(this.cacheKey, 'hijri')) {
+                    setCache(this.cacheKey, 'hijri', data.hijri);
                     this.hijri = localizeHijri(data.hijri, this.hijriMonths);
                 }
 
-                if (!prayerFresh || !getCachedValue('prayer')) {
-                    setCache('prayer', data.nextPrayer);
+                if (!prayerFresh || !getCachedValue(this.cacheKey, 'prayer')) {
+                    setCache(this.cacheKey, 'prayer', data.nextPrayer);
                     const localized = localizePrayer(data.nextPrayer, this.prayerNames);
                     this.prayerName = localized.name;
                     this.prayerTime = localized.time;
@@ -153,10 +167,10 @@ document.addEventListener('alpine:init', () => {
                 this.applyHijriFromCache();
                 this.applyPrayerFromCache();
 
-                if (!getCachedValue('hijri')) {
+                if (!getCachedValue(this.cacheKey, 'hijri')) {
                     this.hijri = '--';
                 }
-                if (!getCachedValue('prayer')) {
+                if (!getCachedValue(this.cacheKey, 'prayer')) {
                     this.prayerName = '--';
                     this.prayerTime = '--';
                 }

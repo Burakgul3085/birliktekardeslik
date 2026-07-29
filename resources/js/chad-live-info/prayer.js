@@ -1,11 +1,28 @@
-import { getChadMinutesSinceMidnight, parsePrayerTime } from './time';
+import { DEFAULT_TIMEZONE, getMinutesSinceMidnight, parsePrayerTime } from './time';
 
-const ALADHAN_URL = 'https://api.aladhan.com/v1/timings?latitude=12.1067&longitude=15.0444&method=4';
+const DEFAULT_LOCATION = {
+    latitude: 12.1067,
+    longitude: 15.0444,
+    timezone: DEFAULT_TIMEZONE,
+    prayerMethod: 4,
+};
 
 const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-export async function fetchAladhanData() {
-    const response = await fetch(ALADHAN_URL, {
+function buildUrl({ latitude, longitude, prayerMethod }) {
+    const params = new URLSearchParams({
+        latitude: String(latitude),
+        longitude: String(longitude),
+        method: String(prayerMethod),
+    });
+
+    return `https://api.aladhan.com/v1/timings?${params.toString()}`;
+}
+
+export async function fetchAladhanData(location = {}) {
+    const target = { ...DEFAULT_LOCATION, ...location };
+
+    const response = await fetch(buildUrl(target), {
         method: 'GET',
         headers: { Accept: 'application/json' },
     });
@@ -24,7 +41,7 @@ export async function fetchAladhanData() {
     return {
         hijri: formatHijri(data.date.hijri),
         hijriRaw: data.date.hijri,
-        nextPrayer: resolveNextPrayer(data.timings),
+        nextPrayer: resolveNextPrayer(data.timings, target.timezone),
     };
 }
 
@@ -51,8 +68,8 @@ export function localizeHijri(hijriRaw, hijriMonths = {}) {
     return `${hijriRaw.day} ${monthName} ${hijriRaw.year}`.trim();
 }
 
-function resolveNextPrayer(timings) {
-    const now = getChadMinutesSinceMidnight();
+function resolveNextPrayer(timings, timezone = DEFAULT_TIMEZONE) {
+    const now = getMinutesSinceMidnight(timezone);
 
     for (const key of PRAYER_KEYS) {
         const time = timings[key];
