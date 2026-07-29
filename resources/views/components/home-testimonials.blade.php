@@ -35,7 +35,7 @@
 
 <section
     id="destekci-deneyimleri"
-    class="pt-16"
+    class="pt-16 pb-16 md:pt-20 md:pb-24"
     aria-labelledby="testimonials-heading"
     x-data="testimonialModal(@js($modalConfig))"
     @keydown.window="handleKeydown($event)"
@@ -89,7 +89,8 @@
                 aria-label="{{ __('app.home.testimonials_title') }}"
             >
                 <div class="overflow-hidden">
-                    <div class="flex transition-transform duration-500 ease-out" :style="trackStyle">
+                    {{-- Tek yorum varsa kart ortalanır, aksi halde kaydırma düzeni korunur --}}
+                    <div class="flex transition-transform duration-500 ease-out {{ $testimonials->count() === 1 ? 'justify-center' : '' }}" :style="trackStyle">
                         @foreach ($testimonials as $testimonial)
                             @php
                                 $date = $testimonial->approved_at ?? $testimonial->created_at;
@@ -177,24 +178,51 @@
                     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
                 </script>
             @endif
+            {{-- Kapanış çağrısı: deneyim paylaşma paneli --}}
+            <div class="relative mt-12 overflow-hidden rounded-[26px] border border-slate-200/70 bg-white shadow-[0_18px_44px_-30px_rgba(15,23,42,0.3)] md:mt-14">
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-rose-50/70 via-white to-cyan-50/60" aria-hidden="true"></div>
+                <div class="relative flex flex-col items-center gap-6 px-6 py-8 text-center md:flex-row md:justify-between md:gap-10 md:px-10 md:py-9 md:text-start">
+                    <div class="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-5">
+                        <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-100/90 text-xl shadow-sm" aria-hidden="true">❤️</span>
+                        <div class="max-w-xl">
+                            <h3 class="text-lg font-bold tracking-tight text-slate-900 md:text-xl">
+                                {{ __('app.home.testimonials_form_title') }}
+                            </h3>
+                            <p class="mt-1.5 text-sm leading-relaxed text-slate-600">
+                                {{ __('app.home.testimonials_empty_desc') }}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        @click="openModal()"
+                        class="group inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition duration-300 hover:-translate-y-0.5 hover:from-rose-700 hover:to-rose-600 hover:shadow-xl hover:shadow-rose-500/30"
+                    >
+                        <span>{{ __('app.home.testimonials_share_cta') }}</span>
+                        <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         @else
-            <div class="mt-8 rounded-[20px] border border-dashed border-cyan-200 bg-gradient-to-br from-cyan-50/40 to-white px-6 py-12 text-center shadow-sm">
+            {{-- Henüz yorum yok: boş durum ve doğrudan paylaşım çağrısı --}}
+            <div class="mt-10 rounded-[26px] border border-dashed border-cyan-200 bg-gradient-to-br from-cyan-50/50 to-white px-6 py-12 text-center shadow-sm md:py-14">
                 <p class="text-4xl" aria-hidden="true">❤️</p>
-                <p class="mt-4 text-lg font-semibold text-slate-800">{{ __('app.home.testimonials_empty_title') }}</p>
-                <p class="mt-2 text-sm text-slate-600">{{ __('app.home.testimonials_empty_desc') }}</p>
+                <p class="mt-4 text-lg font-semibold text-slate-800 md:text-xl">{{ __('app.home.testimonials_empty_title') }}</p>
+                <p class="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-slate-600">{{ __('app.home.testimonials_empty_desc') }}</p>
+                <button
+                    type="button"
+                    @click="openModal()"
+                    class="group mt-7 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition duration-300 hover:-translate-y-0.5 hover:from-rose-700 hover:to-rose-600 hover:shadow-xl hover:shadow-rose-500/30"
+                >
+                    <span>{{ __('app.home.testimonials_share_cta') }}</span>
+                    <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
             </div>
         @endif
-
-        <div class="mt-8 flex justify-center">
-            <button
-                type="button"
-                @click="openModal()"
-                class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-7 py-3 text-sm font-semibold text-rose-800 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100"
-            >
-                <span aria-hidden="true">❤️</span>
-                {{ __('app.home.testimonials_share_cta') }}
-            </button>
-        </div>
     </div>
 
     {{-- Modal --}}
