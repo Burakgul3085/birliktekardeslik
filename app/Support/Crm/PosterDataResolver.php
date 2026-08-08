@@ -23,7 +23,9 @@ class PosterDataResolver
             'soyad' => 'Bağışçı soyadı',
             'ad_soyad' => 'Bağışçı ad soyad',
             'telefon' => 'Telefon',
-            'tarih' => 'Bağış tarihi',
+            'tarih' => 'Tarih (faaliyet tarihi varsa o, yoksa bağış tarihi)',
+            'bagis_tarihi' => 'Bağış tarihi',
+            'faaliyet_tarihi' => 'Faaliyet tarihi',
             'faaliyet' => 'Proje / Faaliyet',
             'bagis_turu' => 'Bağış türü',
             'bagis_tutari' => 'Bağış tutarı',
@@ -50,7 +52,13 @@ class PosterDataResolver
 
         $amount = number_format((float) $donation->amount, 2, ',', '.');
         $currency = (string) ($donation->currency ?? 'TRY');
-        $date = $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y');
+
+        $donationDate = $donation->donated_at?->format('d.m.Y') ?? now()->format('d.m.Y');
+        $activityDate = $donation->activity_date?->format('d.m.Y') ?? '';
+
+        /* Afişte faaliyet tarihi öncelikli; girilmemişse bağış tarihine düşülür */
+        $date = $activityDate !== '' ? $activityDate : $donationDate;
+
         $faaliyet = $donation->project?->title ?? ($donation->donationType?->name ?? '');
 
         $data = [
@@ -59,6 +67,8 @@ class PosterDataResolver
             'ad_soyad' => $donation->donor?->full_name ?? '',
             'telefon' => $donation->donor?->phone ?? '',
             'tarih' => $date,
+            'bagis_tarihi' => $donationDate,
+            'faaliyet_tarihi' => $activityDate,
             'faaliyet' => $faaliyet,
             'bagis_turu' => $donation->donationType?->name ?? '',
             'bagis_tutari' => $amount,

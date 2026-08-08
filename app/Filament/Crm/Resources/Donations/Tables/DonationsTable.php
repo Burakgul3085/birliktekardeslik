@@ -23,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 
 class DonationsTable
 {
@@ -82,8 +83,13 @@ class DonationsTable
                     ->money(fn ($record) => $record->currency ?? 'TRY')
                     ->sortable(),
                 TextColumn::make('donated_at')
-                    ->label('Tarih')
+                    ->label('Bağış Tarihi')
                     ->dateTime('d.m.Y H:i')
+                    ->sortable(),
+                TextColumn::make('activity_date')
+                    ->label('Faaliyet Tarihi')
+                    ->date('d.m.Y')
+                    ->placeholder('Belirtilmedi')
                     ->sortable(),
                 TextColumn::make('creator.name')
                     ->label('Kaydeden')
@@ -107,6 +113,59 @@ class DonationsTable
                             $data['from'] ?? null,
                             $data['until'] ?? null,
                         );
+                    }),
+                Filter::make('activity_date')
+                    ->label('Faaliyet Tarihi')
+                    ->form([
+                        Select::make('state')
+                            ->label('Durum')
+                            ->placeholder('Tümü')
+                            ->options([
+                                'set' => 'Faaliyet tarihi girilmiş',
+                                'missing' => 'Faaliyet tarihi girilmemiş',
+                            ]),
+                        DatePicker::make('from')->label('Başlangıç'),
+                        DatePicker::make('until')->label('Bitiş'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                ($data['state'] ?? null) === 'set',
+                                fn (Builder $q) => $q->whereNotNull('activity_date'),
+                            )
+                            ->when(
+                                ($data['state'] ?? null) === 'missing',
+                                fn (Builder $q) => $q->whereNull('activity_date'),
+                            )
+                            ->when(
+                                $data['from'] ?? null,
+                                fn (Builder $q, $from) => $q->whereDate('activity_date', '>=', $from),
+                            )
+                            ->when(
+                                $data['until'] ?? null,
+                                fn (Builder $q, $until) => $q->whereDate('activity_date', '<=', $until),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if (($data['state'] ?? null) === 'set') {
+                            $indicators[] = 'Faaliyet tarihi girilmiş';
+                        }
+
+                        if (($data['state'] ?? null) === 'missing') {
+                            $indicators[] = 'Faaliyet tarihi girilmemiş';
+                        }
+
+                        if (filled($data['from'] ?? null)) {
+                            $indicators[] = 'Faaliyet başlangıç: ' . Carbon::parse($data['from'])->format('d.m.Y');
+                        }
+
+                        if (filled($data['until'] ?? null)) {
+                            $indicators[] = 'Faaliyet bitiş: ' . Carbon::parse($data['until'])->format('d.m.Y');
+                        }
+
+                        return $indicators;
                     }),
                 SelectFilter::make('donation_type_id')
                     ->label('Bağış Türü')
@@ -211,6 +270,42 @@ class DonationsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('setActivityDate')
+                        ->label('Seçilenlere faaliyet tarihi ata')
+                        ->icon('heroicon-o-calendar-days')
+                        ->color('primary')
+                        ->visible(fn (): bool => auth('crm')->user()?->canWriteDonations() ?? false)
+                        ->modalHeading('Faaliyet tarihi ata')
+                        ->modalDescription('Seçili bağışların afişlerinde bu tarih yazacak. Bağış tarihleri değişmez.')
+                        ->modalSubmitActionLabel('Uygula')
+                        ->schema([
+                            DatePicker::make('activity_date')
+                                ->label('Faaliyet Tarihi')
+                                ->required()
+                                ->default(now())
+                                ->helperText('Yardımın sahada gerçekleştirildiği tarih.'),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            if ($records->isEmpty()) {
+                                Notification::make()
+                                    ->title('Lütfen en az bir bağış seçin')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $updated = Donation::query()
+                                ->whereIn('id', $records->pluck('id'))
+                                ->update(['activity_date' => $data['activity_date']]);
+
+                            Notification::make()
+                                ->title($updated . ' bağışın faaliyet tarihi güncellendi')
+                                ->body('Afişlerde yeni tarihin görünmesi için ilgili afişleri yeniden oluşturmanız gerekir.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                     BulkAction::make('exportExcel')
                         ->label('Seçilenleri Excel\'e aktar')
                         ->icon('heroicon-o-arrow-down-tray')

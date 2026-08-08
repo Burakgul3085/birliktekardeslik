@@ -19,6 +19,7 @@ class Donation extends Model
         'amount',
         'currency',
         'donated_at',
+        'activity_date',
         'description',
         'notes',
     ];
@@ -26,6 +27,7 @@ class Donation extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'donated_at' => 'datetime',
+        'activity_date' => 'date',
     ];
 
     public function donor(): BelongsTo

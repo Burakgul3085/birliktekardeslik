@@ -10,6 +10,7 @@ use App\Models\PaymentMethod;
 use App\Models\Project;
 use App\Support\Crm\LookupDeletionGuard;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -135,7 +136,11 @@ class DonationForm
                 DateTimePicker::make('donated_at')
                     ->label('Bağış Tarihi')
                     ->default(now())
-                    ->required(),
+                    ->required()
+                    ->helperText('Bağışın alındığı tarih. Makbuzda bu tarih görünür.'),
+                DatePicker::make('activity_date')
+                    ->label('Faaliyet Tarihi')
+                    ->helperText('Yardımın sahada gerçekleştirildiği tarih. Afişte bu tarih yazar; boş bırakılırsa bağış tarihi kullanılır.'),
                 TextInput::make('donation_number')
                     ->label('Bağış No')
                     ->disabled()

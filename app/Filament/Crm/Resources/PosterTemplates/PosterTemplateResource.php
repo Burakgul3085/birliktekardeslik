@@ -89,7 +89,7 @@ class PosterTemplateResource extends Resource
                 Textarea::make('thanks_text_template')
                     ->label('Teşekkür metni kalıbı')
                     ->rows(5)
-                    ->helperText('Yer tutucu kullanabilirsiniz: {ad_soyad}, {faaliyet}, {tarih}, {tutar_birimli}. Boş bırakırsanız varsayılan metin kullanılır.')
+                    ->helperText('Yer tutucu kullanabilirsiniz: {ad_soyad}, {faaliyet}, {tarih}, {faaliyet_tarihi}, {bagis_tarihi}, {tutar_birimli}. {tarih} faaliyet tarihi girilmişse onu, girilmemişse bağış tarihini yazar. Boş bırakırsanız varsayılan metin kullanılır.')
                     ->visible(fn (callable $get): bool => $get('type') === PosterTemplate::TYPE_THANKS)
                     ->placeholder((new PosterDataResolver())->defaultThanksTemplate())
                     ->columnSpanFull(),
