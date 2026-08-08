@@ -63,7 +63,7 @@ class PosterController extends Controller
 
         $poster->loadMissing(['donation.donor', 'template']);
         $template = $poster->template;
-        $data = app(PosterDataResolver::class)->resolve($poster->donation, $template);
+        $data = app(PosterDataResolver::class)->resolve($poster->donation, $template, $poster->type);
 
         $layout = $poster->layout_snapshot;
         if (empty($layout) && $template) {

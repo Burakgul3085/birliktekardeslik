@@ -175,7 +175,7 @@ class PostersRelationManager extends RelationManager
             return null;
         }
 
-        $data = app(PosterDataResolver::class)->resolve($donation, $template);
+        $data = app(PosterDataResolver::class)->resolve($donation, $template, $type);
 
         return [
             'donationId' => $donation->id,

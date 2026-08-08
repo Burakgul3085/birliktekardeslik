@@ -33,6 +33,7 @@ class PosterDataResolver
             'tutar_birimli' => 'Tutar + para birimi',
             'bagis_no' => 'Bağış no',
             'makbuz_no' => 'Makbuz no',
+            'afis_no' => 'Afiş no',
             'not' => 'Bağış notu (açıklama)',
             'tesekkur_metni' => 'Teşekkür metni (otomatik)',
             'dernek_adi' => 'Dernek adı',
@@ -44,9 +45,12 @@ class PosterDataResolver
      *
      * @return array<string, string>
      */
-    public function resolve(Donation $donation, ?PosterTemplate $template = null): array
+    public function resolve(Donation $donation, ?PosterTemplate $template = null, ?string $posterType = null): array
     {
         $donation->loadMissing(['donor', 'donationType', 'project']);
+
+        /* Şablon silinmiş afişlerde tür şablondan okunamaz, çağıran taraf iletir */
+        $posterType ??= $template?->type;
 
         $settings = Setting::current();
 
@@ -76,6 +80,7 @@ class PosterDataResolver
             'tutar_birimli' => trim($amount . ' ' . $currency),
             'bagis_no' => (string) ($donation->donation_number ?? ''),
             'makbuz_no' => (string) ($donation->receipt_number ?? $donation->donation_number ?? ''),
+            'afis_no' => PosterNumberResolver::for($donation, $posterType),
             'not' => (string) ($donation->description ?? ''),
             'dernek_adi' => (string) ($settings->site_title ?? 'Birlikte Kardeşlik Derneği'),
         ];
